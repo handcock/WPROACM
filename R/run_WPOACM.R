@@ -8,10 +8,10 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' run_sw()
+#' run_WPROACM()
 #' }
 #'
 #'
-run_sw <- function() {
+run_WPROACM <- function() {
   shiny::runApp(system.file("shiny/WPROACM", package = "WPROACM"))
 }

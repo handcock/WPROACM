@@ -21,8 +21,8 @@ tabPanel(title=span('WPROACM', id="sWtitle"),
           column(2,
                  actionButton("aboutButton", label = "About WPROACM",
                               class = "btn active"),
-                 actionButton("citeButton", label = "Citing WPROACM",
-                              class = "btn"),
+    #            actionButton("citeButton", label = "Citing WPROACM",
+    #                         class = "btn"),
                  actionButton('startButton', label='Get Started',
                               class="btn btn-primary")
           ),
@@ -54,13 +54,13 @@ tabPanel(title=span('WPROACM', id="sWtitle"),
           div(id="citebox",
             tabsetPanel(
               tabPanel("BibTeX",
-p(strong("statnet")),
-tags$pre(id='scitation','@Manual{handcock:statnet,
-  title = {WPROACM: Software tools for the Statistical Modeling of Network Data},
-  author = {Mark S. Handcock and David R. Hunter and Carter T. Butts and Steven M. Goodreau and Martina Morris},
-  year = {2003},
-  address = {Seattle, WA},
-  url = {http://statnet.org/}
+p(strong("WPROACM")),
+tags$pre(id='scitation','@Manual{handcock:WPROACM,
+  title = {WPROACM: Software tools for the Statistical Analysis of Excess Mortality from All Cause Mortality Data
+  author = {Mark S. Handcock},
+  year = {2021},
+  address = {Los Angeles, CA},
+  url = {http://hpmrg.org/}
 }'),
 
 p(strong("WPROACM")),
@@ -148,91 +148,35 @@ tabPanel(title='Data', value='tab2',
 fluidRow(
   column(7,
     tabsetPanel(id='datatabs',
-      tabPanel('Upload Network', br(),
+      tabPanel('Upload All Cause Mortality data', br(),
          wellPanel(
            fluidRow(
              column(6,
                     selectInput('filetype',label='File type',
-                                 choices=c('built-in network'= 5,
-                                           'statnet network object (*.rds)' = 1,
-                                           'matrix of relational data (*.csv or *.rds)' = 4,
-                                           'Pajek network (*.net)' = 2,
-                                           'Pajek project (*.paj)' = 3))
+                                 choices=c(
+                                           'CSV spreadsheet of All Cause Mortality data (*.csv)' = 1,
+                                           'built-in example All Cause Mortality data'= 2
+                                          )
                     ),
-             conditionalPanel(condition = 'input.filetype < 5',
+             conditionalPanel(condition = 'input.filetype < 2',
                column(6,
                     br(),
                     fileInput(inputId='rawdatafile', label=NULL, accept='text'),
                     verbatimTextOutput('rawdatafile'))
                 ),
-             conditionalPanel(condition = 'input.filetype == 5',
+             conditionalPanel(condition = 'input.filetype == 2',
                 column(6,
                     br(style="line-height:26px;"),
                     selectizeInput('samplenet', label=NULL,
-                                choices=c("Choose a network" = '', 
-                                          #'ecoli1', 'ecoli2',
-                                          'faux.mesa.high','flobusiness',
-                                          'flomarriage', 'kapferer', 'kapferer2',
-                                          'molecule', 'samplike', 'samplk1',
-                                          'samplk2', 'samplk3'))
+                                choices=c("Choose a country" = '', 
+                                          'Australia','Japan',
+                                          'South Korea', 'New Zealand', 'Philippines'))
                 )
                )
              ),
-           fluidRow(
-             conditionalPanel(condition='input.filetype == 4',
-                 column(1, align="right",
-                        style="margin-top:5px; margin-left:0px;",
-                        br(),br(),
-                        span(style="line-height:25px;", class="helper",
-                            span(id="filetypehelper1",
-                                 icon('question-circle'),
-                                 div(id="filetypebox1", class="smallhelperbox",
-                                     "For adjacency matrices,",
-                                     "the first row and column of .csv files",
-                                     "should hold vertex labels.")),
-                            br(),
-                            span(id="filetypehelper2",
-                                 icon('question-circle'),
-                                 div(id="filetypebox2", class="smallhelperbox",
-                                     "For adjacency matrices,",
-                                     "the first row and column of .csv files",
-                                     "should hold vertex labels.")),
-                            br(),
-                            span(id="filetypehelper3",
-                                 icon('question-circle'),
-                                 div(id="filetypebox3", class="smallhelperbox",
-                                     "For incidence matrices,",
-                                     "the first row of .csv files should hold",
-                                     "edge labels, the first column should hold vertex labels")),
-                            br(),
-                            span(id="filetypehelper4",
-                                 icon('question-circle'),
-                                 div(id="filetypebox4", class="smallhelperbox",
-                                     "For edge lists, .csv files should not have row or column labels.")),
-
-                            br())),
-                 column(4,
-                        br(),
-                        radioButtons('matrixtype', label='Matrix Type',
-                                     choices=c('Adjacency matrix'='adjacency',
-                                               'Bipartite adjacency matrix'='bipartite',
-                                               'Incidence matrix' = 'incidence',
-                                               'Edge list' = 'edgelist'))),
-
-                 column(5,
-                        br(),
-                        span(strong('Network Attributes')),
-                        checkboxInput('dir', 'directed?', value=TRUE),
-                        checkboxInput('loops', 'loops?', value=FALSE),
-                        checkboxInput('multiple', 'multiple?', value=FALSE),
-                        checkboxInput('bipartite', 'bipartite?', value=FALSE))
-             ),
-             conditionalPanel(condition='input.filetype == 3',
-                 column(6,
-                        uiOutput('pajchooser'))),
              conditionalPanel(condition='input.filetype == 1',
-                              p(class="helper", id="Robjhelp", icon("question-circle"), span("What is an .rds file?", style="font-size:0.85em;")),
-                              div(class="mischelperbox", id="Robjbox", 'When working in R, an object in your environment',
+                              p(class="helper", id="CSVhelp", icon("question-circle"), span("What format does the CSV file need to be in?", style="font-size:0.85em;")),
+                              div(class="mischelperbox", id="CSVbox", 'When working in R, an object in your environment',
                                   'can be saved to a .rds file from the command line in the following way:',
                                   code('saveRDS(objectname, file="newfilename.rds")'),br(),'By default the file will be saved',
                                   'into the current working directory. The full path to a new location can be',
@@ -241,156 +185,16 @@ fluidRow(
                               )
            )),
          conditionalPanel(
-           condition="input.filetype == 5 & input.samplenet != ''",
+           condition="input.filetype == 1 & input.samplenet != ''",
            wellPanel(uiOutput("datadesc"))
            )
          ),
-    tabPanel('Edit Network', br(),
-         wellPanel(
-           fluidRow(
-
-             column(6,strong('Symmetrize'),
-                conditionalPanel(condition="output.nwsum != 'NA'",
-                    br(),
-                    selectizeInput('symmetrize', label=NULL,
-                                 choices=c('Do not symmetrize',
-                                           'upper: Copy upper triangle over lower'='upper',
-                                           'lower: Copy lower triangle over upper'='lower',
-                                           'strong: Intersection of ties'='strong',
-                                           'weak: Union of ties'='weak')),
-                    conditionalPanel(condition="input.symmetrize != 'Do not symmetrize'",
-                                     p("After symmetrizing, network should be:"),
-                                     actionButton("symmdir", "directed", class="btn-sm"),
-                                     actionButton("symmundir", "undirected", class="btn-sm active")
-                                     )
-
-                    )),
-
-             column(5,strong('Import new attribute information'),
-                    conditionalPanel(condition="output.nwsum != 'NA'",
-                       br(),
-                       selectizeInput("newattrtype", label=NULL,
-                                 choices=c("Vertex attributes" = "vertexattr",
-                                           "Vertex names" = "vertexnames",
-                                           "Edge attributes" = "edgeattr"),
-                                 options=list(placeholder="Select attribute type",
-                                              onInitialize = I('function() { this.setValue(""); }')
-                                              )),
-                       conditionalPanel(condition="input.newattrtype == 'edgeattr'",
-                            radioButtons("edgeform", label = NULL,
-                                         choices = c("Attributes are in adjacency matrix form" = "matrix",
-                                                     "Attributes are in vector form" = "vector")),
-
-                         conditionalPanel(condition="input.edgeform == 'matrix'",
-                              span('Upload a file of one of the following types:',br(),
-                              tags$ul(
-                                tags$li('.rds file',
-                                        span(class="helper",id="filetypehelper5",
-                                             icon("question-circle"),
-                                             div(id="filetypebox5", class="mischelperbox",
-                                                 strong("Edge values"), "should be in adjacency matrix form",
-                                                 "and saved into a list object in R. For example,",br(),
-                                                 code("mylist <- list()"),br(),
-                                                 code("mylist$eval1 <- matrix(...)"), br(),
-                                                 code("mylist$eval2 <- matrix(...)"), br(),
-                                                 "The named elements of the list ('eval1' and 'eval2') will",
-                                                 "become the names of the edge attributes in WPROACM.",br(),br(),
-                                                 strong(".rds files"), "can be saved with",
-                                                 br(),
-                                                 code('saveRDS(objectname, file="newfilename.rds")'),br(),br(),
-                                                 "Multiple edge value matrices can be uploaded from one list object."
-                                                 ))),
-                                tags$li('.csv file',
-                                        span(class="helper", id="filetypehelper6",
-                                             icon("question-circle"),
-                                             div(id="filetypebox6", class="mischelperbox",
-                                                 strong(".csv files"), "should include vertex labels in the first",
-                                                 "row and column of the matrix. The edge attribute name will be taken",
-                                                 "from the filename.",br(),br(),
-                                                 "Only one edge value matrix can be uploaded at a time.")))))
-                                          ),
-                         conditionalPanel(condition="input.edgeform == 'vector'",
-                              span('Upload a file of one of the following types:',br(),
-                                   tags$ul(
-                                     tags$li('.rds file',
-                                             span(class="helper",id="filetypehelper9",
-                                                  icon("question-circle"),
-                                                  div(id="filetypebox9", class="mischelperbox",
-                                                      strong("Edge attributes"), "should be in vector form",
-                                                      "and saved into a list object in R. For example,",br(),
-                                                      code("mylist <- list()"),br(),
-                                                      code("mylist$eval1 <- c()"), br(),
-                                                      code("mylist$eval2 <- matrix(...)"), br(),
-                                                      "The named elements of the list ('eval1' and 'eval2') will",
-                                                      "become the names of the edge attributes in WPROACM.",
-                                                      "The values in each vector should be in the same order as the",
-                                                      "edge IDs they will be applied to.",
-                                                      br(),br(),
-                                                      strong(".rds files"), "can be saved with",
-                                                      br(),
-                                                      code('saveRDS(objectname, file="newfilename.rds")'),br(),br(),
-                                                      "Multiple edge attributes can be uploaded from one list object."
-                                                  ))),
-                                     tags$li('.csv file',
-                                             span(class="helper", id="filetypehelper10",
-                                                  icon("question-circle"),
-                                                  div(id="filetypebox10", class="mischelperbox",
-                                                      strong(".csv files"), "should include headers in the first row.",
-                                                      "The header of each column will become an edge attribute name.",
-                                                      "The values in each column should be in the same order as the",
-                                                      "edge IDs they will be applied to.")))))
-                                          )
-                       ),
-                       conditionalPanel(condition="input.newattrtype != '' & input.newattrtype != 'edgeattr'",
-                            span('Upload a file of one of the following types:',br(),
-                                 tags$ul(
-                                   tags$li('.rds file',
-                                           span(class="helper",id="filetypehelper7",
-                                                icon("question-circle"),
-                                                div(id="filetypebox7", class="mischelperbox",
-                                                    "Each attribute should be a vector element of an R list object.",
-                                                    strong("R lists"), "should be named, for example:",
-                                                    br(),
-                                                    code("mylist <- list()"),br(),
-                                                    code("mylist$age <- c(18,27,20)"),br(),
-                                                    code("mylist$sex <- c('M','F','F')"), br(),
-                                                    "The names of the elements in the list (e.g. 'age'",
-                                                    "and 'sex' in the list above) will become the attribute names.",
-                                                    "The values in each vector should be in the same order as the",
-                                                    "vertex IDs they will be applied to.",
-                                                    br(),br(),
-                                                    tags$u("Note:"),'Attributes uploaded as vertex names',
-                                                    "will automatically be saved into the", code("vertex.names"),
-                                                    "attribute and the names of the list will be ignored.",
-                                                    br(),br(),
-                                                    strong(".rds files"), "can be saved with",
-                                                    br(),
-                                                    code('saveRDS(objectname, file="newfilename.rds")')
-                                                    ))),
-                                   tags$li('.csv file',
-                                           span(class="helper", id="filetypehelper8",
-                                                icon("question-circle"),
-                                                div(id="filetypebox8", class="mischelperbox",
-                                                    strong(".csv files"), "should include headers in the first row.",
-                                                    "The header of each column will become an attribute name.",
-                                                    "The values in each column should be in the same order as the",
-                                                    "vertex IDs they will be applied to.",
-                                                    br(),br(),tags$u("Note:"),"Attributes uploaded as vertex names",
-                                                    "will automatically be saved into the", code("vertex.names"),
-                                                    "attribute and the names in the .csv file will be ignored.")))))
-                                        ),
-                    conditionalPanel(condition="input.newattrtype != ''",
-                          fileInput(inputId='newattrvalue', label=NULL),
-                          p('New attribute name(s):'),
-                          verbatimTextOutput('newattrname'),
-                          actionButton('newattrButton', label='Set Attribute', class="btn-sm")
-                                        )
-
-                       )
-
-                    )
-
-           )
+    tabPanel('View Data', br(),
+           wellPanel(
+ #h3('Grocery List'),
+ #uiOutput('Grocery_List')
+shiny::dataTableOutput("ACM_table")
+#DT::DTOutput('iristbl')
            )
          )
 # tabPanel('Modify Attributes', br(),
@@ -410,7 +214,7 @@ fluidRow(
 
 column(4,
 tabsetPanel(
-  tabPanel('Network Summary', br(),
+  tabPanel('Data Summary', br(),
            verbatimTextOutput('nwsum')
            ))
   )
@@ -419,7 +223,7 @@ tabsetPanel(
 icon('question-circle', class='fa-2x helper-btn'),
 div(class="helper-box", style="display:none",
     p('Upload a file of observed network data (must be of a supported type).',
-    'Add custom attributes or symmetrize on the "Edit Network" tab.')),
+    'Add custom attributes or symmetrize on the "View Data" tab.')),
 actionLink('dataleft', icon=icon('arrow-left', class='fa-2x'), label=NULL),
 actionLink('dataright', icon=icon('arrow-right', class='fa-2x'), label=NULL)
 ),
@@ -434,7 +238,7 @@ actionLink('dataright', icon=icon('arrow-right', class='fa-2x'), label=NULL)
 # selects), the widget must be rendered in server.R and output in ui.R with
 # iuOutput.
 
-tabPanel(title='Network Descriptives', value='tab3',
+tabPanel(title='Plots', value='tab3',
  #include progress box when this tab is loading
  div(class = "busy",
      p("Calculation in progress..."),
@@ -442,250 +246,47 @@ tabPanel(title='Network Descriptives', value='tab3',
  ),
 
 fluidRow(
- column(7,
+ column(2,
     tabsetPanel(id='plottabs',
-      tabPanel('Network Plot', br(),
-                plotOutput('nwplot', click = "plot_click",
-                           dblclick = dblclickOpts(id = "plot_dblclick"),
-                           hover = hoverOpts(id = "plot_hover", delay = 100,
-                                             delayType = "throttle"),
-                           brush = brushOpts(id = "plot_brush")
-                           )
-        ),
-      tabPanel('Attributes', br(),
-               conditionalPanel('input.attrview == "Large table"',
-                                dataTableOutput("attrtbl_lg")
-                                ),
-               conditionalPanel('input.attrview == "Small tables"',
-                                verbatimTextOutput("attrtbl_sm")
-                                ),
-               conditionalPanel('input.attrview == "Plot summaries"',
-                                tags$label("Type of plots"),
-                                helpText("Density plots will only be created for",
-                                         "numeric attributes with more than nine",
-                                         "levels."),
-                                selectInput("attrhistaxis",
-                                            label = NULL,
-                                            choices = c("Barplot: counts" = "count",
-                                                        "Barplot: percents" = "percent",
-                                                        "Density plot" = "density")),
-                                uiOutput("attrhistplotspace"))
-
-               ),
-      tabPanel('Degree Distribution',
-               p(class='helper', id='ddhelper', icon('question-circle')),
-               div(class='mischelperbox', id='ddhelperbox',
+      tabPanel('All Cause Mortality Plot',
+               p(class='helper', id='ACMplothelper', icon('question-circle')),
+               div(class='mischelperbox', id='ACMplothelperbox',
                    "Degrees are a node level measure for the number of edges incident on each node.",
                    "The degree distribution shows how the edges in a network are distributed among the",
                    "nodes. The amount (or proportion) of nodes with low, medium",
                    "or high degrees contribute to the overall structure of the",
                    "network. The degree distributions of directed graphs can",
                    "be subset by in-degree or out-degree."),
-               plotOutput('degreedist')
-               ),
-      tabPanel('Geodesic Distribution',
-               p(class='helper', id='gdhelper', icon('question-circle')),
-               div(class='mischelperbox', id='gdhelperbox',
-                   "Geodesics are a dyad level measure for the shortest possible path between a pair of nodes.",
-                   'If there is no path between a pair of nodes, the geodesic distance is "inf".',
-                   "The geodesic distribution among all possible dyads contributes to the",
-                   "structure of network connectivity."),
-               plotOutput('geodistplot')
-               ),
-      tabPanel('More', value='More', br(),
-               h5('Null model tests', icon('angle-double-left'),
-                  id="cugtitle"),
-               wellPanel(id="cugbox",
-                 column(4, uiOutput("dynamiccugterm")),
-                 column(4, selectInput("ncugsims",
-                                       label = "Number of simulations",
-                                       choices = c(100, 200, 500))),
-                 column(3, actionButton("cugButton", label = "Run",
-                                        style="margin-top: 25px;")),
-                 br(),
-                 plotOutput("cugtest"),
-                 br(),
-                 downloadButton('cugtestdownload', label = "Download Plot",
-                                class="btn-sm")
-               ),
-               h5('Mixing matrix', icon('angle-double-left'),
-                  id="mixmxtitle"),
-               wellPanel(id="mixmxbox",
-                 fluidRow(
-                   column(6, uiOutput('mixmxchooser')),
-                   column(6, downloadButton("mixmxdownload",
-                                            class = "shiftdown25"))
-                 ),
-                 fluidRow(
-                   verbatimTextOutput('mixingmatrix')
-                 )
-               ),
-               h5('Graph-level descriptive indices',
-                  icon('angle-double-left'), id="graphleveltitle"),
-               wellPanel(id="graphlevelbox",
-                 fluidRow(
-                  column(4, offset=7,tags$u('Measure')),
-                 fluidRow(
-                  column(4, p('Density:', class='stitle')),
-                  column(3, p(textOutput('gden'), class='snum'))),
-
-                 fluidRow(
-                  column(4, p('Degree:', class='stitle')),
-                  column(3, p(textOutput('gdeg'), class='snum')),
-                  column(4, selectInput('gdegcmode', label=NULL,
-                                        choices=c('indegree', 'outdegree', 'total')
-                                        ))),
-                 fluidRow(
-                  column(4, p('Reciprocity:', class='stitle')),
-                  column(3, p(textOutput('grecip'), class='snum')),
-                  column(4, selectInput('grecipmeas',label=NULL,
-                             choices=c('dyadic','dyadic.nonnull','edgewise',
-                                       'edgewise.lrr','correlation')))),
-                 fluidRow(
-                  column(4, p('Transitivity:'), class='stitle'),
-                  column(3, p(textOutput('gtrans'), class='snum')),
-                  column(4, selectInput('gtransmeas',label=NULL,
-                                choices=c('weak','strong','weakcensus',
-                                          'strongcensus','rank','correlation'))
-                         )),
-                 fluidRow(
-                  column(4, p('Betweenness:', class='stitle')),
-                  column(3, p(textOutput('gbetw'), class='snum')),
-                  column(4, selectInput('gbetwcmode', label=NULL,
-                                         choices=c('directed','undirected',
-                                                   'endpoints','proximalsrc',
-                                                   'proximaltar','proximalsum',
-                                                   'lengthscaled', 'linearscaled'))
-                         )),
-                 fluidRow(
-                  column(4, p('Closeness:', class='stitle')),
-                  column(3, p(textOutput('gclose'), class='snum')),
-                  column(4, selectInput('gclosecmode', label=NULL,
-                                        choices=c('directed','undirected',
-                                                  'suminvdir','suminvundir')))),
-                 fluidRow(
-                   column(4, p('Stress Centrality:', class='stitle')),
-                   column(3, p(textOutput('gstress'), class='snum')),
-                   column(4, selectInput('gstresscmode', label=NULL,
-                                         choices=c('directed','undirected')))
-                 ),
-                 fluidRow(
-                   column(4, p('(Harary) Graph Centrality:', class='stitle')),
-                   column(3, p(textOutput('ggraphcent'), class='snum')),
-                   column(4, selectInput('ggraphcentcmode', label=NULL,
-                                         choices=c('directed', 'undirected')))
-                 ),
-                 fluidRow(
-                   column(4, p('Eigenvector Centrality:', class='stitle')),
-                   column(3, p(textOutput('gevcent'), class='snum')),
-                   column(4, br())
-                 ),
-                 fluidRow(
-                   column(4, p('Information Centrality:', class='stitle')),
-                   column(3, p(textOutput('ginfocent'), class='snum')),
-                   column(4, selectInput('ginfocentcmode',label=NULL,
-                                         choices=c('weak', 'strong', 'upper',
-                                                   'lower')))
-                 )
-
-
-               )),
-
-               h5('Vertex-level descriptive indices',
-                  icon('angle-double-left'), id="nodeleveltitle"),
-               wellPanel(id="nodelevelbox",
-                 fluidRow(
-                     column(2,span("Vertex index:")),
-                     column(5, numericInput('nodeind', label=NULL, value=1,
-                                            min=1))
-                     ),
-                 tags$hr(),
-                 fluidRow(
-                   column(2, offset=3, tags$u('Current vertex')),
-                   column(3, tags$u('Centrality mode')),
-                   column(2, tags$u('Min')),
-                   column(2, tags$u('Max'))),
-                   fluidRow(
-                     column(3, p('Degree:', class='stitle')),
-                     column(2, p(textOutput('ndeg'), class='snum')),
-                     column(3, selectInput('ndegcmode', label=NULL,
-                                           choices=c('indegree', 'outdegree', 'total')),
-                            class = "smallselect"),
-                     column(2, p(textOutput('ndegmin'), class='snum', align='center')),
-                     column(2, p(textOutput('ndegmax'), class='snum', align='center'))
-                     ),
-                   fluidRow(
-                     column(3, p('Betweenness:', class='stitle')),
-                     column(2, p(textOutput('nbetw'), class='snum')),
-                     column(3, selectInput('nbetwcmode', label=NULL,
-                                           choices=c('directed','undirected',
-                                                     'endpoints','proximalsrc',
-                                                     'proximaltar','proximalsum',
-                                                     'lengthscaled', 'linearscaled')),
-                            class = "smallselect"),
-                     column(2, p(textOutput('nbetwmin'), class='snum')),
-                     column(2, p(textOutput('nbetwmax'), class='snum'))
-                     ),
-                   fluidRow(
-                     column(3, p('Closeness:', class='stitle')),
-                     column(2, p(textOutput('nclose'), class='snum')),
-                     column(3, selectInput('nclosecmode', label=NULL,
-                                           choices=c('directed','undirected',
-                                                     'suminvdir','suminvundir')),
-                            class = "smallselect"),
-                     column(2, p(textOutput('nclosemin'))),
-                     column(2, p(textOutput('nclosemax')))
-                     ),
-                   fluidRow(
-                     column(3, p('Stress Centrality:', class='stitle')),
-                     column(2, p(textOutput('nstress'), class='snum')),
-                     column(3, selectInput('nstresscmode', label=NULL,
-                                           choices=c('directed','undirected')),
-                            class = "smallselect"),
-                     column(2, p(textOutput('nstressmin'))),
-                     column(2, p(textOutput('nstressmax')))
-                     ),
-                   fluidRow(
-                     column(3, p('(Harary) Graph Centrality:', class='stitle')),
-                     column(2, p(textOutput('ngraphcent'), class='snum')),
-                     column(3, selectInput('ngraphcentcmode', label=NULL,
-                                           choices=c('directed', 'undirected')),
-                            class = "smallselect"),
-                     column(2, p(textOutput('ngraphcentmin'))),
-                     column(2, p(textOutput('ngraphcentmax')))
-                     ),
-                   fluidRow(
-                     column(3, p('Eigenvector Centrality:', class='stitle')),
-                     column(2, p(textOutput('nevcent'), class='snum')),
-                     column(3, br()),
-                     column(2, p(textOutput('nevcentmin'))),
-                     column(2, p(textOutput('nevcentmax')))
-                     ),
-                   fluidRow(
-                     column(3, p('Information Centrality:', class='stitle')),
-                     column(2, p(textOutput('ninfocent'), class='snum')),
-                     column(3, selectInput('ninfocentcmode',label=NULL,
-                                           choices=c('weak', 'strong', 'upper',
-                                                     'lower')),
-                            class = "smallselect"),
-                     column(2, p(textOutput('ninfocentmin'))),
-                     column(2, p(textOutput('ninfocentmax')))
-                     )
-                 ),
-              conditionalPanel(condition = "output.errstate == '1'",
-                               div(class = "error", uiOutput("errbox")))
-
-)
-
-
-
+                plotOutput('ACMplot', click = "plot_click",
+                           dblclick = dblclickOpts(id = "plot_dblclick"),
+                           hover = hoverOpts(id = "plot_hover", delay = 100,
+                                             delayType = "throttle"),
+                           brush = brushOpts(id = "plot_brush")
+                           )
+        )
+#     tabPanel('Excess Cause Mortality Plot',
+#              p(class='helper', id='EMplothelper', icon('question-circle')),
+#              div(class='mischelperbox', id='EMplothelperbox',
+#                  "Degrees are a node level measure for the number of edges incident on each node.",
+#                  "The degree distribution shows how the edges in a network are distributed among the",
+#                  "nodes. The amount (or proportion) of nodes with low, medium",
+#                  "or high degrees contribute to the overall structure of the",
+#                  "network. The degree distributions of directed graphs can",
+#                  "be subset by in-degree or out-degree."),
+#               plotOutput('ACMplot', click = "plot_click",
+#                          dblclick = dblclickOpts(id = "plot_dblclick"),
+#                          hover = hoverOpts(id = "plot_hover", delay = 100,
+#                                            delayType = "throttle"),
+#                          brush = brushOpts(id = "plot_brush")
+#                          )
+#       )
       ),br(),br()
 ),
  column(4,
      tabsetPanel(id='displaytabs',
        tabPanel(title='Display Options', br(),
           wellPanel(
-                conditionalPanel(condition='input.plottabs == "Network Plot"',
+                conditionalPanel(condition='input.plottabs == "All Cause Mortality Plot"',
                    selectInput('activeplot', label = NULL,
                                choices = c("Static Plot", "Interactive Plot")),
                    checkboxInput('iso',
@@ -804,7 +405,7 @@ fluidRow(
                                    "stay tuned for updates!")
                                  )
                 )),
-       tabPanel(title='Network Summary', br(),
+       tabPanel(title='Data Summary', br(),
         verbatimTextOutput('attr2'))
         )
      )

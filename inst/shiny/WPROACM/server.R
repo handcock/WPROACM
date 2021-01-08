@@ -110,61 +110,19 @@ nwinit <- reactive({
 
     if(input$filetype == 1){
       validate(
-        need(fileext %in% c(".rds", ".Rds", ".RDs", ".RDS"),
-             "Upload an .rds file"))
-      nw_var <- readRDS(paste(filepath))
-    } else if(input$filetype == 2){
-      validate(
-        need(fileext %in% c(".net", ".NET"),
-             "Upload a .net file"))
-      nw_var <- read.paj(paste(filepath))
-    } else if(input$filetype == 3){
-      validate(
-        need(fileext %in% c(".paj",".PAJ"),
-             "Upload a .paj file"))
-      nws <- read.paj(paste(filepath))
-      if(!is.null(pajnws())){
-        nw_var <- nws$networks[[as.numeric(input$choosepajnw)]]
-      }
-    } else if(input$filetype == 4){
-      validate(
-        need(fileext %in% c(".csv",".CSV") |
-               fileext %in% c(".rds", ".Rds", ".RDs", ".RDS"),
-             "Upload the specified type of matrix"))
-      if(fileext %in% c(".csv",".CSV")){
+        need(fileext %in% c(".csv", ".CSV"),
+             "Upload an .csv file"))
         header <- TRUE
         row_names<-1
-        if(input$matrixtype == "edgelist"){
-          header <- FALSE
-          row_names<-NULL
-        }
-        try({nw_var <- network(read.csv(paste(filepath), sep=",", header=header,
-                                        row.names=row_names),
-                          directed=input$dir, loops=input$loops,
-                          multiple=input$multiple, bipartite=input$bipartite,
-                          matrix.type=input$matrixtype,
-                          ignore.eval=FALSE, names.eval='edgevalue')
+        try({nw_var <- read.csv(paste(filepath), sep=",", header=header)
              })
-
-      } else if(fileext %in% c(".rds", ".Rds", ".RDs", ".RDS")){
-        newmx <- readRDS(paste(filepath))
-        nw_var <- network(newmx,
-                        directed=input$dir, loops=input$loops,
-                        multiple=input$multiple, bipartite=input$bipartite,
-                        matrix.type=input$matrixtype,
-                        ignore.eval=FALSE, names.eval='edgevalue')
-
-      }
     }
   }
-  if(input$filetype == 5){
+  if(input$filetype == 2){
     if(input$samplenet == ""){
       nw_var <- NULL
     } else {
       nw_var <- eval(parse(text = input$samplenet))
-      if(!is.element('bipartite',names(nw_var$gal))){
-        set.network.attribute(nw_var,'bipartite',FALSE)
-      }
     }
   }
   return(nw_var)
@@ -184,7 +142,7 @@ pajnws <- reactive({
 
 nwname <- reactive({
   name <- input$rawdatafile[1,1]
-  if(input$filetype == 5){
+  if(input$filetype == 2){
     name <- input$samplenet
   }
   name
@@ -192,21 +150,21 @@ nwname <- reactive({
 
 #number of nodes in nw
 nodes <- reactive({
-  if(!is.network(nwinit())){return()}
+  if(!is.data.frame(nwinit())){return()}
   nwinit()$gal$n
 })
 
 #number of edges in initial nw
 nedgesinit <- reactive({
-  if(!is.network(nwinit())) return()
-  network.edgecount(nwinit())
+  if(!is.data.frame(nwinit())) return()
+  nrow(nwinit())
 })
 
 #initial vertex attributes
 vattrinit <- reactive({
   vattrinit <- c()
-  if(is.network(nwinit())){
-    vattrinit<-list.vertex.attributes(nwinit())
+  if(is.data.frame(nwinit())){
+    vattrinit<-colnames(nwinit())
   }
   vattrinit
 })
@@ -214,7 +172,7 @@ vattrinit <- reactive({
 #matrix of vertex attribute values
 vattrinit.vals <- reactive({
   v <- list()
-  for (j in seq(length(list.vertex.attributes(nwinit())))) {
+  for (j in seq(length(colnames(nwinit())))) {
     v[[j]] <- get.vertex.attribute(nwinit(), vattrinit()[j])
   }
   v
@@ -228,16 +186,7 @@ observe({
   vdf <- list()
   edf <- list()
   evdf <- list()
-  if (is.network(nwinit())){
-    n <- nodes()
-    e <- nedgesinit()
-    for (i in 1:n){
-      vdf <- rbind(vdf,i)
-    }
-    for (i in 1:e){
-      edf <- rbind(edf,i)
-      evdf <- rbind(evdf,i)
-    }
+  if (is.data.frame(nwinit())){
     values$v_attrValsToAdd <- vdf
     values$e_attrValsToAdd <- edf
     values$ev_attrValsToAdd <- evdf
@@ -245,7 +194,7 @@ observe({
     values$e_attrNamesToAdd <- list(1)
     values$ev_attrNamesToAdd <- list(1)
 
-    values$vertexnames <- network.vertex.names(nwinit())
+    values$vertexnames <- rownames(nwinit())
   }
 })
 
@@ -423,7 +372,7 @@ nwmid <- reactive({
 
 
       if(input$newattrButton > 0){
-        try({network.vertex.names(nw_var) <- values$vertexnames})
+        try({rownames(nw_var) <- values$vertexnames})
       }
       v_numnew <- length(v_attrNamesToAdd)
       if(v_numnew > 1){
@@ -469,9 +418,24 @@ nw <- reactive({
 })
 
 elist <- reactive({
-  if(!is.network(nwinit())) return()
+  if(!is.data.frame(nwinit())) return()
   as.edgelist(nw())
 })
+
+# Edit network
+#Grocery_List_Results <- dtedit(
+#    input, output,
+#    name = 'Grocery_List',
+#    thedata = data.frame(
+#      Buy = c('Tea', 'Biscuits', 'Apples'),
+#      Quantity = c(7, 2, 5),
+#      stringsAsFactors = FALSE
+#    )
+#  )
+
+#DTiris <- renderDT(
+#      iris, options = list(lengthChange = FALSE)
+#    )
 
 #get coordinates to plot network with
 coords <- reactive({
@@ -482,7 +446,7 @@ coords <- reactive({
 #initial network attributes
 #returns vector of true/falses
 nwattrinit <- reactive({
-  if(!is.network(nwinit())){return()}
+  if(!is.data.frame(nwinit())){return()}
   nwattributes <- c('directed','hyper','loops','multiple','bipartite')
   unlist(lapply(nwattributes,get.network.attribute,x=nwinit()))
 })
@@ -490,8 +454,8 @@ nwattrinit <- reactive({
 #list of all vertex attributes in nw (after adding new)
 attrib <- reactive({
 	  attr <- c()
-    if(is.network(nw())){
-		    attr<-list.vertex.attributes(nw())
+    if(is.data.frame(nw())){
+		    attr<-colnames(nw())
     }
       attr
   })
@@ -525,10 +489,10 @@ numattr <- reactive({
 #dataframe of nodes, their attributes, and their coordinates in nwplot
 nwdf <- reactive({
   attrs <- menuattr()
-  if(suppressWarnings(is.na(as.numeric(network.vertex.names(nw()))[1]))){
-    df <- data.frame(Names = network.vertex.names(nw()))
+  if(suppressWarnings(is.na(as.numeric(rownames(nw()))[1]))){
+    df <- data.frame(Names = rownames(nw()))
   } else {
-    df <- data.frame(Names = as.numeric(network.vertex.names(nw())))
+    df <- data.frame(Names = as.numeric(rownames(nw())))
   }
   for(i in seq(length(attrs))){
     df[[attrs[i]]] <- get.vertex.attribute(nw(), attrs[i])
@@ -630,21 +594,7 @@ legendfill <- reactive({
 
 #simulated graphs for cug tests
 observeEvent(c(nw(), input$ncugsims),{
-  if(!is.null(nw())){
-    s <- network.edgecount(nw())
-    if (is.directed(nw())){
-      mode <- "digraph"
-    } else {
-      mode <- "graph"
-    }
-
-    brgsims <- sna::rgraph(n = nodes(), m = input$ncugsims, tprob = sna::gden(nw()), mode = mode,
-                          diag = nw()$gal$loops)
-    cugsims <- sna::rgnm(n = input$ncugsims, nv = nodes(), m = s, mode = mode,
-                        diag = nw()$gal$loops)
-
-    values$cugsims <- list(brgsims, cugsims)
-  }
+  values$cugsims <- list(0, 0)
 })
 
 brgvals <- reactive({
@@ -1070,34 +1020,10 @@ output$datadesc <- renderUI({
   #       "31(1): 64-68.")
   #   )
   # }
-  if(net == "faux.mesa.high"){
+  if(net == "Australia"){
     text <- div(
-      p("This data set represents a simulation of an in-school friendship",
-        "network. The network is named faux.mesa.high because the school",
-        "commnunity on which it is based is in the rural western US, with a",
-        "student body that is largely Hispanic and Native American."),
-      p(code("faux.mesa.high", class = "codetxt"), "is a network object with",
-        "205 vertices (students, in this case) and 203 undirected edges",
-        "(mutual friendships)."),
-      p("The vertex attributes are Grade, Sex, and Race. The Grade attribute",
-        "has values 7 through 12, indicating each student's grade in school.",
-        "The Race attribute is based on the answers to two questions, one on",
-        "Hispanic identity and one on race, and takes six possible values:",
-        "White (non-Hisp.), Black (non-Hisp.), Hispanic, Asian (non-Hisp.),",
-        "Native American, and Other (non-Hisp.)"),
-      p("The data set is based upon a model fit to data from one school",
-        "community from the AddHealth Study, Wave I (Resnick et al., 1997).",
-        "The processes for constructing the network are described in Hunter,",
-        "Goodreau & Handcock (2008)"),
-      strong("References"),
-      p("Hunter D.R., Goodreau S.M. and Handcock M.S. (2008).",
-        em("Goodness of Fit of Social Network Models, Journal of the American",
-           "Statistical Association.")),
-      p("Resnick M.D., Bearman, P.S., Blum R.W. et al. (1997).",
-        em("Protecting adolescents from harm. Findings from the National",
-           "Longitudinal Study on Adolescent Health, Journal of the American",
-           "Medical Association,"), "278: 823-32.")
-      )
+      p("This is the data from Australia.")
+    )
   }
   if(net == "flobusiness" | net == "flomarriage"){
     text <- div(
@@ -1230,6 +1156,13 @@ output$datadesc <- renderUI({
   text
 })
 
+#output$iristbl = DT::renderDT(
+#      iris, options = list(lengthChange = FALSE)
+#      )
+output$ACM_table = renderDataTable(
+      nw(), options = list(pageLength = 30)
+      )
+
 output$rawdatafile <- renderPrint({
   raw <- matrix(nrow=2,ncol=1)
   rownames(raw)<-c("name:", "size:")
@@ -1259,7 +1192,7 @@ output$newattrname <- renderPrint({
 
 # output$modifyattrchooser <- renderUI({
 #   if(!is.network(nwmid())) {return()}
-#   vattr <- list.vertex.attributes(nwmid())
+#   vattr <- colnames(nwmid())
 #   eattr <- list.edge.attributes(nwmid())
 #   attrlist <- c(vattr, eattr)
 #   selectInput('modifyattrs', label=NULL, choices=attrlist)
@@ -1272,10 +1205,10 @@ output$nwsum <- renderPrint({
     return(cat('NA'))
   }
   nw_var <- nw()
-  if (class(nw_var)!="network"){
-    return(cat(nw_var))
+  if (class(nw_var)!="data.frame"){
+    return(str(nw_var))
   }
-  return(nw_var)
+  return(str(nw_var))
 })
 
 
@@ -1464,7 +1397,7 @@ output$attrcheck <- renderUI({
 })
 outputOptions(output, "attrcheck", suspendWhenHidden = FALSE)
 
-output$attrtbl_lg <- renderDataTable({
+output$attrtbl_lg <- shiny::renderDataTable({
   dt <- nwdf()[, c("Names", input$attrcols)]
   dt
 }, options = list(pageLength = 10))
@@ -2289,7 +2222,7 @@ output$geodistdownload <- downloadHandler(
 
 observe({
   if(input$plottabs == "More"){
-    updateTabsetPanel(session, 'displaytabs', selected="Network Summary")
+    updateTabsetPanel(session, 'displaytabs', selected="Data Summary")
   }
 })
 
@@ -2478,7 +2411,7 @@ output$mixmxdownload <- downloadHandler(
 
 # update all the menu selection options for descriptive indices when network changes
 observeEvent(nw(), {
-  if(is.directed(nw())){
+  if(is.data.frame(nw())){
     degmenu <- c('indegree', 'outdegree')
     betwmenu <- c('directed', 'endpoints', 'proximalsrc',
                   'proximaltar', 'proximalsum', 'lengthscaled', 'linearscaled')

@@ -10,7 +10,7 @@ The app can be run in two ways:
 * On your local machine using the WPROACM R package:
 ```r
 install.packages("WPROACM")
-WPROACM::run_sw()
+WPROACM::run_WPROACM()
 ```
 
 More info on the WPROACM wiki:   

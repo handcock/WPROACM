@@ -3,7 +3,6 @@
 \docType{package}
 \name{WPROACM}
 \alias{WPROACM}
-\alias{WPROACM-package}
 \title{WPROACM: A graphical user interface for network analysis.}
 \description{
 The WPROACM package makes it easy to run the graphical user interface
