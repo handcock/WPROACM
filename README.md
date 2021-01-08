@@ -5,7 +5,7 @@ This is an R-shiny interface for the statnet suite of R packages. It currently i
 
 The app can be run in two ways:  
 
-* Through the shinyapps server with this link:   https://statnet.shinyapps.io/WPROACM  
+* Through the shinyapps server with this link:   https://handcock.shinyapps.io/WPROACM  
 
 * On your local machine using the WPROACM R package:
 ```r

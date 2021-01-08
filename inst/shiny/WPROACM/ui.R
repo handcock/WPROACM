@@ -56,7 +56,7 @@ tabPanel(title=span('WPROACM', id="sWtitle"),
               tabPanel("BibTeX",
 p(strong("statnet")),
 tags$pre(id='scitation','@Manual{handcock:statnet,
-  title = {statnet: Software tools for the Statistical Modeling of Network Data},
+  title = {WPROACM: Software tools for the Statistical Modeling of Network Data},
   author = {Mark S. Handcock and David R. Hunter and Carter T. Butts and Steven M. Goodreau and Martina Morris},
   year = {2003},
   address = {Seattle, WA},
@@ -65,85 +65,38 @@ tags$pre(id='scitation','@Manual{handcock:statnet,
 
 p(strong("WPROACM")),
 tags$pre(id='swcitation',"@Manual{beylerian:WPROACM,
-  title = {\\pkg{WPROACM}: A Graphical User Interface for Network Modeling with 'Statnet'},
-  author = {Emily N. Beylerian and Samuel Jenness and Kirk Li and Martina Morris},
-  year = {2015},
-  note = {\\proglang{R}~package version~0.3.4},
-  address = {Seattle, WA},
+  title = {\\pkg{WPROACM}: A Graphical User Interface for Analysing Excess Mortality from All Cause Mortality Data},
+  author = {Mark S. Handcock},
+  year = {2021},
+  note = {\\proglang{R}~package version~0.1},
+  address = {Los Angeles, CA},
   url = {https://cran.r-project.org/web/packages/WPROACM/}
 }")
                        ),
               tabPanel("Other",
-p(strong("statnet")),
-tags$pre("Mark S. Handcock, David R. Hunter, Carter T. Butts, Steven M. Goodreau, and
-Martina Morris (2003). statnet: Software tools for the Statistical Modeling
-of Network Data. URL http://statnetproject.org"),
+p(strong("WPROACM")),
+tags$pre("Mark S. Handcock (2021). WPROACM: A Graphical User Interface for Analysing Excess Mortality from All Cause Mortality Data. URL http://hpmrg.org"),
 
 p(strong("WPROACM")),
-tags$pre("Emily N. Beylerian, Samuel Jenness, Kirk Li, and Martina Morris (2014).
-WPROACM: A Graphical User Interface for Network Modeling with 'Statnet'.")
+tags$pre("Mark S. Handcock (2021).
+WPROACM: A Graphical User Interface for Analysing Excess Mortality from All Cause Mortality Data.")
                        )
             ),
 
-            p('If you use statnet or WPROACM, please cite them.',
-              'Additional citation information for statnet',
-              'and the component packages can be found here:'),
-            tags$ul(
-              tags$li(a('Citing statnet',
-                        href='http://statnet.org/attribution',
-                        target='_blank')),
-              tags$li(a('License and source code attribution requirements',
-                        href = 'http://statnet.org/attribution',
-                        target = '_blank')),
-              tags$li(a('statnet Organization on GitHub',
-                        href = 'https://github.com/statnet',
-                        target = '_blank'))
-            )
+            p('If you use WPROACM, please cite it'),
             )
           ),
    column(4,
           wellPanel(
               h5(tags$u('Resources')),
-              div(title = "Wiki page for WPROACM",
-                a("About WPROACM",
-                  href = "https://github.com/statnet/WPROACM/wiki",
-                  target = "_blank")),
-              div(title=paste("Homepage of the statnet project with tutorials,",
-                              "publications and recent news."),
-                  a("About statnet",
-                    href = "http://statnet.org/", target = "_blank")
-              ),
-
-              column(11, offset = 1,
-                    span(id="linktitle1",'Key background papers',icon('angle-double-left')),br(),
-                    div(id="linkbox1",
-                      a("ergm: Journal of Statistical Software",
-                        href = "http://www.jstatsoft.org/v24/i03/", target = "_blank"),
-                      br(),
-                      a("Using ergm: Journal of Statistical Software",
-                        href = "http://www.jstatsoft.org/v24/i04/", target = "_blank")),
-
-                    span(id="linktitle2",'Tutorials and documentation',icon('angle-double-left')),br(),
-                    div(id="linkbox2",
-                        a("ergm tutorial",
-                        href = "https://github.com/statnet/Workshops/wiki",
-                        target= "_blank"),
-                      br(),
-                      a("ergm documentation on CRAN",
-                        href = "http://cran.r-project.org/web/packages/ergm/ergm.pdf",
-                        target = "_blank")),
-                    style="margin-bottom:10px;"),
-              br(),
-              div(a("WPROACM on GitHub", href="https://github.com/statnet/statnetWeb",
+              div(a("WPROACM on GitHub", href="https://github.com/handcock/WPROACM",
                     target="_blank")),
               div(a("Shiny: a web application framework for R", href="http://shiny.rstudio.com/",
                     target="_blank"))
    ),
-   fluidRow(img(src= 'UW.Wordmark_ctr_K.jpg', width=200), style="margin-left:15px;"),
-   fluidRow(a(img(src = 'csdelogo_crop.png', height = 40, width = 40),
-             href = 'https://csde.washington.edu/', target = '_blank'),
-            a(img(src = 'csde_goudy.fw.png', width=150), href = 'https://csde.washington.edu/',
-             target = '_blank'), style="margin-left:15px;")
+   fluidRow(a(img(src = 'UCLADepartmentofStatisticsSmall.png', width = 400),
+             href = 'https://www.stat.ucla.edu/', target = '_blank'),
+             style="margin-left:15px;")
    )
    )
  ),

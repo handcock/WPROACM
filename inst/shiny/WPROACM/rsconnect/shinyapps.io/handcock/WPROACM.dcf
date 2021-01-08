@@ -1,12 +1,12 @@
 name: WPROACM
 title:
 username:
-account: statnet
+account: handcock
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 42335
 bundleId: 2155890
-url: https://statnet.shinyapps.io/WPROACM/
+url: https://handcock.shinyapps.io/WPROACM/
 when: 1560626190.96857
 asMultiple: FALSE
 asStatic: FALSE
