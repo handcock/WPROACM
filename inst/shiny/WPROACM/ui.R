@@ -24,32 +24,46 @@ tabPanel(title=span('WPROACM', id="sWtitle"),
     #            actionButton("citeButton", label = "Citing WPROACM",
     #                         class = "btn"),
                  actionButton('startButton', label='Get Started',
-                              class="btn btn-primary")
+                              class="btn btn-primary"),
+                 fluidRow(column(1,
+                  a(img(src = 'WHOWPRO.png', width = 175),
+                    href = 'https://www.who.int/westernpacific/', target = '_blank') ))
           ),
    column(6, style="padding: 0 30px 0 0;",
           div(id="aboutbox",
-            p("Welcome to the first interactive interface for the", strong("ergm"),
-              "package!", strong("ergm"), "is part of the statnet network analysis software -",
-              "a suite of packages written in R - and this GUI also includes some of the functionality",
-              "from the associated packages", strong("network"), " and ", strong("sna"), ".  This web application",
-              "is written with the Shiny framework from RStudio and development is via GitHub.  More information",
-              "on the statnet software, the ergm package, Shiny and our GitHub repository can be found in the",
+            p("Welcome to the all cause of mortality and Excess Death Monitoring interactive interface!"),
+
+            p("This interface has been developed by the", a('World Health Organization, Western Pacific Region',
+                href='https://www.who.int/westernpacific/',
+               target='_blank'), "in conjunction with the", a('Department of Statistics at UCLA',
+                href='http://statistics.ucla.edu/', target='_blank'),"."),
+
+            p("This web application",
+              "is written with the Shiny framework and development is via GitHub.  More information",
+              "on Shiny and our GitHub repository can be found in the",
               "resource links on the right."),
 
-            p("This interface is useful for teachers and students of introductory network analysis,",
-              "for newcomers to exponential random graphs models, and for experienced network modelers",
-              "who want easier access to analysis results. If you are new to ergm, you may find it helpful",
-              "to work through the", a("ergm tutorial on our Workshop page",
-                                       href="https://github.com/statnet/Workshops/wiki",
-                                       target="_blank"), "using this interface. Advanced users will still want to interact",
-              "via the command line in order to access the full functionality of ergm."),
-            p("A typical network analysis will move sequentially through the tabs at the top of the page.",
+            p("This interface is useful as part of the dialogue bwtween the WHO WPRO and countries about the",
+              "impact of the COVID-19 pandemic on all-cause mortality (ACM) in individual Member countries and territories",
+              "in the Western Pacific region"),
+
+            p("Tracking all-cause mortality trends is an important component of multisource surveillance for COVID-19.",
+              "Excess deaths have been observed in several countries during the COVID19 pandemic.",
+              "Evidence is needed to support timely and dynamic decision-making and policy development."),
+
+            p("The purpose of this tool is to allow easy tracking and analysis of ACM and excess deaths.",
+              "It is for use by member countries and does not require the data to be seen by the WHO WPRO.",
+              "In fact, all analysis is done on the computer where it is run. An internet connection is only required",
+              "to install the software (already done if you are reading this message!)."),
+
+            p("A typical analysis will move sequentially through the tabs at the top of the page",
+              "(starting with", actionLink("startButton", "Get Started"),".",
               "Click on the help icon at the top of any page for guidance."),
             p("Bug Reports/comments/suggestions/requests? Please share them with us.",
               "They are best submitted through our", a('GitHub site,',
-                                                       href='https://github.com/statnet/WPROACM',
+                                                       href='https://github.com/handcock/WPROACM',
                                                        target='_blank'),
-              "or by email to the statnet_help mailing list (see", actionLink("helpLink", "Help"), "tab).")
+              "or by email to us (see", actionLink("helpLink", "Help"), "tab).")
           ),
           div(id="citebox",
             tabsetPanel(
@@ -95,7 +109,7 @@ WPROACM: A Graphical User Interface for Analysing Excess Mortality from All Caus
                     target="_blank"))
    ),
    fluidRow(a(img(src = 'UCLADepartmentofStatisticsSmall.png', width = 400),
-             href = 'https://www.stat.ucla.edu/', target = '_blank'),
+             href = 'http://statistics.ucla.edu/', target = '_blank'),
              style="margin-left:15px;")
    )
    )
@@ -193,8 +207,9 @@ fluidRow(
            wellPanel(
  #h3('Grocery List'),
  #uiOutput('Grocery_List')
-shiny::dataTableOutput("ACM_table")
-#DT::DTOutput('iristbl')
+#shiny::dataTableOutput("ACM_table")
+dataTableOutput("ACM_table")
+#DT::dataTableOutput('iris_table')
            )
          )
 # tabPanel('Modify Attributes', br(),
@@ -459,7 +474,7 @@ actionLink('plotright', icon=icon('arrow-right', class='fa-2x'), label=NULL)
                       fluidRow(
                         column(12,
                                a("Commonly used ergm terms",
-                                 href = "https://github.com/statnet/WPROACM/blob/master/inst/html/d2-sX-ergmterms.html",
+                                 href = "https://github.com/statnet/statnetWeb/blob/master/inst/html/d2-sX-ergmterms.html",
                                  target = "_blank"), br(),
                                a("Term cross-reference tables",
                                  href = "http://cran.r-project.org/web/packages/ergm/vignettes/ergm-term-crossRef.html",
@@ -873,44 +888,37 @@ tabPanel(title='Simulations', value='tab7',
          actionLink('simright', icon=icon('arrow-right', class='fa-2x'), label=NULL)
          ),
 
+# Expected Deaths --------------------------------------------------------------------
+
+tabPanel(title='Expected Deaths',  value='tab8',
+
+         #include progress bar when this tab is loading
+         div(class = "busy",
+             p("Calculation in progress... This might take a few minutes."),
+             img(src="ajax-loader.gif")
+         ),
+
+    dataTableOutput("spline_table")
+##   DT::dataTableOutput("iris_table")
+),
 # Help --------------------------------------------------------------------
 
 
-tabPanel(title='Help', value='tab8',
+tabPanel(title='Help', value='tab9',
          sidebarLayout(position = 'right',
                        sidebarPanel(
                          h5(tags$u('Resources')),
                          div(title = "Wiki page for WPROACM",
                              a("About WPROACM",
-                               href = "https://github.com/statnet/WPROACM/wiki",
+                               href = "https://github.com/handcock/WPROACM/wiki",
                                target = "_blank")),
-                         div(title=paste("Homepage of the statnet project with tutorials,",
-                                         "publications and recent news."),
-                             a("About statnet",
-                               href = "http://statnet.org/", target = "_blank")
+                         div(title=paste("Information on the methodology used",
+                                         "in the tool"),
+                             a("About the methodology used in the tool.",
+                               href = "https://github.com/handcock/WPROACM/wiki/Methodology-used-in-WPROACM/", target = "_blank")
                          ),
-
-                         column(11, offset = 1,
-                                span(id="linktitle1",'Key background papers',icon('angle-double-left')),br(),
-                                div(id="linkbox1",
-                                    a("ergm: Journal of Statistical Software",
-                                      href = "http://www.jstatsoft.org/v24/i03/", target = "_blank"),
-                                    br(),
-                                    a("Using ergm: Journal of Statistical Software",
-                                      href = "http://www.jstatsoft.org/v24/i04/", target = "_blank")),
-
-                                span(id="linktitle2",'Tutorials and documentation',icon('angle-double-left')),br(),
-                                div(id="linkbox2",
-                                    a("ergm tutorial at our online training materials site",
-                                      href = "https://github.com/statnet/Workshops/wiki",
-                                      target= "_blank"),
-                                    br(),
-                                    a("ergm documentation on CRAN",
-                                      href = "http://cran.r-project.org/web/packages/ergm/ergm.pdf",
-                                      target = "_blank")),
-                                style="margin-bottom:10px;"),
                          br(),
-                         div(a("WPROACM on GitHub", href="https://github.com/statnet/statnetWeb",
+                         div(a("WPROACM on GitHub", href="https://github.com/handcock/WPROACM",
                                target="_blank")),
                          div(a("Shiny: a web application framework for R", href="http://shiny.rstudio.com/",
                                target="_blank"))
@@ -919,31 +927,12 @@ tabPanel(title='Help', value='tab8',
                          h5(tags$u('Help with WPROACM')),
                          p("This app is maintained on GitHub. To request new features or report a bug,",
                            "please interact with the",
-                           a("repository", href='https://github.com/statnet/WPROACM',
+                           a("repository", href='https://github.com/handcock/WPROACM',
                              target="_blank"),
-                           "or email the statnet_help mailing list (below)."),
-                         h5(tags$u('Help with statnet software')),
-                         p("The best way to contact us with questions, comments or suggestions",
-                           "is through the statnet users group mailing list."),
-                         p("To post and receive messages from this list, you need to join.",
-                           "See the",
-                           a("statnet_help info page",
-                             href = "https://mailman.u.washington.edu/mailman/listinfo/statnet_help",
-                             target = "_blank"),
-                           "for instructions on how to join."),
-                         p("You can use the mailing list to:"),
-                         tags$ul(
-                           tags$li("get help from the statnet development team (and other users)"),
-                           tags$li("post questions, comments and ideas to other users"),
-                           tags$li("be informed about statnet updates"),
-                           tags$li("learn about bugs (and bug fixes)")
-                         ),
-                         p("Once you have joined the list, you can post your questions and comments to",
-                           strong("statnet_help@u.washington.edu")),
-                         p("A full list of all messages posted to this list is available",
-                           a("here.",
-                             href = "https://mailman.u.washington.edu/mailman/private/statnet_help",
-                             target = "_blank"))
+                           "or email us at", 
+                             a(actionButton(inputId = "email1", label = "handcock@stat.ucla.edu", 
+                               icon = icon("envelope", lib = "font-awesome")),
+                               href="mailto:handcock@stat.ucla.edu"))
                          ))
          )
 

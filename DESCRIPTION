@@ -14,6 +14,11 @@ License: GPL-3
 Depends:
     R (>= 3.5),
     shiny (>= 1.3),
+    dplyr,
+    reshape2,
+    readxl,
+    stringr,
+    mgcv,
     ergm (>= 3.10.4),
     network,
     lattice,
