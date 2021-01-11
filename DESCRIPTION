@@ -4,9 +4,7 @@ Title: A Graphical User Interface for Network Modeling with 'Statnet'
 Version: 0.1
 Date: 2020-08-03
 Authors@R: c(
-  person("Martina", "Morris", email = "morrism@uw.edu", role = c("cre", "aut")),
-  person("Emily", "Beylerian", email = "ebeylerian@path.org", role = "aut"),
-  person("Kirk", "Li", email = "kirkli@uw.edu", role = "ctb"),
+  person("Mark", "Handcock", email = "morrism@uw.edu", role = c("cre", "aut")),
   person("Samuel", "Jenness", email = "sjenness@uw.edu", role = "ctb"))
 Description: A graphical user interface for network modeling with the 'statnet'
     software <https://github.com/statnet>.
@@ -19,12 +17,9 @@ Depends:
     readxl,
     stringr,
     mgcv,
-    ergm (>= 3.10.4),
-    network,
     lattice,
     latticeExtra
 Imports:
-    sna,
     RColorBrewer
 LazyData: true
 RoxygenNote: 7.1.1
