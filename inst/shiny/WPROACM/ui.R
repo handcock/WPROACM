@@ -31,19 +31,20 @@ tabPanel(title=span('WPROACM', id="sWtitle"),
           ),
    column(6, style="padding: 0 30px 0 0;",
           div(id="aboutbox",
-            p("Welcome to the all cause of mortality and Excess Death Monitoring interactive interface!"),
+            p("Welcome to the",strong("WPRO online-calculator for excess deaths in countries"),"!"),
 
-            p("This interface has been developed by the", a('World Health Organization, Western Pacific Region',
+            p("This calculator has been developed by the", a('World Health Organization, Western Pacific Region',
                 href='https://www.who.int/westernpacific/',
                target='_blank'), "in conjunction with the", a('Department of Statistics at UCLA',
                 href='http://statistics.ucla.edu/', target='_blank'),"."),
 
-            p("This web application",
-              "is written with the Shiny framework and development is via GitHub.  More information",
-              "on Shiny and our GitHub repository can be found in the",
-              "resource links on the right."),
+            p("This tool aims to estimate the",em("expected all-cause mortality"),"counts for each week or month starting at",
+              "January 1, 2020 onward in the counter-factual situation where there had not been a pandemic.",
+              "Monitoring the all-cause mortality trends is an important component of multisource surveillance for COVID-19.",
+              "The",em("excess mortality"),"is defined to be the difference between the reported counts and expected counts for that week or month.",
+              "in the Western Pacific region"),
 
-            p("This interface is useful as part of the dialogue bwtween the WHO WPRO and countries about the",
+            p("This interface is useful as part of the dialogue between the WHO WPRO and countries about the",
               "impact of the COVID-19 pandemic on all-cause mortality (ACM) in individual Member countries and territories",
               "in the Western Pacific region"),
 
@@ -51,7 +52,7 @@ tabPanel(title=span('WPROACM', id="sWtitle"),
               "Excess deaths have been observed in several countries during the COVID19 pandemic.",
               "Evidence is needed to support timely and dynamic decision-making and policy development."),
 
-            p("The purpose of this tool is to allow easy tracking and analysis of ACM and excess deaths.",
+            p("This tool will allow easy tracking and analysis of ACM and excess deaths.",
               "It is for use by member countries and does not require the data to be seen by the WHO WPRO.",
               "In fact, all analysis is done on the computer where it is run. An internet connection is only required",
               "to install the software (already done if you are reading this message!)."),
@@ -63,7 +64,11 @@ tabPanel(title=span('WPROACM', id="sWtitle"),
               "They are best submitted through our", a('GitHub site,',
                                                        href='https://github.com/handcock/WPROACM',
                                                        target='_blank'),
-              "or by email to us (see", actionLink("helpLink", "Help"), "tab).")
+              "or by email to us (see", actionLink("helpLink", "Help"), "tab)."),
+            p("This web application",
+              "is written with the Shiny framework and development is via GitHub.  More information",
+              "on Shiny and our GitHub repository can be found in the",
+              "resource links on the right.")
           ),
           div(id="citebox",
             tabsetPanel(
@@ -184,18 +189,21 @@ fluidRow(
                     selectizeInput('samplenet', label=NULL,
                                 choices=c("Choose a country" = '', 
                                           'Australia','Japan',
-                                          'South Korea', 'New Zealand', 'Philippines'))
+                                          'South Korea', 'New Zealand', 'Philippines')),
+                              p(class="helper", id="BIhelp", icon("question-circle"),
+                                span("These are example CSV files from some countries with data from January 1, 2015 through August, 2020.", style="font-size:0.85em;"),
+                                 br(),'You try select a country in the drop-down menu', em("Choose a country"),
+                                 'above this message and view the data in the above', em("View Data"),' tab.',
+                                 'You can then try the tool out on this data to see an analysis similar to that for your own country.')
                 )
                )
              ),
              conditionalPanel(condition='input.filetype == 1',
-                              p(class="helper", id="CSVhelp", icon("question-circle"), span("What format does the CSV file need to be in?", style="font-size:0.85em;")),
-                              div(class="mischelperbox", id="CSVbox", 'When working in R, an object in your environment',
-                                  'can be saved to a .rds file from the command line in the following way:',
-                                  code('saveRDS(objectname, file="newfilename.rds")'),br(),'By default the file will be saved',
-                                  'into the current working directory. The full path to a new location can be',
-                                  'specified in the ', code('file='), 'argument, or set', code('file=file.choose(new=TRUE)'),
-                                  'to use a save dialog box.')
+                              p(class="helper", id="CSVhelp", icon("question-circle"),
+                                span("What format does the CSV file need to be in?", style="font-size:0.85em;"),
+                                 br(),'Upload a *csv file of all-cause mortality data.',
+                                 'The file should be saved from the WHO standardized Excel template. Click', a("here",
+                                  href = "https://www.who.int/westernpacific/", target = "_blank"), ' to download.')
                               )
            )),
          conditionalPanel(
@@ -204,6 +212,19 @@ fluidRow(
            )
          ),
     tabPanel('View Data', br(),
+          div(id="aboutbox",
+            p("Below is displayed the all cause of mortality data as read in. It should display column variables called 'COUNTRY','ISO3','YEAR'",
+            "'PERIOD','SEX','AGE_GROUP','AREA','CAUSE','NO_DEATHS','DATE_TO_SPECIFY_WEEK','SE_IDENTIFIER'",
+            "and few values should be missing (denoted NA). If your files does not look like this, try to load the built-in",
+            "example All Cause Mortality data under the 'Upload All Cause Mortality data' tab on the top left. If you view that",
+            "it will show what to expect."),
+            p("If your data does not look correct, try to correct it in the WHO standardized Excel template. Click", a('here',
+      href = 'https://www.who.int/westernpacific/', target = '_blank'), " to download."),
+            p("A typical analysis will move sequentially through the tabs at the top of the page",
+              "Click on the help icon at the top of any page for guidance."),
+            p("If you are having trouble getting the data in",
+              "email us (see", actionLink("helpLink", "Help"), "tab)."),
+            ),
            wellPanel(
  #h3('Grocery List'),
  #uiOutput('Grocery_List')
@@ -237,8 +258,9 @@ tabsetPanel(
 
 icon('question-circle', class='fa-2x helper-btn'),
 div(class="helper-box", style="display:none",
-    p('Upload a file of observed network data (must be of a supported type).',
-    'Add custom attributes or symmetrize on the "View Data" tab.')),
+    p('Upload a file of all-cause mortality data. The data should be a *.csv file',
+    'saved from the WHO standardized Excel template. Click', a("here",
+      href = "https://www.who.int/westernpacific/", target = "_blank"), ' to download.')),
 actionLink('dataleft', icon=icon('arrow-left', class='fa-2x'), label=NULL),
 actionLink('dataright', icon=icon('arrow-right', class='fa-2x'), label=NULL)
 ),
@@ -901,8 +923,33 @@ tabPanel(title='Expected Deaths',  value='tab8',
     dataTableOutput("spline_table")
 ##   DT::dataTableOutput("iris_table")
 ),
-# Help --------------------------------------------------------------------
 
+# Methods --------------------------------------------------------------------
+
+tabPanel(title='Methods', value='tab9',
+   column(6, style="padding: 0 30px 0 0;",
+          div(id="methodsbox",
+            p("This page has a description of the statistical methods used in the calculator to compute the expected and excess deaths in countries"),
+
+            p(strong("Negative-binomial regression")),
+
+            p("This particular negative-binomial regression model is a generalized additive model (GAM) in that it uses smoothing functions",
+              "for the predictor variables. Since the date and period are input as discrete values, they are smoothed using cubic splines,",
+              "a common smoothing technique."),
+
+            p(strong("Historical 5-years average")),
+
+            p("The 5-years historical average is calculated based on and their 95% confidence interval (95% CI) are calculated",
+              "from the deaths observed in 2015-2019. The excess deaths are calculated as the difference of all-causes deaths in",
+              "2020 to the historical average."),
+
+            p("Below is a detailed description of the methods in statistical language. It is in PDF format and can be saved for separate
+study."),
+          ),
+         tags$iframe(style="height:400px; width:100%; scrolling=yes", 
+                   src="ACMnotes_201230.pdf")
+         )
+         ),
 
 tabPanel(title='Help', value='tab9',
          sidebarLayout(position = 'right',
