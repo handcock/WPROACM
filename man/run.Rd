@@ -7,8 +7,8 @@
 run()
 }
 \description{
-Runs the WPROACM shiny application, a GUI for the statnet
-suite of network analysis packages.
+Runs the WPROACM shiny application, a GUI for the
+WPRO online-calculator for excess deaths in countries
 }
 \examples{
 \dontrun{
@@ -17,7 +17,7 @@ run()
 
 
 }
-\concept{networks GUI shiny ergm}
+\concept{demography GUI shiny epidemiology}
 \keyword{datagen}
 \keyword{graphs}
 \keyword{models}

@@ -1,13 +1,12 @@
 Package: WPROACM
 Type: Package
-Title: A Graphical User Interface for Network Modeling with 'Statnet'
+Title: A Graphical User Interface for Analysing Excess Mortality from All Cause Mortality Data
 Version: 0.1
-Date: 2020-08-03
+Date: 2021-01-11
 Authors@R: c(
-  person("Mark", "Handcock", email = "morrism@uw.edu", role = c("cre", "aut")),
-  person("Samuel", "Jenness", email = "sjenness@uw.edu", role = "ctb"))
-Description: A graphical user interface for network modeling with the 'statnet'
-    software <https://github.com/statnet>.
+  person("Mark S.", "Handcock", role=c("aut","cre"), email="handcock@stat.ucla.edu"),
+  person("Bart", "Blackburn", email = "bartblackburn@ucla.edu", role = "ctb"))
+Description: A graphical user interface for A Graphical User Interface for Analysing Excess Mortality from All Cause Mortality Data. It has been developed by the World Health Organization, Western Pacific Region <https://www.who.int/westernpacific> in conjunction with the Department of Statistics at UCLA <http://statistics.ucla.edu/~handcock>.
 License: GPL-3
 Depends:
     R (>= 3.5),

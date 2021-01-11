@@ -6,5 +6,5 @@
 \title{WPROACM: A graphical user interface for network analysis.}
 \description{
 The WPROACM package makes it easy to run the graphical user interface
-for the statnet suite of network analysis packages.
+for statistical packages.
 }

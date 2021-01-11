@@ -186,7 +186,7 @@ output$datadesc <- renderUI({
       p("This is the data from Australia.")
     )
   }
-  if(net == "flobusiness" | net == "flomarriage"){
+  if(net == "Korea"){
     text <- div(
       p("The two", code("florentine", class = "codetxt"), "networks are of",
         "marriage and business ties among Renaissance",

@@ -113,7 +113,7 @@ for (j in 1:n_pat){
           days <- diff(c(0,loc_DATE))
           days[1] <- 7
           temp_src$logdays <- log(days)
-          fit <- gam(NO_DEATHS ~ offset(logdays) + YEAR + s(PERIOD,bs="cc",fx=TRUE,k=9),knots=list(PERIOD=c(0,num.cycle)),method="REML", 
+          fit <- mgcv::gam(NO_DEATHS ~ offset(logdays) + YEAR + s(PERIOD,bs="cc",fx=TRUE,k=9),knots=list(PERIOD=c(0,num.cycle)),method="REML", 
                    family=nb(), data=temp_src)
         }else{
 	  temp_src <- src[paste(src$SEX, src$AGE_GROUP) == pattern[j],] %>% dplyr::filter(YEAR != "2020")
@@ -127,7 +127,7 @@ for (j in 1:n_pat){
           days <- rep(dom,5)
           days[14] <- 29
           temp_src$logdays <- log(days)
-          fit <- gam(NO_DEATHS ~ offset(logdays) + YEAR + s(PERIOD,bs="cc",fx=TRUE,k=5),knots=list(PERIOD=c(0,num.cycle)),method="REML", 
+          fit <- mgcv::gam(NO_DEATHS ~ offset(logdays) + YEAR + s(PERIOD,bs="cc",fx=TRUE,k=5),knots=list(PERIOD=c(0,num.cycle)),method="REML", 
                    family=nb(), data=temp_src)
         }
 	t.start <- Sys.time()
@@ -164,6 +164,11 @@ for (j in 1:n_pat){
                 while(!any(a) & y >= 2017){
                   y <- y - 1
                   a <- src_2020$YEAR==y & src_2020$PERIOD==(k+1)
+                }
+                y <- 2020
+                while(!any(a) & y >= 2017){
+                  y <- y - 1
+                  a <- src_2020$YEAR==y & src_2020$PERIOD==(k-1)
                 }
                 if(!any(a)){ a <- src_2020$YEAR==2020 & src_2020$PERIOD==k }
 		out[l_period * (j -1) + k +1, "ESTIMATE"]   <- estim.median[a]
