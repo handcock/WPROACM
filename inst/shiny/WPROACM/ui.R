@@ -26,7 +26,7 @@ tabPanel(title=span('WPROACM', id="sWtitle"),
                  actionButton('startButton', label='Get Started',
                               class="btn btn-primary"),
                  fluidRow(column(1,
-                  a(img(src = 'WHOWPRO.png', width = 175),
+                  a(img(src = 'WHO-WPRO Logo PMS 2925.png', width = 175),
                     href = 'https://www.who.int/westernpacific/', target = '_blank') ))
           ),
    column(6, style="padding: 0 30px 0 0;",
@@ -170,7 +170,17 @@ fluidRow(
       tabPanel('Upload All Cause Mortality data', br(),
          wellPanel(
            fluidRow(
-             column(6,
+column(4,
+  tabPanel('All cause mortality in 2020', br(),
+          div(id="viewdata",
+            p("This tool is designed to estimate the weekly or monthly excess deaths in countries in the Western Pacific Region",
+              "during the COVID-19 pandemic, using all-cause of mortality data."),
+            p("The", strong("5-years historical average"),"and", strong("expected deaths forecasted by negative-binomial regression"),
+              ", and their 95% confidence interval (95% CI) are calculated from the deaths observed in 2015-2019.")
+             )
+          )
+  ),
+             column(8,
                     selectInput('filetype',label='File type',
                                  choices=c(
                                            'CSV spreadsheet of All Cause Mortality data (*.csv)' = 1,
@@ -184,7 +194,7 @@ fluidRow(
                     verbatimTextOutput('rawdatafile'))
                 ),
              conditionalPanel(condition = 'input.filetype == 2',
-                column(6,
+                column(12,
                     br(style="line-height:26px;"),
                     selectizeInput('samplenet', label=NULL,
                                 choices=c("Choose a country" = '', 
@@ -212,7 +222,7 @@ fluidRow(
            )
          ),
     tabPanel('View Data', br(),
-          div(id="aboutbox",
+          div(id="viewdata",
             p("Below is displayed the all cause of mortality data as read in. It should display column variables called 'COUNTRY','ISO3','YEAR'",
             "'PERIOD','SEX','AGE_GROUP','AREA','CAUSE','NO_DEATHS','DATE_TO_SPECIFY_WEEK','SE_IDENTIFIER'",
             "and few values should be missing (denoted NA). If your files does not look like this, try to load the built-in",
@@ -317,7 +327,9 @@ fluidRow(
 #                          brush = brushOpts(id = "plot_brush")
 #                          )
 #       )
-      ),br(),br()
+      ),br(),br(),
+column(2,
+    downloadButton('ACMplotdownload', label = "Download plot as image", class = "btn-sm"))
 ),
  ),
 div(id='plottabhelp', class='helper-btn', icon('question-circle', 'fa-2x')),
@@ -338,9 +350,14 @@ tabPanel(title='Expected Deaths',  value='tab4',
              img(src="ajax-loader.gif")
          ),
 
-    dataTableOutput("spline_table")
+  fluidRow(
+    dataTableOutput("spline_table"),
 ##   DT::dataTableOutput("iris_table")
-),
+
+column(2,
+    downloadButton('EDdownload', label = "Download data", class = "btn-sm"))
+
+) ),
 
 # Methods --------------------------------------------------------------------
 
@@ -364,7 +381,7 @@ tabPanel(title='Methods', value='tab5',
             p("Below is a detailed description of the methods in statistical language. It is in PDF format and can be saved for separate
 study."),
           ),
-         tags$iframe(style="height:400px; width:100%; scrolling=yes", 
+         tags$iframe(style="height:600px; width:100%; scrolling=yes", 
                    src="ACMnotes_201230.pdf")
          )
          ),

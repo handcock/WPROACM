@@ -202,6 +202,9 @@ out <- out[,c("COUNTRY", "ISO3", "WM_IDENTIFIER", "PERIOD", "SEX", "AGE_GROUP", 
 
 out <- out[out$SERIES != "Current deaths",]
 
+print(dim(out))
+message("Computation of the expected deaths completed successfully.")
+
 return(out)
 }
 

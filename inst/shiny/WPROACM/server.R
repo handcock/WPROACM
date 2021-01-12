@@ -1,8 +1,13 @@
+require(utils)
+require(grDevices)
+require(graphics)
+require(stats)
+require(methods)
 
-library(WPROACM)
-library(RColorBrewer)
-library(lattice)
-library(latticeExtra)
+require("WPROACM")
+require("RColorBrewer")
+require("lattice")
+require("latticeExtra")
 
 data(ExampleCountries, package="WPROACM")
 
@@ -76,13 +81,13 @@ observe({
 
 ## Data Selection ------------------------------------------------------
 
-#nwinit is used to get the initial values of the network
-nwinit <- reactive({
+#ACMinit is used to get the initial values of the network
+ACMinit <- reactive({
   #input$rawdatafile comes as a dataframe with name, size, type and datapath
   #datapath is stored in 4th column of dataframe
   #network creates a network object from the input file
   if(is.null(input$rawdatafile)){
-    nw_var <- NULL
+    ACM_var <- NULL
   } else {
     filepath <- input$rawdatafile[1,4]
     filename <- input$rawdatafile[1,1]
@@ -94,22 +99,22 @@ nwinit <- reactive({
              "Upload an .csv file"))
         header <- TRUE
         row_names<-1
-        try({nw_var <- read.csv(paste(filepath), sep=",", header=header)
+        try({ACM_var <- read.csv(paste(filepath), sep=",", header=header)
              })
-# save(nw_var, file = paste0("~/",filename,".RData"))
+# save(ACM_var, file = paste0("~/",filename,".RData"))
     }
   }
   if(input$filetype == 2){
     if(input$samplenet == ""){
-      nw_var <- NULL
+      ACM_var <- NULL
     } else {
       net_name <- c('Australia','Japan','South_Korea', 'New_Zealand', 'Philippines')[
         match(input$samplenet,c('Australia','Japan',
                                 'South Korea', 'New Zealand', 'Philippines'))]
-      nw_var <- eval(parse(text = net_name))
+      ACM_var <- eval(parse(text = net_name))
     }
   }
-  return(nw_var)
+  return(ACM_var)
 })
 
 iso3 <- reactive({
@@ -124,7 +129,7 @@ iso3 <- reactive({
   return(iso3)
 })
 
-nwname <- reactive({
+Countryname <- reactive({
   name <- input$rawdatafile[1,1]
   if(input$filetype == 2){
     name <- input$samplenet
@@ -134,9 +139,31 @@ nwname <- reactive({
 
 #compute the spline model  for the expected deaths
 output_spline <- reactive({
-  if(!is.data.frame(nwinit())){return()}
-  calculate_spline(nwinit())
+  if(!is.data.frame(ACMinit())){return()}
+  calculate_spline(ACMinit())
 })
+
+output$EDdownload <- downloadHandler(
+  filename = function(){paste(Countryname(),'_ED.csv',sep='')},
+  contentType = "text/csv",
+  content = function(file) {
+    write.csv(output_spline(), file = file)
+  }
+)
+
+output$ACMplotdownload <- downloadHandler(
+  filename = function(){paste(Countryname(),'_plot.pdf',sep='')},
+  content = function(file){
+    pdf(file=file, height=10, width=10)
+    ACM_var <- output_spline()
+    if(ACM_var$WM_IDENTIFIER[1]=="Month"){
+      plot(ts(ACM_var$EXCESS_DEATHS[1:12],start=1, end=12),xlab="Month in 2020",ylab="Excess deaths")
+    }else{
+      plot(ts(ACM_var$EXCESS_DEATHS[1:52],start=1, end=52),xlab="Week in 2020",ylab="Excess deaths")
+    }
+    dev.off()
+  }
+  )
 
 ## Network Descriptives (Plots) ------------------------------------------------------
 
@@ -324,7 +351,7 @@ output$datadesc <- renderUI({
 #      datatable(iris(),  extensions = 'Responsive')
 #      })
 output$ACM_table = shiny::renderDataTable(
-      {nwinit()}
+      {ACMinit()}
       )
 output$spline_table = shiny::renderDataTable(
       {output_spline()}
@@ -344,14 +371,14 @@ output$rawdatafile <- renderPrint({
 
 #summary of network attributes
 output$ACMsum <- renderPrint({
-  if (is.null(nwinit())){
-    return(cat('NA'))
+  if (is.null(ACMinit())){
+    return(cat('Please load the data using the drop-down menu on the left.'))
   }
-  nw_var <- nwinit()
-  if (class(nw_var)!="data.frame"){
-    return(str(nw_var))
+  ACM_var <- ACMinit()
+  if (class(ACM_var)!="data.frame"){
+    return(str(ACM_var))
   }
-  return(str(nw_var))
+  return(str(ACM_var))
 })
 
 ## Network Descriptives ------------------------------------------------------
@@ -359,12 +386,12 @@ output$ACMsum <- renderPrint({
 #NETWORK PLOT
 
 #output$nwplotdownload <- downloadHandler(
-#  filename = function(){paste(nwname(),'_plot.pdf',sep='')},
+#  filename = function(){paste(Countryname(),'_plot.pdf',sep='')},
 #  content = function(file){
 #    pdf(file=file, height=10, width=10)
-#    nw_var <- nw()
+#    ACM_var <- nw()
 #    color <- adjustcolor(vcol(), alpha.f = input$transp)
-#    plot.network(nw_var, coord = coords(),
+#    plot.network(ACM_var, coord = coords(),
 #                 displayisolates = input$iso,
 #                 displaylabels = input$vnames,
 #                 vertex.col = color,
