@@ -285,61 +285,60 @@ actionLink('dataright', icon=icon('arrow-right', class='fa-2x'), label=NULL)
 # selects), the widget must be rendered in server.R and output in ui.R with
 # iuOutput.
 
-tabPanel(title='Plots', value='tab3',
- #include progress box when this tab is loading
- div(class = "busy",
-     p("Calculation in progress..."),
-     img(src="ajax-loader.gif")
- ),
-
-fluidRow(
- column(2,
-    tabsetPanel(id='plottabs',
-      tabPanel('All Cause Mortality Plot',
-               p(class='helper', id='ACMplothelper', icon('question-circle')),
-               div(class='mischelperbox', id='ACMplothelperbox',
-                   "Degrees are a node level measure for the number of edges incident on each node.",
-                   "The degree distribution shows how the edges in a network are distributed among the",
-                   "nodes. The amount (or proportion) of nodes with low, medium",
-                   "or high degrees contribute to the overall structure of the",
-                   "network. The degree distributions of directed graphs can",
-                   "be subset by in-degree or out-degree."),
-                plotOutput('ACMplot', click = "plot_click",
-                           dblclick = dblclickOpts(id = "plot_dblclick"),
-                           hover = hoverOpts(id = "plot_hover", delay = 100,
-                                             delayType = "throttle"),
-                           brush = brushOpts(id = "plot_brush")
-                           )
-        )
-#     tabPanel('Excess Cause Mortality Plot',
-#              p(class='helper', id='EMplothelper', icon('question-circle')),
-#              div(class='mischelperbox', id='EMplothelperbox',
-#                  "Degrees are a node level measure for the number of edges incident on each node.",
-#                  "The degree distribution shows how the edges in a network are distributed among the",
-#                  "nodes. The amount (or proportion) of nodes with low, medium",
-#                  "or high degrees contribute to the overall structure of the",
-#                  "network. The degree distributions of directed graphs can",
-#                  "be subset by in-degree or out-degree."),
-#               plotOutput('ACMplot', click = "plot_click",
-#                          dblclick = dblclickOpts(id = "plot_dblclick"),
-#                          hover = hoverOpts(id = "plot_hover", delay = 100,
-#                                            delayType = "throttle"),
-#                          brush = brushOpts(id = "plot_brush")
-#                          )
-#       )
-      ),br(),br(),
-column(2,
-    downloadButton('ACMplotdownload', label = "Download plot as image", class = "btn-sm"))
-),
- ),
-div(id='plottabhelp', class='helper-btn', icon('question-circle', 'fa-2x')),
- div(class="helper-box", style="display:none",
-     p('Use the network plots to gain insight to the observed network.',
-       'Edit the display options in the panel on the right and download a PDF of any of the plots.')),
-actionLink('plotleft', icon=icon('arrow-left', class='fa-2x'), label=NULL),
-actionLink('plotright', icon=icon('arrow-right', class='fa-2x'), label=NULL)
-),
-
+    tabPanel(
+      title = "Plots", value = "tab3",
+      # include progress box when this tab is loading
+      div(
+        class = "busy",
+        p("Calculation in progress..."),
+        img(src = "ajax-loader.gif")
+      ),
+      fluidRow(
+        column(9,
+          tabsetPanel(id = "plottabs",
+            tabPanel(
+              "All Cause Mortality Plot", br(),
+         wellPanel(
+           fluidRow(
+              selectInput("gender", "Select Gender", sort(gender_labels)),
+              selectInput("age", "Select Age Group", sort(age_group_labels)),
+              selectInput("plottype", "Select Plot", c(
+                "Recorded Deaths v Negative Binomial Regression" = 1,
+                "Recorded Deaths v 5-year Average" = 2,
+                "Recorded Deaths v all" = 3
+              ) ),
+              plotOutput('ACMplot'),
+              downloadButton("ACMplotdownload", label = "Download plot as image", class = "btn-sm")
+            ) ),
+            ),
+            tabPanel(
+              "Excess Mortality Plot", br(),
+         wellPanel(
+           fluidRow(
+              selectInput("EDgender", "Select Gender", sort(gender_labels)),
+              selectInput("EDage", "Select Age Group", sort(age_group_labels)),
+              selectInput("EDplottype", "Select Plot", c(
+                "Recorded Deaths v Negative Binomial Regression" = 1,
+                "Recorded Deaths v 5-year Average" = 2,
+                "Recorded Deaths v all" = 3
+              ) ),
+              plotOutput('EDplot'),
+              downloadButton("EDplotdownload", label = "Download Excess mortality plot as image", class = "btn-sm")
+            ) ),
+            )
+          )
+        ) ),
+        div(id = "plottabhelp", class = "helper-btn", icon("question-circle", "fa-2x")),
+        div(
+          class = "helper-box", style = "display:none",
+          p(
+            "Use the network plots to gain insight to the observed network.",
+            "Edit the display options in the panel on the right and download a PDF of any of the plots."
+          )
+        ),
+        actionLink("plotleft", icon = icon("arrow-left", class = "fa-2x"), label = NULL),
+        actionLink("plotright", icon = icon("arrow-right", class = "fa-2x"), label = NULL)
+      ),
 # Expected Deaths --------------------------------------------------------------------
 
 tabPanel(title='Expected Deaths',  value='tab4',
