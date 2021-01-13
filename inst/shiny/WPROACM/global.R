@@ -1,4 +1,3 @@
-require(plotly)
 require(dplyr)
 require(reshape2)
 require(readxl)
