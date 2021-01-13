@@ -290,7 +290,7 @@ actionLink('dataright', icon=icon('arrow-right', class='fa-2x'), label=NULL)
       # include progress box when this tab is loading
       div(
         class = "busy",
-        p("Calculation in progress..."),
+        p("Calculation in progress... This might take a few minutes."),
         img(src = "ajax-loader.gif")
       ),
       fluidRow(
@@ -298,33 +298,27 @@ actionLink('dataright', icon=icon('arrow-right', class='fa-2x'), label=NULL)
           tabsetPanel(id = "plottabs",
             tabPanel(
               "All Cause Mortality Plot", br(),
-         wellPanel(
-           fluidRow(
-              selectInput("gender", "Select Gender", sort(gender_labels)),
-              selectInput("age", "Select Age Group", sort(age_group_labels)),
-              selectInput("plottype", "Select Plot", c(
-                "Recorded Deaths v Negative Binomial Regression" = 1,
-                "Recorded Deaths v 5-year Average" = 2,
-                "Recorded Deaths v all" = 3
-              ) ),
-              plotOutput('ACMplot'),
-              downloadButton("ACMplotdownload", label = "Download plot as image", class = "btn-sm")
-            ) ),
+              wellPanel(
+                fluidRow(
+                  selectInput("gender", "Select Gender", sort(gender_labels)),
+                  selectInput("age", "Select Age Group", sort(age_group_labels)),
+                  checkboxInput('check_avg', '5-year Average'),
+                  checkboxInput('check_spline', "Negative Binomial Regression"),
+                  plotOutput('ACMplot'),
+                  downloadButton("ACMplotdownload", label = "Download plot as image", class = "btn-sm")
+                ) ),
             ),
             tabPanel(
               "Excess Mortality Plot", br(),
-         wellPanel(
-           fluidRow(
-              selectInput("EDgender", "Select Gender", sort(gender_labels)),
-              selectInput("EDage", "Select Age Group", sort(age_group_labels)),
-              selectInput("EDplottype", "Select Plot", c(
-                "Recorded Deaths v Negative Binomial Regression" = 1,
-                "Recorded Deaths v 5-year Average" = 2,
-                "Recorded Deaths v all" = 3
-              ) ),
-              plotOutput('EDplot'),
-              downloadButton("EDplotdownload", label = "Download Excess mortality plot as image", class = "btn-sm")
-            ) ),
+              wellPanel(
+                fluidRow(
+                  selectInput("EDgender", "Select Gender", sort(gender_labels)),
+                  selectInput("EDage", "Select Age Group", sort(age_group_labels)),
+                  checkboxInput('EDcheck_avg', '5-year Average'),
+                  checkboxInput('EDcheck_spline', "Negative Binomial Regression"),
+                  plotOutput('EDplot'),
+                  downloadButton("EDplotdownload", label = "Download Excess mortality plot as image", class = "btn-sm")
+                ) ),
             )
           )
         ) ),
@@ -332,8 +326,8 @@ actionLink('dataright', icon=icon('arrow-right', class='fa-2x'), label=NULL)
         div(
           class = "helper-box", style = "display:none",
           p(
-            "Use the network plots to gain insight to the observed network.",
-            "Edit the display options in the panel on the right and download a PDF of any of the plots."
+            "Use the plots to gain insight to the expected and excess deaths.",
+            "Click the boxes on the left to get different models for the expected deaths and download a PDF of any of the plots."
           )
         ),
         actionLink("plotleft", icon = icon("arrow-left", class = "fa-2x"), label = NULL),
@@ -354,7 +348,7 @@ tabPanel(title='Expected Deaths',  value='tab4',
 ##   DT::dataTableOutput("iris_table")
 
 column(2,
-    downloadButton('EDdownload', label = "Download data", class = "btn-sm"))
+    downloadButton('EDdownload', label = "Download data, including expected and excess deaths", class = "btn-sm"))
 
 ) ),
 

@@ -174,81 +174,96 @@ shinyServer(
       content = function(file) {
         pdf(file = file, height = 10, width = 10)
       ACM_var <- output_spline() 
+#     c_data <- ACM_var %>% filter(ACM_var$COUNTRY == Countryname() & ACM_var$SEX == input$gender & ACM_var$AGE_GROUP == input$age)
       c_data <- ACM_var[ACM_var$SEX == input$gender & ACM_var$AGE_GROUP == input$age,]
       if(nrow(c_data) < 2) {
         if (ACM_var$WM_IDENTIFIER[1] == "Month") {
           p <- ACM_var[1:12,] %>%
             ggplot() +
-            geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "indianred") +
-            geom_ribbon(aes(x = PERIOD, y = NO_DEATHS, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
+            geom_line(aes(x = PERIOD, y = EXPECTED), colour = "indianred") +
+            geom_ribbon(aes(x = PERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
+            geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
             scale_x_continuous(name = "Month in 2020") +
             scale_y_continuous(name = "Deaths") +
             labs(
-              title = paste0("All Cause Mortality in ", iso3(), " during the Pandemic")
+              title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic")
             )
         } else {
           p <- ACM_var[1:52,] %>%
             ggplot() +
-            geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "indianred") +
-            geom_ribbon(aes(x = PERIOD, y = NO_DEATHS, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
+            geom_line(aes(x = PERIOD, y = EXPECTED), colour = "indianred") +
+            geom_ribbon(aes(x = PERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
+            geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
             scale_x_continuous(name = "Week in 2020") +
             scale_y_continuous(name = "Deaths") +
             labs(
-              title = paste0("All Cause Mortality in ", iso3(), " during the Pandemic")
+              title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic")
             )
         }
         return(p)
       }
+      name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month in 2020", "Week in 2020")
       # Spline Regression
-      if (input$plottype == 1) {
-        subtitle <- paste0("deaths in ", bquote(2020), " compared to <span style='color:indianred;'>Negative Binomial Regression on 2015-19</span>")
-        actual <- c_data[ACM_var$SERIES == "Cyclical spline","EXCESS_DEATHS"] + c_data[ACM_var$SERIES == "Cyclical spline","NO_DEATHS"]
-        p <- c_data[ACM_var$SERIES == "Cyclical spline",] %>%
+      if (input$check_spline & !input$check_avg) {
+        subtitle <- paste0("deaths in ", bquote(2020), " compared to Negative Binomial Regression on 2015-19")
+        p <- c_data[c_data$SERIES == "Cyclical spline",] %>%
           ggplot() +
-          geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "indianred") +
-          geom_ribbon(aes(x = PERIOD, y = NO_DEATHS, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
-          geom_line(aes(x = PERIOD, y = actual), colour = "black") +
-          scale_x_continuous(name = "Period (2020)") +
-          scale_y_continuous(name = "Deaths", limits = c(0, NA)) +
-          labs(
-            title = paste0("All Cause Mortality in ", iso3(), " during the Pandemic"),
-            subtitle = subtitle
-          )
-      }
-
-      # historical average
-      if (input$plottype == 2) {
-        subtitle <- paste0("deaths in ", bquote(2020), " compared to <span style='color:lightblue;'>historical average on 2015-19</span>")
-        actual <- c_data[ACM_var$SERIES == "Historical average","EXCESS_DEATHS"] + c_data[ACM_var$SERIES == "Historical average","NO_DEATHS"]
-        p <- c_data[ACM_var$SERIES == "Historical average",] %>%
-          ggplot() +
-          geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "lightblue") +
-          geom_ribbon(aes(x = PERIOD, y = NO_DEATHS, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "lightblue", colour = "lightblue") +
-          geom_line(aes(x = PERIOD, y = actual), colour = "black") +
-          scale_x_continuous(name = "Period (2020)") +
+          geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
+          geom_ribbon(aes(x = PERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
+          geom_line(aes(x = PERIOD, y = EXPECTED), colour = "indianred") +
+          scale_x_continuous(name = name_PERIOD) +
           scale_y_continuous(name = "Deaths", limits = c(0, NA)) +
           labs(
             title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
-            subtitle = subtitle
+            subtitle = subtitle, size = 12
           )
       }
-
-      # Both Poission Reg and ETS
-      if (input$plottype == 3) {
-        subtitle <- paste0("deaths in 2020 compared to <span style='color:indianred;'>Negative Binomial Regression </span> and <span style='color:lightblue;'>historical average</span> on 2015-19")
-        actual <- c_data[,"EXCESS_DEATHS"] + c_data[,"NO_DEATHS"]
+      
+      # historical average
+      if (input$check_avg & !input$check_spline) {
+        subtitle <- paste0("deaths in ", bquote(2020), " compared to historical average on 2015-19")
+        p <- c_data[c_data$SERIES == "Historical average",] %>%
+          ggplot() +
+          geom_line(aes(x = PERIOD, y = EXPECTED), colour = "cyan2") +
+          geom_ribbon(aes(x = PERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "cyan2", colour = "cyan2") +
+          geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
+          scale_x_continuous(name = name_PERIOD) +
+          scale_y_continuous(name = "Deaths", limits = c(0, NA)) +
+          labs(
+            title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
+            subtitle = subtitle, size = 12
+          )
+      }
+      
+      # Both neg binom and hist avg
+      if (input$check_avg & input$check_spline) {
+        subtitle <- paste0("deaths in 2020 compared to Negative Binomial Regression and historical average on 2015-19")
         p <- c_data %>%
           ggplot() +
-          geom_line(aes(x = PERIOD, y = NO_DEATHS, group = SERIES, colour = SERIES)) +
-          geom_line(aes(x = PERIOD, y = actual), colour = "black") +
-          scale_x_continuous(name = "Period (2020)") +
+          geom_line(aes(x = PERIOD, y = NO_DEATHS, colour = "Recorded")) +
+          geom_line(aes(x = PERIOD, y = EXPECTED, group = SERIES, colour = SERIES)) +
+          scale_x_continuous(name = name_PERIOD) +
           scale_y_continuous(name = "Deaths", limits = c(0, NA)) +
           labs(
             title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
-            subtitle = subtitle
+            subtitle = subtitle, size = 16
           )
       }
-      print(p)
+      
+      #neither box checked, just show actual
+      if (!input$check_avg & !input$check_spline){
+        subtitle = paste0("deaths in 2020")
+        p <- c_data[c_data$SERIES == "Cyclical spline",] %>% 
+          ggplot() +
+          geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
+          scale_x_continuous(name = name_PERIOD) +
+          scale_y_continuous(name = "Deaths", limits = c(0, NA)) +
+          labs(
+            title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
+            subtitle = subtitle, size = 12
+          )
+      }
+        print(p)
         dev.off()
       }
     )
@@ -261,139 +276,100 @@ shinyServer(
         pdf(file = file, height = 10, width = 10)
       ACM_var <- output_spline() 
 #     c_data <- ACM_var %>% filter(ACM_var$COUNTRY == Countryname() & ACM_var$SEX == input$gender & ACM_var$AGE_GROUP == input$age)
-      c_data <- ACM_var[ACM_var$SEX == input$EDgender & ACM_var$AGE_GROUP == input$EDage,]
+      c_data <- ACM_var[ACM_var$SEX == input$gender & ACM_var$AGE_GROUP == input$age,]
       if(nrow(c_data) < 2) {
         if (ACM_var$WM_IDENTIFIER[1] == "Month") {
           p <- ACM_var[1:12,] %>%
             ggplot() +
-            geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "indianred") +
-            geom_ribbon(aes(x = PERIOD, y = NO_DEATHS, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
+            geom_line(aes(x = PERIOD, y = EXPECTED), colour = "indianred") +
+            geom_ribbon(aes(x = PERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
+            geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
+            geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
             scale_x_continuous(name = "Month in 2020") +
             scale_y_continuous(name = "Deaths") +
             labs(
-              title = paste0("All Cause Mortality in ", iso3(), " during the Pandemic")
+              title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic")
             )
         } else {
           p <- ACM_var[1:52,] %>%
             ggplot() +
-            geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "indianred") +
-            geom_ribbon(aes(x = PERIOD, y = NO_DEATHS, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
+            geom_line(aes(x = PERIOD, y = EXPECTED), colour = "indianred") +
+            geom_ribbon(aes(x = PERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
+            geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
+            geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
             scale_x_continuous(name = "Week in 2020") +
             scale_y_continuous(name = "Deaths") +
             labs(
-              title = paste0("All Cause Mortality in ", iso3(), " during the Pandemic")
+              title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic")
             )
         }
         return(p)
       }
-      # LAv1 <- as.numeric(LAexcess[4]) #excess count
-      # LAv2 <- as.numeric(LAexcess[6]) #excess prop
-      # enddate <- if_else(LAdata$country[1]=="Scotland", enddate.s, enddate.ew)
-      # maxweek <- week(enddate)
-      # labpos <- max(sum(LAdata$AllCause.20[LAdata$week==maxweek]),
-      #               sum(LAdata$deaths.1519[LAdata$week==maxweek]))
-      # lab <- if_else(LAv1<0,
-      #                paste0(round(LAv1,0), " (",round(LAv2*100,0), "%) deaths in 2020\ncompared to the average in 2015-19"),
-      #                paste0("+", round(LAv1,0), " (+",round(LAv2*100,0), "%) deaths in 2020\ncompared to the average in 2015-19"))
-
+      name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month in 2020", "Week in 2020")
       # Spline Regression
-      if (input$EDplottype == 1) {
-        # if (LA %in% c("England", "Wales") & input$EDmeasure=="Occurrences") {
-        #   lab <- ""
-        # }
-        # subtitle = paste0("deaths in <span style='color:red;'>2020</span> compared to <span style='color:blue;'>Spline Regression on 2015-19</span>")
+      if (input$EDcheck_spline & !input$EDcheck_avg) {
         subtitle <- paste0("Excess deaths in ", bquote(2020), " compared to Negative Binomial Regression on 2015-19")
-        # subtitle=case_when(input$measure=="Registrations" ~ paste0("Weekly deaths (by date of registration) in <span style='color:red;'>2020</span> compared to <span style='color:blue;'>the average in 2015-19</span><br>Data up to ", enddate),
-        #                    input$measure=="Occurrences" & LA %in% c("England", "Wales") ~ paste0("Weekly deaths (by date of death) in <span style='color:red;'>2020</span> compared to <span style='color:blue;'>the average in 2015-19</span><br>Data up to ", enddate, ". Date of occurrence data can have substantial reporting delays, particularly in recent weeks,<br>e.g. around 12% of deaths that have happened will be missing from the most recent 2 weeks of data."),
-        #                    input$measure=="Occurrences" & LAdaydata$country[1]=="Scotland" ~ paste0("Weekly deaths (by date of death) in <span style='color:red;'>2020</span> compared to <span style='color:blue;'>the average in 2015-19</span><br>Data up to ", enddate, ". Date of occurrence data can have substantial reporting delays, particularly in recent weeks,<br>when a significant proportion of the deaths that have happened will be missing from the most recent weeks of data."),
-        #                    TRUE ~ paste0("Weekly deaths (by date of death) in <span style='color:red;'>2020</span> compared to <span style='color:blue;'>the average in 2015-19</span><br>Data up to ", enddate, ". Date of occurrence data can have substantial reporting delays, particularly in recent weeks,<br>e.g. around 12% of deaths that have happened will be missing from the most recent 2 weeks of data. <br> 2015-19 data by date of occurrence is not available at subnational level for England & Wales,<br>so 2015-19 registrations data are used here as the comparator. The impact of this is likely to be very small."))
-        lower <- c_data[ACM_var$SERIES == "Cyclical spline","LOWER_LIMIT"] - c_data[ACM_var$SERIES == "Cyclical spline","NO_DEATHS"]
-        upper <- c_data[ACM_var$SERIES == "Cyclical spline","UPPER_LIMIT"] - c_data[ACM_var$SERIES == "Cyclical spline","NO_DEATHS"]
-        p <- c_data[ACM_var$SERIES == "Cyclical spline",] %>%
+        lower <- c_data[c_data$SERIES == "Cyclical spline","LOWER_LIMIT"] - c_data[c_data$SERIES == "Cyclical spline","NO_DEATHS"]
+        upper <- c_data[c_data$SERIES == "Cyclical spline","UPPER_LIMIT"] - c_data[c_data$SERIES == "Cyclical spline","NO_DEATHS"]
+        p <- c_data[c_data$SERIES == "Cyclical spline",] %>%
           ggplot() +
-          geom_line(aes(x = PERIOD, y = EXCESS_DEATHS), colour = "indianred") +
           geom_ribbon(aes(x = PERIOD, y = EXCESS_DEATHS, ymin = lower, ymax = upper), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
-          geom_line(aes(x = PERIOD, y = EXCESS_DEATHS), colour = "black") +
-          scale_x_continuous(name = "Period (2020)") +
-          scale_y_continuous(name = "Deaths") +
-          # theme_classic(base_size=16)+
-          # theme(plot.subtitle=element_markdown(), plot.title.position="plot",
-          #       plot.title=element_text(face="bold", size=rel(1.5)))+
-          # annotate("text", x=week(enddate)-15, y=max(labpos*1.5, labpos+20),
-          #          label=lab,
-          #          hjust=0, colour="red", size=rel(5))+
+          geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
+          scale_x_continuous(name = name_PERIOD) +
+          scale_y_continuous(name = "Excess Deaths") +
           labs(
-            title = paste0("Excess Mortality in ", iso3(), " during the Pandemic"),
-            subtitle = subtitle
+            title = paste0("Excess Mortality in ", Countryname(), " during the Pandemic"),
+            subtitle = subtitle, size = 12
           )
-        # title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic")
-        # ggtitle(paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
-        #         subtitle=subtitle)
       }
-
+      
       # historical average
-      if (input$EDplottype == 2) {
-        # if (LA %in% c("England", "Wales") & input$measure=="Occurrences") {
-        #   lab <- ""
-        # }
-        subtitle <- paste0("deaths in ", bquote(2020), " compared to <span style='color:lightblue;'>historical average on 2015-19</span>")
-        # subtitle=case_when(input$measure=="Registrations" ~ paste0("Weekly deaths (by date of registration) in <span style='color:red;'>2020</span> compared to <span style='color:blue;'>the average in 2015-19</span><br>Data up to ", enddate),
-        #                    input$measure=="Occurrences" & LA %in% c("England", "Wales") ~ paste0("Weekly deaths (by date of death) in <span style='color:red;'>2020</span> compared to <span style='color:blue;'>the average in 2015-19</span><br>Data up to ", enddate, ". Date of occurrence data can have substantial reporting delays, particularly in recent weeks,<br>e.g. around 12% of deaths that have happened will be missing from the most recent 2 weeks of data."),
-        #                    input$measure=="Occurrences" & LAdaydata$country[1]=="Scotland" ~ paste0("Weekly deaths (by date of death) in <span style='color:red;'>2020</span> compared to <span style='color:blue;'>the average in 2015-19</span><br>Data up to ", enddate, ". Date of occurrence data can have substantial reporting delays, particularly in recent weeks,<br>when a significant proportion of the deaths that have happened will be missing from the most recent weeks of data."),
-        #                    TRUE ~ paste0("Weekly deaths (by date of death) in <span style='color:red;'>2020</span> compared to <span style='color:blue;'>the average in 2015-19</span><br>Data up to ", enddate, ". Date of occurrence data can have substantial reporting delays, particularly in recent weeks,<br>e.g. around 12% of deaths that have happened will be missing from the most recent 2 weeks of data. <br> 2015-19 data by date of occurrence is not available at subnational level for England & Wales,<br>so 2015-19 registrations data are used here as the comparator. The impact of this is likely to be very small."))
-        lower <- c_data[ACM_var$SERIES == "Historical average","LOWER_LIMIT"] - c_data[ACM_var$SERIES == "Historical average","NO_DEATHS"]
-        upper <- c_data[ACM_var$SERIES == "Historical average","UPPER_LIMIT"] - c_data[ACM_var$SERIES == "Historical average","NO_DEATHS"]
-        p <- c_data[ACM_var$SERIES == "Historical average",] %>%
+      if (input$EDcheck_avg & !input$EDcheck_spline) {
+        subtitle <- paste0("Excess deaths in ", bquote(2020), " compared to historical average on 2015-19")
+        lower <- c_data[c_data$SERIES == "Historical average","LOWER_LIMIT"] - c_data[c_data$SERIES == "Historical average","NO_DEATHS"]
+        upper <- c_data[c_data$SERIES == "Historical average","UPPER_LIMIT"] - c_data[c_data$SERIES == "Historical average","NO_DEATHS"]
+        p <- c_data[c_data$SERIES == "Historical average",] %>%
           ggplot() +
-          geom_line(aes(x = PERIOD, y = EXCESS_DEATHS), colour = "lightblue") +
-          geom_ribbon(aes(x = PERIOD, y = EXCESS_DEATHS, ymin = lower, ymax = upper), linetype = 2, alpha = 0.1, fill = "lightblue", colour = "lightblue") +
-          geom_line(aes(x = PERIOD, y = EXCESS_DEATHS), colour = "black") +
-          scale_x_continuous(name = "Period (2020)") +
-          scale_y_continuous(name = "Deaths") +
-          # theme_classic(base_size=16)+
-          # theme(plot.subtitle=element_markdown(), plot.title.position="plot",
-          #       plot.title=element_text(face="bold", size=rel(1.5)))+
-          # annotate("text", x=week(enddate)-15, y=max(labpos*1.5, labpos+20),
-          #          label=lab,
-          #          hjust=0, colour="red", size=rel(5))+
+          geom_ribbon(aes(x = PERIOD, y = EXCESS_DEATHS, ymin = lower, ymax = upper), linetype = 2, alpha = 0.1, fill = "cyan2", colour = "cyan2") +
+          geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
+          scale_x_continuous(name = name_PERIOD) +
+          scale_y_continuous(name = "Excess Deaths") +
           labs(
-            title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
-            subtitle = subtitle
+            title = paste0("Excess Mortality in ", Countryname(), " during the Pandemic"),
+            subtitle = subtitle, size = 12
           )
       }
-
-      # Both Poission Reg and ETS
-      if (input$EDplottype == 3) {
-        # if (LA %in% c("England", "Wales") & input$measure=="Occurrences") {
-        #   lab <- ""
-        # }
-        subtitle <- paste0("deaths in 2020 compared to <span style='color:indianred;'>Negative Binomial Regression </span> and <span style='color:lightblue;'>historical average</span> on 2015-19")
-        # subtitle=case_when(input$measure=="Registrations" ~ paste0("Weekly deaths (by date of registration) in <span style='color:red;'>2020</span> compared to <span style='color:blue;'>the average in 2015-19</span><br>Data up to ", enddate),
-        #                    input$measure=="Occurrences" & LA %in% c("England", "Wales") ~ paste0("Weekly deaths (by date of death) in <span style='color:red;'>2020</span> compared to <span style='color:blue;'>the average in 2015-19</span><br>Data up to ", enddate, ". Date of occurrence data can have substantial reporting delays, particularly in recent weeks,<br>e.g. around 12% of deaths that have happened will be missing from the most recent 2 weeks of data."),
-        #                    input$measure=="Occurrences" & LAdaydata$country[1]=="Scotland" ~ paste0("Weekly deaths (by date of death) in <span style='color:red;'>2020</span> compared to <span style='color:blue;'>the average in 2015-19</span><br>Data up to ", enddate, ". Date of occurrence data can have substantial reporting delays, particularly in recent weeks,<br>when a significant proportion of the deaths that have happened will be missing from the most recent weeks of data."),
-        #                    TRUE ~ paste0("Weekly deaths (by date of death) in <span style='color:red;'>2020</span> compared to <span style='color:blue;'>the average in 2015-19</span><br>Data up to ", enddate, ". Date of occurrence data can have substantial reporting delays, particularly in recent weeks,<br>e.g. around 12% of deaths that have happened will be missing from the most recent 2 weeks of data. <br> 2015-19 data by date of occurrence is not available at subnational level for England & Wales,<br>so 2015-19 registrations data are used here as the comparator. The impact of this is likely to be very small."))
-        lower <- c_data[,"LOWER_LIMIT"] - c_data[,"NO_DEATHS"]
-        upper <- c_data[,"UPPER_LIMIT"] - c_data[,"NO_DEATHS"]
+      
+      # Both neg binom and hist avg
+      if (input$EDcheck_avg & input$EDcheck_spline) {
+        subtitle <- paste0("Excess deaths in 2020 compared to Negative Binomial Regression and historical average on 2015-19")
         p <- c_data %>%
-          # filter(SERIES=="Exponential Smoothing") %>%
           ggplot() +
           geom_line(aes(x = PERIOD, y = EXCESS_DEATHS, group = SERIES, colour = SERIES)) +
-          # geom_line(aes(x=PERIOD, y=NO_DEATHS, SERIES=="Cyclical spline"), colour=c("blue"))+
-      #   geom_line(aes(x = PERIOD, y = EXCESS_DEATHS), colour = "black") +
-          scale_x_continuous(name = "Period (2020)") +
-          scale_y_continuous(name = "Deaths") +
-          # theme_classic(base_size=16)+
-          # theme(plot.subtitle=element_markdown(), plot.title.position="plot",
-          #       plot.title=element_text(face="bold", size=rel(1.5)))+
-          # annotate("text", x=week(enddate)-15, y=max(labpos*1.5, labpos+20),
-          #          label=lab,
-          #          hjust=0, colour="red", size=rel(5))+
+          geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
+          scale_x_continuous(name = name_PERIOD) +
+          scale_y_continuous(name = "Excess Deaths") +
           labs(
-            title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
-            subtitle = subtitle
+            title = paste0("Excess Mortality in ", Countryname(), " during the Pandemic"),
+            subtitle = subtitle, size = 12
           )
       }
-      print(p)
+      
+      #neither box checked, just show actual
+      if (!input$EDcheck_avg & !input$EDcheck_spline){
+        subtitle = paste0("Excess deaths in 2020")
+        p <- c_data[c_data$SERIES == "Cyclical spline",] %>% 
+          ggplot() +
+          geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
+          geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
+          scale_x_continuous(name = name_PERIOD) +
+          scale_y_continuous(name = "All Cause Deaths") +
+          labs(
+            title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
+            subtitle = subtitle, size = 12
+          )
+      }
+        print(p)
         dev.off()
       }
     )
@@ -666,6 +642,7 @@ shinyServer(
 
     ## Network Descriptives ------------------------------------------------------
 
+
     output$ACMplot <- renderPlot({
       ACM_var <- output_spline() 
 #     c_data <- ACM_var %>% filter(ACM_var$COUNTRY == Countryname() & ACM_var$SEX == input$gender & ACM_var$AGE_GROUP == input$age)
@@ -674,265 +651,186 @@ shinyServer(
         if (ACM_var$WM_IDENTIFIER[1] == "Month") {
           p <- ACM_var[1:12,] %>%
             ggplot() +
-            geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "indianred") +
-            geom_ribbon(aes(x = PERIOD, y = NO_DEATHS, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
+            geom_line(aes(x = PERIOD, y = EXPECTED), colour = "indianred") +
+            geom_ribbon(aes(x = PERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
+            geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
             scale_x_continuous(name = "Month in 2020") +
             scale_y_continuous(name = "Deaths") +
             labs(
-              title = paste0("All Cause Mortality in ", iso3(), " during the Pandemic")
+              title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic")
             )
         } else {
           p <- ACM_var[1:52,] %>%
             ggplot() +
-            geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "indianred") +
-            geom_ribbon(aes(x = PERIOD, y = NO_DEATHS, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
+            geom_line(aes(x = PERIOD, y = EXPECTED), colour = "indianred") +
+            geom_ribbon(aes(x = PERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
+            geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
             scale_x_continuous(name = "Week in 2020") +
             scale_y_continuous(name = "Deaths") +
             labs(
-              title = paste0("All Cause Mortality in ", iso3(), " during the Pandemic")
+              title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic")
             )
         }
         return(p)
       }
-      # LAv1 <- as.numeric(LAexcess[4]) #excess count
-      # LAv2 <- as.numeric(LAexcess[6]) #excess prop
-      # enddate <- if_else(LAdata$country[1]=="Scotland", enddate.s, enddate.ew)
-      # maxweek <- week(enddate)
-      # labpos <- max(sum(LAdata$AllCause.20[LAdata$week==maxweek]),
-      #               sum(LAdata$deaths.1519[LAdata$week==maxweek]))
-      # lab <- if_else(LAv1<0,
-      #                paste0(round(LAv1,0), " (",round(LAv2*100,0), "%) deaths in 2020\ncompared to the average in 2015-19"),
-      #                paste0("+", round(LAv1,0), " (+",round(LAv2*100,0), "%) deaths in 2020\ncompared to the average in 2015-19"))
-
+      name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month in 2020", "Week in 2020")
       # Spline Regression
-      if (input$plottype == 1) {
-        # if (LA %in% c("England", "Wales") & input$measure=="Occurrences") {
-        #   lab <- ""
-        # }
-        # subtitle = paste0("deaths in <span style='color:red;'>2020</span> compared to <span style='color:blue;'>Spline Regression on 2015-19</span>")
-        subtitle <- paste0("deaths in ", bquote(2020), " compared to <span style='color:indianred;'>Negative Binomial Regression on 2015-19</span>")
-        # subtitle=case_when(input$measure=="Registrations" ~ paste0("Weekly deaths (by date of registration) in <span style='color:red;'>2020</span> compared to <span style='color:blue;'>the average in 2015-19</span><br>Data up to ", enddate),
-        #                    input$measure=="Occurrences" & LA %in% c("England", "Wales") ~ paste0("Weekly deaths (by date of death) in <span style='color:red;'>2020</span> compared to <span style='color:blue;'>the average in 2015-19</span><br>Data up to ", enddate, ". Date of occurrence data can have substantial reporting delays, particularly in recent weeks,<br>e.g. around 12% of deaths that have happened will be missing from the most recent 2 weeks of data."),
-        #                    input$measure=="Occurrences" & LAdaydata$country[1]=="Scotland" ~ paste0("Weekly deaths (by date of death) in <span style='color:red;'>2020</span> compared to <span style='color:blue;'>the average in 2015-19</span><br>Data up to ", enddate, ". Date of occurrence data can have substantial reporting delays, particularly in recent weeks,<br>when a significant proportion of the deaths that have happened will be missing from the most recent weeks of data."),
-        #                    TRUE ~ paste0("Weekly deaths (by date of death) in <span style='color:red;'>2020</span> compared to <span style='color:blue;'>the average in 2015-19</span><br>Data up to ", enddate, ". Date of occurrence data can have substantial reporting delays, particularly in recent weeks,<br>e.g. around 12% of deaths that have happened will be missing from the most recent 2 weeks of data. <br> 2015-19 data by date of occurrence is not available at subnational level for England & Wales,<br>so 2015-19 registrations data are used here as the comparator. The impact of this is likely to be very small."))
-        actual <- c_data[ACM_var$SERIES == "Cyclical spline","EXCESS_DEATHS"] + c_data[ACM_var$SERIES == "Cyclical spline","NO_DEATHS"]
-        p <- c_data[ACM_var$SERIES == "Cyclical spline",] %>%
+      if (input$check_spline & !input$check_avg) {
+        subtitle <- paste0("deaths in ", bquote(2020), " compared to Negative Binomial Regression on 2015-19")
+        p <- c_data[c_data$SERIES == "Cyclical spline",] %>%
           ggplot() +
-          geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "indianred") +
-          geom_ribbon(aes(x = PERIOD, y = NO_DEATHS, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
-          geom_line(aes(x = PERIOD, y = actual), colour = "black") +
-          scale_x_continuous(name = "Period (2020)") +
+          geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
+          geom_ribbon(aes(x = PERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
+          geom_line(aes(x = PERIOD, y = EXPECTED), colour = "indianred") +
+          scale_x_continuous(name = name_PERIOD) +
           scale_y_continuous(name = "Deaths", limits = c(0, NA)) +
-          # theme_classic(base_size=16)+
-          # theme(plot.subtitle=element_markdown(), plot.title.position="plot",
-          #       plot.title=element_text(face="bold", size=rel(1.5)))+
-          # annotate("text", x=week(enddate)-15, y=max(labpos*1.5, labpos+20),
-          #          label=lab,
-          #          hjust=0, colour="red", size=rel(5))+
           labs(
-            title = paste0("All Cause Mortality in ", iso3(), " during the Pandemic"),
-            subtitle = subtitle
+            title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
+            subtitle = subtitle, size = 12
           )
-        # title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic")
-        # ggtitle(paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
-        #         subtitle=subtitle)
       }
-
+      
       # historical average
-      if (input$plottype == 2) {
-        # if (LA %in% c("England", "Wales") & input$measure=="Occurrences") {
-        #   lab <- ""
-        # }
-        subtitle <- paste0("deaths in ", bquote(2020), " compared to <span style='color:lightblue;'>historical average on 2015-19</span>")
-        # subtitle=case_when(input$measure=="Registrations" ~ paste0("Weekly deaths (by date of registration) in <span style='color:red;'>2020</span> compared to <span style='color:blue;'>the average in 2015-19</span><br>Data up to ", enddate),
-        #                    input$measure=="Occurrences" & LA %in% c("England", "Wales") ~ paste0("Weekly deaths (by date of death) in <span style='color:red;'>2020</span> compared to <span style='color:blue;'>the average in 2015-19</span><br>Data up to ", enddate, ". Date of occurrence data can have substantial reporting delays, particularly in recent weeks,<br>e.g. around 12% of deaths that have happened will be missing from the most recent 2 weeks of data."),
-        #                    input$measure=="Occurrences" & LAdaydata$country[1]=="Scotland" ~ paste0("Weekly deaths (by date of death) in <span style='color:red;'>2020</span> compared to <span style='color:blue;'>the average in 2015-19</span><br>Data up to ", enddate, ". Date of occurrence data can have substantial reporting delays, particularly in recent weeks,<br>when a significant proportion of the deaths that have happened will be missing from the most recent weeks of data."),
-        #                    TRUE ~ paste0("Weekly deaths (by date of death) in <span style='color:red;'>2020</span> compared to <span style='color:blue;'>the average in 2015-19</span><br>Data up to ", enddate, ". Date of occurrence data can have substantial reporting delays, particularly in recent weeks,<br>e.g. around 12% of deaths that have happened will be missing from the most recent 2 weeks of data. <br> 2015-19 data by date of occurrence is not available at subnational level for England & Wales,<br>so 2015-19 registrations data are used here as the comparator. The impact of this is likely to be very small."))
-        actual <- c_data[ACM_var$SERIES == "Historical average","EXCESS_DEATHS"] + c_data[ACM_var$SERIES == "Historical average","NO_DEATHS"]
-        p <- c_data[ACM_var$SERIES == "Historical average",] %>%
+      if (input$check_avg & !input$check_spline) {
+        subtitle <- paste0("deaths in ", bquote(2020), " compared to historical average on 2015-19")
+        p <- c_data[c_data$SERIES == "Historical average",] %>%
           ggplot() +
-          geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "lightblue") +
-          geom_ribbon(aes(x = PERIOD, y = NO_DEATHS, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "lightblue", colour = "lightblue") +
-          geom_line(aes(x = PERIOD, y = actual), colour = "black") +
-          scale_x_continuous(name = "Period (2020)") +
+          geom_line(aes(x = PERIOD, y = EXPECTED), colour = "cyan2") +
+          geom_ribbon(aes(x = PERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "cyan2", colour = "cyan2") +
+          geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
+          scale_x_continuous(name = name_PERIOD) +
           scale_y_continuous(name = "Deaths", limits = c(0, NA)) +
-          # theme_classic(base_size=16)+
-          # theme(plot.subtitle=element_markdown(), plot.title.position="plot",
-          #       plot.title=element_text(face="bold", size=rel(1.5)))+
-          # annotate("text", x=week(enddate)-15, y=max(labpos*1.5, labpos+20),
-          #          label=lab,
-          #          hjust=0, colour="red", size=rel(5))+
           labs(
             title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
-            subtitle = subtitle
+            subtitle = subtitle, size = 12
           )
       }
-
-      # Both Poission Reg and ETS
-      if (input$plottype == 3) {
-        # if (LA %in% c("England", "Wales") & input$measure=="Occurrences") {
-        #   lab <- ""
-        # }
-        subtitle <- paste0("deaths in 2020 compared to <span style='color:indianred;'>Negative Binomial Regression </span> and <span style='color:lightblue;'>historical average</span> on 2015-19")
-        # subtitle=case_when(input$measure=="Registrations" ~ paste0("Weekly deaths (by date of registration) in <span style='color:red;'>2020</span> compared to <span style='color:blue;'>the average in 2015-19</span><br>Data up to ", enddate),
-        #                    input$measure=="Occurrences" & LA %in% c("England", "Wales") ~ paste0("Weekly deaths (by date of death) in <span style='color:red;'>2020</span> compared to <span style='color:blue;'>the average in 2015-19</span><br>Data up to ", enddate, ". Date of occurrence data can have substantial reporting delays, particularly in recent weeks,<br>e.g. around 12% of deaths that have happened will be missing from the most recent 2 weeks of data."),
-        #                    input$measure=="Occurrences" & LAdaydata$country[1]=="Scotland" ~ paste0("Weekly deaths (by date of death) in <span style='color:red;'>2020</span> compared to <span style='color:blue;'>the average in 2015-19</span><br>Data up to ", enddate, ". Date of occurrence data can have substantial reporting delays, particularly in recent weeks,<br>when a significant proportion of the deaths that have happened will be missing from the most recent weeks of data."),
-        #                    TRUE ~ paste0("Weekly deaths (by date of death) in <span style='color:red;'>2020</span> compared to <span style='color:blue;'>the average in 2015-19</span><br>Data up to ", enddate, ". Date of occurrence data can have substantial reporting delays, particularly in recent weeks,<br>e.g. around 12% of deaths that have happened will be missing from the most recent 2 weeks of data. <br> 2015-19 data by date of occurrence is not available at subnational level for England & Wales,<br>so 2015-19 registrations data are used here as the comparator. The impact of this is likely to be very small."))
-        actual <- c_data[,"EXCESS_DEATHS"] + c_data[,"NO_DEATHS"]
+      
+      # Both neg binom and hist avg
+      if (input$check_avg & input$check_spline) {
+        subtitle <- paste0("deaths in 2020 compared to Negative Binomial Regression and historical average on 2015-19")
         p <- c_data %>%
-          # filter(SERIES=="Exponential Smoothing") %>%
           ggplot() +
-          geom_line(aes(x = PERIOD, y = NO_DEATHS, group = SERIES, colour = SERIES)) +
-          # geom_line(aes(x=PERIOD, y=NO_DEATHS, SERIES=="Cyclical spline"), colour=c("blue"))+
-          geom_line(aes(x = PERIOD, y = actual), colour = "black") +
-          scale_x_continuous(name = "Period (2020)") +
+          geom_line(aes(x = PERIOD, y = NO_DEATHS, colour = "Recorded")) +
+          geom_line(aes(x = PERIOD, y = EXPECTED, group = SERIES, colour = SERIES)) +
+          scale_x_continuous(name = name_PERIOD) +
           scale_y_continuous(name = "Deaths", limits = c(0, NA)) +
-          # theme_classic(base_size=16)+
-          # theme(plot.subtitle=element_markdown(), plot.title.position="plot",
-          #       plot.title=element_text(face="bold", size=rel(1.5)))+
-          # annotate("text", x=week(enddate)-15, y=max(labpos*1.5, labpos+20),
-          #          label=lab,
-          #          hjust=0, colour="red", size=rel(5))+
           labs(
             title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
-            subtitle = subtitle
+            subtitle = subtitle, size = 16
+          )
+      }
+      
+      #neither box checked, just show actual
+      if (!input$check_avg & !input$check_spline){
+        subtitle = paste0("deaths in 2020")
+        p <- c_data[c_data$SERIES == "Cyclical spline",] %>% 
+          ggplot() +
+          geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
+          scale_x_continuous(name = name_PERIOD) +
+          scale_y_continuous(name = "Deaths", limits = c(0, NA)) +
+          labs(
+            title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
+            subtitle = subtitle, size = 12
           )
       }
       p
     })
+
     output$EDplot <- renderPlot({
       ACM_var <- output_spline() 
 #     c_data <- ACM_var %>% filter(ACM_var$COUNTRY == Countryname() & ACM_var$SEX == input$gender & ACM_var$AGE_GROUP == input$age)
-      c_data <- ACM_var[ACM_var$SEX == input$EDgender & ACM_var$AGE_GROUP == input$EDage,]
+      c_data <- ACM_var[ACM_var$SEX == input$gender & ACM_var$AGE_GROUP == input$age,]
       if(nrow(c_data) < 2) {
         if (ACM_var$WM_IDENTIFIER[1] == "Month") {
           p <- ACM_var[1:12,] %>%
             ggplot() +
-            geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "indianred") +
-            geom_ribbon(aes(x = PERIOD, y = NO_DEATHS, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
+            geom_line(aes(x = PERIOD, y = EXPECTED), colour = "indianred") +
+            geom_ribbon(aes(x = PERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
+            geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
+            geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
             scale_x_continuous(name = "Month in 2020") +
             scale_y_continuous(name = "Deaths") +
             labs(
-              title = paste0("All Cause Mortality in ", iso3(), " during the Pandemic")
+              title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic")
             )
         } else {
           p <- ACM_var[1:52,] %>%
             ggplot() +
-            geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "indianred") +
-            geom_ribbon(aes(x = PERIOD, y = NO_DEATHS, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
+            geom_line(aes(x = PERIOD, y = EXPECTED), colour = "indianred") +
+            geom_ribbon(aes(x = PERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
+            geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
+            geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
             scale_x_continuous(name = "Week in 2020") +
             scale_y_continuous(name = "Deaths") +
             labs(
-              title = paste0("All Cause Mortality in ", iso3(), " during the Pandemic")
+              title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic")
             )
         }
         return(p)
       }
-      # LAv1 <- as.numeric(LAexcess[4]) #excess count
-      # LAv2 <- as.numeric(LAexcess[6]) #excess prop
-      # enddate <- if_else(LAdata$country[1]=="Scotland", enddate.s, enddate.ew)
-      # maxweek <- week(enddate)
-      # labpos <- max(sum(LAdata$AllCause.20[LAdata$week==maxweek]),
-      #               sum(LAdata$deaths.1519[LAdata$week==maxweek]))
-      # lab <- if_else(LAv1<0,
-      #                paste0(round(LAv1,0), " (",round(LAv2*100,0), "%) deaths in 2020\ncompared to the average in 2015-19"),
-      #                paste0("+", round(LAv1,0), " (+",round(LAv2*100,0), "%) deaths in 2020\ncompared to the average in 2015-19"))
-
+      name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month in 2020", "Week in 2020")
       # Spline Regression
-      if (input$EDplottype == 1) {
-        # if (LA %in% c("England", "Wales") & input$EDmeasure=="Occurrences") {
-        #   lab <- ""
-        # }
-        # subtitle = paste0("deaths in <span style='color:red;'>2020</span> compared to <span style='color:blue;'>Spline Regression on 2015-19</span>")
+      if (input$EDcheck_spline & !input$EDcheck_avg) {
         subtitle <- paste0("Excess deaths in ", bquote(2020), " compared to Negative Binomial Regression on 2015-19")
-        # subtitle=case_when(input$measure=="Registrations" ~ paste0("Weekly deaths (by date of registration) in <span style='color:red;'>2020</span> compared to <span style='color:blue;'>the average in 2015-19</span><br>Data up to ", enddate),
-        #                    input$measure=="Occurrences" & LA %in% c("England", "Wales") ~ paste0("Weekly deaths (by date of death) in <span style='color:red;'>2020</span> compared to <span style='color:blue;'>the average in 2015-19</span><br>Data up to ", enddate, ". Date of occurrence data can have substantial reporting delays, particularly in recent weeks,<br>e.g. around 12% of deaths that have happened will be missing from the most recent 2 weeks of data."),
-        #                    input$measure=="Occurrences" & LAdaydata$country[1]=="Scotland" ~ paste0("Weekly deaths (by date of death) in <span style='color:red;'>2020</span> compared to <span style='color:blue;'>the average in 2015-19</span><br>Data up to ", enddate, ". Date of occurrence data can have substantial reporting delays, particularly in recent weeks,<br>when a significant proportion of the deaths that have happened will be missing from the most recent weeks of data."),
-        #                    TRUE ~ paste0("Weekly deaths (by date of death) in <span style='color:red;'>2020</span> compared to <span style='color:blue;'>the average in 2015-19</span><br>Data up to ", enddate, ". Date of occurrence data can have substantial reporting delays, particularly in recent weeks,<br>e.g. around 12% of deaths that have happened will be missing from the most recent 2 weeks of data. <br> 2015-19 data by date of occurrence is not available at subnational level for England & Wales,<br>so 2015-19 registrations data are used here as the comparator. The impact of this is likely to be very small."))
-        lower <- c_data[ACM_var$SERIES == "Cyclical spline","LOWER_LIMIT"] - c_data[ACM_var$SERIES == "Cyclical spline","NO_DEATHS"]
-        upper <- c_data[ACM_var$SERIES == "Cyclical spline","UPPER_LIMIT"] - c_data[ACM_var$SERIES == "Cyclical spline","NO_DEATHS"]
-        p <- c_data[ACM_var$SERIES == "Cyclical spline",] %>%
+        lower <- c_data[c_data$SERIES == "Cyclical spline","LOWER_LIMIT"] - c_data[c_data$SERIES == "Cyclical spline","NO_DEATHS"]
+        upper <- c_data[c_data$SERIES == "Cyclical spline","UPPER_LIMIT"] - c_data[c_data$SERIES == "Cyclical spline","NO_DEATHS"]
+        p <- c_data[c_data$SERIES == "Cyclical spline",] %>%
           ggplot() +
-          geom_line(aes(x = PERIOD, y = EXCESS_DEATHS), colour = "indianred") +
           geom_ribbon(aes(x = PERIOD, y = EXCESS_DEATHS, ymin = lower, ymax = upper), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
-          geom_line(aes(x = PERIOD, y = EXCESS_DEATHS), colour = "black") +
-          scale_x_continuous(name = "Period (2020)") +
-          scale_y_continuous(name = "Deaths") +
-          # theme_classic(base_size=16)+
-          # theme(plot.subtitle=element_markdown(), plot.title.position="plot",
-          #       plot.title=element_text(face="bold", size=rel(1.5)))+
-          # annotate("text", x=week(enddate)-15, y=max(labpos*1.5, labpos+20),
-          #          label=lab,
-          #          hjust=0, colour="red", size=rel(5))+
+          geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
+          scale_x_continuous(name = name_PERIOD) +
+          scale_y_continuous(name = "Excess Deaths") +
           labs(
-            title = paste0("Excess Mortality in ", iso3(), " during the Pandemic"),
-            subtitle = subtitle
+            title = paste0("Excess Mortality in ", Countryname(), " during the Pandemic"),
+            subtitle = subtitle, size = 12
           )
-        # title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic")
-        # ggtitle(paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
-        #         subtitle=subtitle)
       }
-
+      
       # historical average
-      if (input$EDplottype == 2) {
-        # if (LA %in% c("England", "Wales") & input$measure=="Occurrences") {
-        #   lab <- ""
-        # }
-        subtitle <- paste0("deaths in ", bquote(2020), " compared to <span style='color:lightblue;'>historical average on 2015-19</span>")
-        # subtitle=case_when(input$measure=="Registrations" ~ paste0("Weekly deaths (by date of registration) in <span style='color:red;'>2020</span> compared to <span style='color:blue;'>the average in 2015-19</span><br>Data up to ", enddate),
-        #                    input$measure=="Occurrences" & LA %in% c("England", "Wales") ~ paste0("Weekly deaths (by date of death) in <span style='color:red;'>2020</span> compared to <span style='color:blue;'>the average in 2015-19</span><br>Data up to ", enddate, ". Date of occurrence data can have substantial reporting delays, particularly in recent weeks,<br>e.g. around 12% of deaths that have happened will be missing from the most recent 2 weeks of data."),
-        #                    input$measure=="Occurrences" & LAdaydata$country[1]=="Scotland" ~ paste0("Weekly deaths (by date of death) in <span style='color:red;'>2020</span> compared to <span style='color:blue;'>the average in 2015-19</span><br>Data up to ", enddate, ". Date of occurrence data can have substantial reporting delays, particularly in recent weeks,<br>when a significant proportion of the deaths that have happened will be missing from the most recent weeks of data."),
-        #                    TRUE ~ paste0("Weekly deaths (by date of death) in <span style='color:red;'>2020</span> compared to <span style='color:blue;'>the average in 2015-19</span><br>Data up to ", enddate, ". Date of occurrence data can have substantial reporting delays, particularly in recent weeks,<br>e.g. around 12% of deaths that have happened will be missing from the most recent 2 weeks of data. <br> 2015-19 data by date of occurrence is not available at subnational level for England & Wales,<br>so 2015-19 registrations data are used here as the comparator. The impact of this is likely to be very small."))
-        lower <- c_data[ACM_var$SERIES == "Historical average","LOWER_LIMIT"] - c_data[ACM_var$SERIES == "Historical average","NO_DEATHS"]
-        upper <- c_data[ACM_var$SERIES == "Historical average","UPPER_LIMIT"] - c_data[ACM_var$SERIES == "Historical average","NO_DEATHS"]
-        p <- c_data[ACM_var$SERIES == "Historical average",] %>%
+      if (input$EDcheck_avg & !input$EDcheck_spline) {
+        subtitle <- paste0("Excess deaths in ", bquote(2020), " compared to historical average on 2015-19")
+        lower <- c_data[c_data$SERIES == "Historical average","LOWER_LIMIT"] - c_data[c_data$SERIES == "Historical average","NO_DEATHS"]
+        upper <- c_data[c_data$SERIES == "Historical average","UPPER_LIMIT"] - c_data[c_data$SERIES == "Historical average","NO_DEATHS"]
+        p <- c_data[c_data$SERIES == "Historical average",] %>%
           ggplot() +
-          geom_line(aes(x = PERIOD, y = EXCESS_DEATHS), colour = "lightblue") +
-          geom_ribbon(aes(x = PERIOD, y = EXCESS_DEATHS, ymin = lower, ymax = upper), linetype = 2, alpha = 0.1, fill = "lightblue", colour = "lightblue") +
-          geom_line(aes(x = PERIOD, y = EXCESS_DEATHS), colour = "black") +
-          scale_x_continuous(name = "Period (2020)") +
-          scale_y_continuous(name = "Deaths") +
-          # theme_classic(base_size=16)+
-          # theme(plot.subtitle=element_markdown(), plot.title.position="plot",
-          #       plot.title=element_text(face="bold", size=rel(1.5)))+
-          # annotate("text", x=week(enddate)-15, y=max(labpos*1.5, labpos+20),
-          #          label=lab,
-          #          hjust=0, colour="red", size=rel(5))+
+          geom_ribbon(aes(x = PERIOD, y = EXCESS_DEATHS, ymin = lower, ymax = upper), linetype = 2, alpha = 0.1, fill = "cyan2", colour = "cyan2") +
+          geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
+          scale_x_continuous(name = name_PERIOD) +
+          scale_y_continuous(name = "Excess Deaths") +
           labs(
-            title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
-            subtitle = subtitle
+            title = paste0("Excess Mortality in ", Countryname(), " during the Pandemic"),
+            subtitle = subtitle, size = 12
           )
       }
-
-      # Both Poission Reg and ETS
-      if (input$EDplottype == 3) {
-        # if (LA %in% c("England", "Wales") & input$measure=="Occurrences") {
-        #   lab <- ""
-        # }
-        subtitle <- paste0("deaths in 2020 compared to <span style='color:indianred;'>Negative Binomial Regression </span> and <span style='color:lightblue;'>historical average</span> on 2015-19")
-        # subtitle=case_when(input$measure=="Registrations" ~ paste0("Weekly deaths (by date of registration) in <span style='color:red;'>2020</span> compared to <span style='color:blue;'>the average in 2015-19</span><br>Data up to ", enddate),
-        #                    input$measure=="Occurrences" & LA %in% c("England", "Wales") ~ paste0("Weekly deaths (by date of death) in <span style='color:red;'>2020</span> compared to <span style='color:blue;'>the average in 2015-19</span><br>Data up to ", enddate, ". Date of occurrence data can have substantial reporting delays, particularly in recent weeks,<br>e.g. around 12% of deaths that have happened will be missing from the most recent 2 weeks of data."),
-        #                    input$measure=="Occurrences" & LAdaydata$country[1]=="Scotland" ~ paste0("Weekly deaths (by date of death) in <span style='color:red;'>2020</span> compared to <span style='color:blue;'>the average in 2015-19</span><br>Data up to ", enddate, ". Date of occurrence data can have substantial reporting delays, particularly in recent weeks,<br>when a significant proportion of the deaths that have happened will be missing from the most recent weeks of data."),
-        #                    TRUE ~ paste0("Weekly deaths (by date of death) in <span style='color:red;'>2020</span> compared to <span style='color:blue;'>the average in 2015-19</span><br>Data up to ", enddate, ". Date of occurrence data can have substantial reporting delays, particularly in recent weeks,<br>e.g. around 12% of deaths that have happened will be missing from the most recent 2 weeks of data. <br> 2015-19 data by date of occurrence is not available at subnational level for England & Wales,<br>so 2015-19 registrations data are used here as the comparator. The impact of this is likely to be very small."))
-        lower <- c_data[,"LOWER_LIMIT"] - c_data[,"NO_DEATHS"]
-        upper <- c_data[,"UPPER_LIMIT"] - c_data[,"NO_DEATHS"]
+      
+      # Both neg binom and hist avg
+      if (input$EDcheck_avg & input$EDcheck_spline) {
+        subtitle <- paste0("Excess deaths in 2020 compared to Negative Binomial Regression and historical average on 2015-19")
         p <- c_data %>%
-          # filter(SERIES=="Exponential Smoothing") %>%
           ggplot() +
           geom_line(aes(x = PERIOD, y = EXCESS_DEATHS, group = SERIES, colour = SERIES)) +
-          # geom_line(aes(x=PERIOD, y=NO_DEATHS, SERIES=="Cyclical spline"), colour=c("blue"))+
-      #   geom_line(aes(x = PERIOD, y = EXCESS_DEATHS), colour = "black") +
-          scale_x_continuous(name = "Period (2020)") +
-          scale_y_continuous(name = "Deaths") +
-          # theme_classic(base_size=16)+
-          # theme(plot.subtitle=element_markdown(), plot.title.position="plot",
-          #       plot.title=element_text(face="bold", size=rel(1.5)))+
-          # annotate("text", x=week(enddate)-15, y=max(labpos*1.5, labpos+20),
-          #          label=lab,
-          #          hjust=0, colour="red", size=rel(5))+
+          geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
+          scale_x_continuous(name = name_PERIOD) +
+          scale_y_continuous(name = "Excess Deaths") +
+          labs(
+            title = paste0("Excess Mortality in ", Countryname(), " during the Pandemic"),
+            subtitle = subtitle, size = 12
+          )
+      }
+      
+      #neither box checked, just show actual
+      if (!input$EDcheck_avg & !input$EDcheck_spline){
+        subtitle = paste0("Excess deaths in 2020")
+        p <- c_data[c_data$SERIES == "Cyclical spline",] %>% 
+          ggplot() +
+          geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
+          geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
+          scale_x_continuous(name = name_PERIOD) +
+          scale_y_continuous(name = "All Cause Deaths") +
           labs(
             title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
-            subtitle = subtitle
+            subtitle = subtitle, size = 12
           )
       }
       p

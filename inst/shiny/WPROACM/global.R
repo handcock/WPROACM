@@ -7,75 +7,10 @@ require(mgcv)
 
 require(stats); require(graphics)
 
-#library(WPROACM)
-
-# version of textInput with more size options.
-# specify class = 'input-small' or class='input-mini' in
-# addition to other textInput args
-customTextInput <- function(inputId, label, value = "",
-                            labelstyle = "dispay:inline;", ...) {
-  tagList(tags$label(label, `for` = inputId, style = labelstyle),
-          tags$input(id = inputId, type = "text", value = value,
-                     ...))
-}
-
-customNumericInput <- function(inputId, label, value = 0,
-                               labelstyle = "display:inline;", ...) {
-  tagList(tags$label(label, `for` = inputId, style = labelstyle),
-          tags$input(id = inputId, type = "number", value = value,
-                     ...))
-}
-
-# version of selectInput...shorter box and label
-# inline lapply allows us to add each element of
-# choices as an option in the select menu
-inlineSelectInput <- function(inputId, label, choices, ...) {
-  if(is.null(label)){
-    labeldisp <- "display: none;"
-  } else {
-    labeldisp <- "display: inline;"
-  }
-
-  tagList(tags$label(label, `for` = inputId, style = labeldisp),
-          tags$select(id = inputId, choices = choices, ...,
-                      class = "shiny-bound-input inlineselect",
-                      lapply(choices, tags$option)))
-}
-
-# disable widgets when they should not be usable
-disableWidget <- function(id, session, disabled = TRUE) {
-  if (disabled) {
-    session$sendCustomMessage(type = "jsCode",
-                              list(code = paste("$('#", id, "').prop('disabled',true)",
-                                                sep = "")))
-  } else {
-    session$sendCustomMessage(type = "jsCode",
-                              list(code = paste("$('#", id, "').prop('disabled',false)",
-                                                sep = "")))
-  }
-}
-
-attr.info <- function(df, colname, numattrs, breaks) {
-  lvls <- length(unique(df[[colname]]))
-  if(colname %in% numattrs & lvls > 9){
-    tab <- hist(df[[colname]], breaks = breaks, plot = FALSE)
-    barname <- paste(tab$breaks[1:2], collapse = "-")
-    for(i in seq(length(tab$breaks) - 2)){
-      barname <- append(barname, paste(tab$breaks[i+1]+1,
-                                       tab$breaks[i+2], sep = "-"))
-    }
-    tab <- tab$counts
-    names(tab) <- barname
-  } else {
-    tab <- table(df[[colname]])
-  }
-  return(tab)
-}
-
-# Next Bart
 # TODO:dynamically generate input labels
 gender_labels <- c("Female", "Male", "Total")
 age_group_labels <- c("0-44", "45-64", "65-74", "75-84", "85 and over", "Total")
+
 # version of textInput with more size options.
 # specify class = 'input-small' or class='input-mini' in
 # addition to other textInput args
@@ -314,27 +249,26 @@ calculate_spline <- function(src) {
   names(out)[c(3:4)] <- c("WM_IDENTIFIER", "PERIOD")
 
   out[, "EXCESS_DEATHS"] <- out$NO_DEATHS - out$ESTIMATE
+  out[, "EXPECTED"] <- out$ESTIMATE
 
-  out <- melt(out, id.vars = c("COUNTRY", "ISO3", "WM_IDENTIFIER", "PERIOD", "SEX", "AGE_GROUP", "AREA", "CAUSE", "DATE_TO_SPECIFY_WEEK", "SE_IDENTIFIER", "LOWER_LIMIT", "UPPER_LIMIT", "EXCESS_DEATHS"))
+# out <- melt(out, id.vars = c("COUNTRY", "ISO3", "WM_IDENTIFIER", "PERIOD", "SEX", "AGE_GROUP", "AREA", "CAUSE", "DATE_TO_SPECIFY_WEEK", "SE_IDENTIFIER", "LOWER_LIMIT", "UPPER_LIMIT", "EXCESS_DEATHS"))
 
-  names(out)[c(14:15)] <- c("SERIES", "NO_DEATHS")
+# names(out)[c(14:15)] <- c("SERIES", "NO_DEATHS")
+  out$SERIES <- factor(rep(c("Cyclical spline", "Historical average"),rep(l_period*n_pat,2)))
 
-  l_SERIES <- levels(out$SERIES)
-  names_SERIES <- c("NO_DEATHS", "ESTIMATE")
-  new_names_SERIES <- c("Current deaths", "Cyclical spline", "Historical average")
-  series <- as.numeric(out$SERIES)
-  a <- series[3*l_period*n_pat+(1:l_period*n_pat)]==2
-  series[3*l_period*n_pat+(1:l_period*n_pat)][a] <- 3
-  out$SERIES <- factor(new_names_SERIES[series], levels=new_names_SERIES) 
+# l_SERIES <- levels(out$SERIES)
+# names_SERIES <- c("NO_DEATHS", "ESTIMATE")
+# new_names_SERIES <- c("Current deaths", "Cyclical spline", "Historical average")
+# series <- as.numeric(out$SERIES)
+# series[3*l_period*n_pat+(1:(l_period*n_pat))][a] <- 3
+# out$SERIES <- factor(new_names_SERIES[series], levels=new_names_SERIES) 
 
   if (any(out$SERIES == "Unknown series, plz check")) message("Unknown series, plz check")
 
+  out <- out[, c("COUNTRY", "ISO3", "WM_IDENTIFIER", "PERIOD", "DATE_TO_SPECIFY_WEEK", "SEX", "AGE_GROUP", "AREA", "SERIES", "NO_DEATHS", "EXPECTED", "LOWER_LIMIT", "UPPER_LIMIT", "EXCESS_DEATHS")]
 
-  out <- out[, c("COUNTRY", "ISO3", "WM_IDENTIFIER", "PERIOD", "SEX", "AGE_GROUP", "AREA", "CAUSE", "SERIES", "NO_DEATHS", "DATE_TO_SPECIFY_WEEK", "SE_IDENTIFIER", "LOWER_LIMIT", "UPPER_LIMIT", "EXCESS_DEATHS")]
+# out <- out[out$SERIES != "Current deaths", ]
 
-  out <- out[out$SERIES != "Current deaths", ]
-
-  print(dim(out))
   message("Computation of the expected deaths completed successfully.")
 
   return(out)
