@@ -16,6 +16,7 @@ Depends:
     readxl,
     stringr,
     mgcv,
+    ggplot2,
     lattice,
     latticeExtra
 Imports:
