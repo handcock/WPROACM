@@ -6,6 +6,7 @@ require(methods)
 
 require("WPROACM")
 require("RColorBrewer")
+require("ggplot2")
 require("lattice")
 require("latticeExtra")
 
