@@ -1,9 +1,9 @@
 WPROACM
 ==========
 
-Welcome to the all cause of mortality and Excess Death Monitoring interactive interface!
+Welcome to the All Cause of mortality and Excess Death Monitoring calculator!
 
-This interface has been developed by the World Health Organization, Western Pacific Region in conjunction with the Department of Statistics at
+This calculator has been developed by the World Health Organization, Western Pacific Region in conjunction with the Department of Statistics at
 UCLA .
 
 This web application is written with the Shiny framework and development is via GitHub. More information on Shiny and our GitHub repository can
