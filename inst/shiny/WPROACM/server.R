@@ -201,8 +201,9 @@ shinyServer(
               title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic")
             )
         }
-        return(p)
-      }
+        print(p)
+        dev.off()
+      }else{
       name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month in 2020", "Week in 2020")
       # Spline Regression
       if (input$check_spline & !input$check_avg) {
@@ -267,6 +268,7 @@ shinyServer(
         print(p)
         dev.off()
       }
+      }
     )
 
     output$EDplotdownload <- downloadHandler(
@@ -304,8 +306,9 @@ shinyServer(
               title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic")
             )
         }
-        return(p)
-      }
+        print(p)
+        dev.off()
+      }else{
       name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month in 2020", "Week in 2020")
       # Spline Regression
       if (input$EDcheck_spline & !input$EDcheck_avg) {
@@ -373,6 +376,7 @@ shinyServer(
         print(p)
         dev.off()
       }
+     }
     )
 
     ## Network Descriptives (Plots) ------------------------------------------------------
