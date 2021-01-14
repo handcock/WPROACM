@@ -1,12 +1,10 @@
-name: WPROACM
+name: wproacm
 title:
 username:
 account: handcock
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
-appId: 42335
-bundleId: 2155890
-url: https://handcock.shinyapps.io/WPROACM/
-when: 1560626190.96857
-asMultiple: FALSE
-asStatic: FALSE
+appId: 3471497
+bundleId: 4093040
+url: https://handcock.shinyapps.io/wproacm/
+when: 1610583702.11286
