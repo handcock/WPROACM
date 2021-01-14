@@ -187,7 +187,8 @@ shinyServer(
             scale_x_continuous(name = "Month in 2020") +
             scale_y_continuous(name = "Deaths") +
             labs(
-              title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic")
+              title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
+              subtitle = "There are no data on this Gender and Age Group. This is a plot of the first group in the data."
             )
         } else {
           p <- ACM_var[1:52,] %>%
@@ -198,9 +199,11 @@ shinyServer(
             scale_x_continuous(name = "Week in 2020") +
             scale_y_continuous(name = "Deaths") +
             labs(
-              title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic")
+              title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
+              subtitle = "There are no data on this Gender and Age Group. This is a plot of the first group in the data."
             )
         }
+        p <- p + theme(plot.subtitle=element_text(size=18, hjust=0.5, face="italic", color="darkred"))    
         print(p)
         dev.off()
       }else{
@@ -291,7 +294,8 @@ shinyServer(
             scale_x_continuous(name = "Month in 2020") +
             scale_y_continuous(name = "Deaths") +
             labs(
-              title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic")
+              title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
+              subtitle = "There are no data on this Gender and Age Group. This is a plot of the first group in the data."
             )
         } else {
           p <- ACM_var[1:52,] %>%
@@ -303,9 +307,11 @@ shinyServer(
             scale_x_continuous(name = "Week in 2020") +
             scale_y_continuous(name = "Deaths") +
             labs(
-              title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic")
+              title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
+              subtitle = "There are no data on this Gender and Age Group. This is a plot of the first group in the data."
             )
         }
+        p <- p + theme(plot.subtitle=element_text(size=18, hjust=0.5, face="italic", color="darkred"))    
         print(p)
         dev.off()
       }else{
@@ -662,7 +668,8 @@ shinyServer(
             scale_x_continuous(name = "Month in 2020") +
             scale_y_continuous(name = "Deaths") +
             labs(
-              title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic")
+              title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
+              subtitle = "There are no data on this Gender and Age Group. This is a plot of the first group in the data."
             )
         } else {
           p <- ACM_var[1:52,] %>%
@@ -673,9 +680,11 @@ shinyServer(
             scale_x_continuous(name = "Week in 2020") +
             scale_y_continuous(name = "Deaths") +
             labs(
-              title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic")
+              title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
+              subtitle = "There are no data on this Gender and Age Group. This is a plot of the first group in the data."
             )
         }
+        p <- p + theme(plot.subtitle=element_text(size=18, hjust=0.5, face="italic", color="darkred"))    
         return(p)
       }
       name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month in 2020", "Week in 2020")
@@ -757,7 +766,8 @@ shinyServer(
             scale_x_continuous(name = "Month in 2020") +
             scale_y_continuous(name = "Deaths") +
             labs(
-              title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic")
+              title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
+              subtitle = "There are no data on this Gender and Age Group. This is a plot of the first group in the data."
             )
         } else {
           p <- ACM_var[1:52,] %>%
@@ -769,9 +779,11 @@ shinyServer(
             scale_x_continuous(name = "Week in 2020") +
             scale_y_continuous(name = "Deaths") +
             labs(
-              title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic")
+              title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
+              subtitle = "There are no data on this Gender and Age Group. This is a plot of the first group in the data."
             )
         }
+        p <- p + theme(plot.subtitle=element_text(size=18, hjust=0.5, face="italic", color="darkred"))    
         return(p)
       }
       name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month in 2020", "Week in 2020")
