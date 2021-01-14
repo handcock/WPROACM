@@ -17,7 +17,6 @@ The app can be run in two ways:
 ```r
 install.packages("devtools")
 devtools::install_github("handcock/WPROACM")
-WPROACM::run_WPROACM()
 ```
 then run it from `R`:
 ```r
