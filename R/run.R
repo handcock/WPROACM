@@ -13,5 +13,5 @@
 #'
 #'
 run <- function() {
-  shiny::runApp(system.file("shiny/WPROACM", package = "WPROACM"))
+  shiny::runApp(system.file("shiny/WPROACM", package = "WPROACM"), port=7990)
 }
