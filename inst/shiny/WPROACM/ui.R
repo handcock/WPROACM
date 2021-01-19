@@ -199,7 +199,7 @@ column(4,
                     selectizeInput('samplenet', label=NULL,
                                 choices=c("Choose a country" = '', 
                                           'Australia','Japan',
-                                          'South Korea', 'New Zealand', 'Philippines')),
+                                          'Republic of Korea', 'New Zealand', 'Philippines')),
                               p(class="helper", id="BIhelp", icon("question-circle"),
                                 span("These are example CSV files from some countries with data from January 1, 2015 through August, 2020.", style="font-size:0.85em;"),
                                  br(),'You try select a country in the drop-down menu', em("Choose a country"),
@@ -300,8 +300,10 @@ actionLink('dataright', icon=icon('arrow-right', class='fa-2x'), label=NULL)
               "All Cause Mortality Plot", br(),
               wellPanel(
                 fluidRow(
-                  selectInput("gender", "Select Gender", sort(gender_labels)),
-                  selectInput("age", "Select Age Group", sort(age_group_labels)),
+                  selectInput("gender", "Select Sex", gender_labels),
+                  #selectInput("gender", "Select Sex", sort(as.character(unique(ACM_var$SEX)))),
+                  selectInput("age", "Select Age Group", age_group_labels),
+                  #selectInput("age", "Select Age Group", sort(as.character(unique(ACM_var$AGE_GROUP)))),
                   checkboxInput('check_avg', '5-year Average'),
                   checkboxInput('check_spline', "Negative Binomial Regression"),
                   plotOutput('ACMplot'),
@@ -312,8 +314,8 @@ actionLink('dataright', icon=icon('arrow-right', class='fa-2x'), label=NULL)
               "Excess Mortality Plot", br(),
               wellPanel(
                 fluidRow(
-                  selectInput("EDgender", "Select Gender", sort(gender_labels)),
-                  selectInput("EDage", "Select Age Group", sort(age_group_labels)),
+                  selectInput("EDgender", "Select Gender", gender_labels),
+                  selectInput("EDage", "Select Age Group", age_group_labels),
                   checkboxInput('EDcheck_avg', '5-year Average'),
                   checkboxInput('EDcheck_spline', "Negative Binomial Regression"),
                   plotOutput('EDplot'),
@@ -379,7 +381,7 @@ study."),
          )
          ),
 
-tabPanel(title='Help', value='tab6',
+tabPanel(title='Help and Resources', value='tab6',
          sidebarLayout(position = 'right',
                        sidebarPanel(
                          h5(tags$u('Resources')),
@@ -387,6 +389,11 @@ tabPanel(title='Help', value='tab6',
                              a("About WPROACM",
                                href = "https://github.com/handcock/WPROACM/wiki",
                                target = "_blank")),
+                         div(title="WPRO dashboard",
+                             a("WPRO dashboard",
+                               href = "https://who.maps.arcgis.com/apps/opsdashboard/index.html#/345dfdc82b5c4f6a815f1d54a05d18e", 
+                               target = "_blank")
+                         ),
                          div(title=paste("Information on the methodology used",
                                          "in the tool"),
                              a("About the methodology used in the tool.",
@@ -407,7 +414,10 @@ tabPanel(title='Help', value='tab6',
                            "or email us at", 
                              a(actionButton(inputId = "email1", label = "handcock@stat.ucla.edu", 
                                icon = icon("envelope", lib = "font-awesome")),
-                               href="mailto:handcock@stat.ucla.edu"))
+                               href="mailto:handcock@stat.ucla.edu"),
+                           a(actionButton(inputId = "email2", label = "wproncovinfoplan@who.int", 
+                                          icon = icon("envelope", lib = "font-awesome")),
+                             href="mailto:wproncovinfoplan@who.int"))
                          ))
          )
 

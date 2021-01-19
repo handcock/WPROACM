@@ -118,7 +118,7 @@ shinyServer(
           net_name <- c("Australia", "Japan", "South_Korea", "New_Zealand", "Philippines")[
             match(input$samplenet, c(
               "Australia", "Japan",
-              "South Korea", "New Zealand", "Philippines"
+              "Republic of Korea", "New Zealand", "Philippines"
             ))
           ]
           ACM_var <- eval(parse(text = net_name))
@@ -134,7 +134,7 @@ shinyServer(
           iso3 <- c("AUD", "JPN", "KOR", "NZL", "PHL")[
             match(input$samplenet, c(
               "Australia", "Japan",
-              "South Korea", "New Zealand", "Philippines"
+              "Republic of Korea", "New Zealand", "Philippines"
             ))
           ]
         }
