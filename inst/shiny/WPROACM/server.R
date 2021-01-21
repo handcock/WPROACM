@@ -189,7 +189,8 @@ shinyServer(
             labs(
               title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
               subtitle = "There are no data on this Gender and Age Group. This is a plot of the first group in the data."
-            )
+            ) +
+            theme_bw()
         } else {
           p <- ACM_var[1:52,] %>%
             ggplot() +
@@ -201,7 +202,8 @@ shinyServer(
             labs(
               title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
               subtitle = "There are no data on this Gender and Age Group. This is a plot of the first group in the data."
-            )
+            ) +
+            theme_bw()
         }
         p <- p + theme(plot.subtitle=element_text(size=18, hjust=0.5, face="italic", color="darkred"))    
         print(p)
@@ -221,7 +223,8 @@ shinyServer(
           labs(
             title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
-          )
+          ) +
+          theme_bw()
       }
       
       # historical average
@@ -237,7 +240,8 @@ shinyServer(
           labs(
             title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
-          )
+          ) +
+          theme_bw()
       }
       
       # Both neg binom and hist avg
@@ -245,14 +249,16 @@ shinyServer(
         subtitle <- paste0("deaths in 2020 compared to Negative Binomial Regression and historical average on 2015-19")
         p <- c_data %>%
           ggplot() +
-          geom_line(aes(x = PERIOD, y = NO_DEATHS, colour = "Recorded")) +
+          geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
           geom_line(aes(x = PERIOD, y = EXPECTED, group = SERIES, colour = SERIES)) +
+          scale_colour_manual(values=c("indianred", "cyan2")) + 
           scale_x_continuous(name = name_PERIOD) +
           scale_y_continuous(name = "Deaths", limits = c(0, NA)) +
           labs(
             title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 16
-          )
+          ) +
+          theme_bw()
       }
       
       #neither box checked, just show actual
@@ -266,7 +272,8 @@ shinyServer(
           labs(
             title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
-          )
+          ) +
+          theme_bw()
       }
         print(p)
         dev.off()
@@ -296,7 +303,8 @@ shinyServer(
             labs(
               title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
               subtitle = "There are no data on this Gender and Age Group. This is a plot of the first group in the data."
-            )
+            ) +
+            theme_bw()
         } else {
           p <- ACM_var[1:52,] %>%
             ggplot() +
@@ -309,7 +317,8 @@ shinyServer(
             labs(
               title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
               subtitle = "There are no data on this Gender and Age Group. This is a plot of the first group in the data."
-            )
+            ) +
+            theme_bw()
         }
         p <- p + theme(plot.subtitle=element_text(size=18, hjust=0.5, face="italic", color="darkred"))    
         print(p)
@@ -330,7 +339,8 @@ shinyServer(
           labs(
             title = paste0("Excess Mortality in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
-          )
+          ) +
+          theme_bw()
       }
       
       # historical average
@@ -347,7 +357,8 @@ shinyServer(
           labs(
             title = paste0("Excess Mortality in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
-          )
+          ) +
+          theme_bw()
       }
       
       # Both neg binom and hist avg
@@ -356,13 +367,15 @@ shinyServer(
         p <- c_data %>%
           ggplot() +
           geom_line(aes(x = PERIOD, y = EXCESS_DEATHS, group = SERIES, colour = SERIES)) +
+          scale_colour_manual(values=c("indianred", "cyan2")) + 
           geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
           scale_x_continuous(name = name_PERIOD) +
           scale_y_continuous(name = "Excess Deaths") +
           labs(
             title = paste0("Excess Mortality in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
-          )
+          ) +
+          theme_bw()
       }
       
       #neither box checked, just show actual
@@ -377,7 +390,8 @@ shinyServer(
           labs(
             title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
-          )
+          ) +
+          theme_bw()
       }
         print(p)
         dev.off()
@@ -670,7 +684,8 @@ shinyServer(
             labs(
               title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
               subtitle = "There are no data on this Gender and Age Group. This is a plot of the first group in the data."
-            )
+            ) +
+            theme_bw()
         } else {
           p <- ACM_var[1:52,] %>%
             ggplot() +
@@ -682,7 +697,8 @@ shinyServer(
             labs(
               title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
               subtitle = "There are no data on this Gender and Age Group. This is a plot of the first group in the data."
-            )
+            ) +
+            theme_bw()
         }
         p <- p + theme(plot.subtitle=element_text(size=18, hjust=0.5, face="italic", color="darkred"))    
         return(p)
@@ -701,7 +717,8 @@ shinyServer(
           labs(
             title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
-          )
+          ) +
+          theme_bw()
       }
       
       # historical average
@@ -717,7 +734,8 @@ shinyServer(
           labs(
             title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
-          )
+          ) +
+          theme_bw()
       }
       
       # Both neg binom and hist avg
@@ -725,14 +743,16 @@ shinyServer(
         subtitle <- paste0("deaths in 2020 compared to Negative Binomial Regression and historical average on 2015-19")
         p <- c_data %>%
           ggplot() +
-          geom_line(aes(x = PERIOD, y = NO_DEATHS, colour = "Recorded")) +
+          geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
           geom_line(aes(x = PERIOD, y = EXPECTED, group = SERIES, colour = SERIES)) +
+          scale_colour_manual(values=c("indianred", "cyan2")) + 
           scale_x_continuous(name = name_PERIOD) +
           scale_y_continuous(name = "Deaths", limits = c(0, NA)) +
           labs(
             title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 16
-          )
+          ) +
+          theme_bw()
       }
       
       #neither box checked, just show actual
@@ -746,7 +766,8 @@ shinyServer(
           labs(
             title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
-          )
+          ) +
+          theme_bw()
       }
       p
     })
@@ -768,7 +789,8 @@ shinyServer(
             labs(
               title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
               subtitle = "There are no data on this Gender and Age Group. This is a plot of the first group in the data."
-            )
+            ) +
+            theme_bw()
         } else {
           p <- ACM_var[1:52,] %>%
             ggplot() +
@@ -781,7 +803,8 @@ shinyServer(
             labs(
               title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
               subtitle = "There are no data on this Gender and Age Group. This is a plot of the first group in the data."
-            )
+            ) +
+            theme_bw()
         }
         p <- p + theme(plot.subtitle=element_text(size=18, hjust=0.5, face="italic", color="darkred"))    
         return(p)
@@ -801,7 +824,8 @@ shinyServer(
           labs(
             title = paste0("Excess Mortality in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
-          )
+          ) +
+          theme_bw()
       }
       
       # historical average
@@ -818,7 +842,8 @@ shinyServer(
           labs(
             title = paste0("Excess Mortality in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
-          )
+          ) +
+          theme_bw()
       }
       
       # Both neg binom and hist avg
@@ -827,13 +852,15 @@ shinyServer(
         p <- c_data %>%
           ggplot() +
           geom_line(aes(x = PERIOD, y = EXCESS_DEATHS, group = SERIES, colour = SERIES)) +
+          scale_colour_manual(values=c("indianred", "cyan2")) + 
           geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
           scale_x_continuous(name = name_PERIOD) +
           scale_y_continuous(name = "Excess Deaths") +
           labs(
             title = paste0("Excess Mortality in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
-          )
+          ) +
+          theme_bw()
       }
       
       #neither box checked, just show actual
@@ -848,7 +875,8 @@ shinyServer(
           labs(
             title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
-          )
+          ) +
+          theme_bw()
       }
       p
     })
