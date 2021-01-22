@@ -28,3 +28,7 @@ https://github.com/handcock/WPROACM/wiki
 
 Please use the GitHub repository to report bugs or request features:
 https://https://github.com/handcock/WPROACM
+
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/handcock/WPROACM/workflows/R-CMD-check/badge.svg)](https://github.com/handcock/WPROACM/actions)
+<!-- badges: end -->
