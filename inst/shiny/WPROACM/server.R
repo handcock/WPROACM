@@ -336,12 +336,15 @@ shinyServer(
       name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month in 2020", "Week in 2020")
       # Spline Regression
       if (input$EDcheck_spline & !input$EDcheck_avg) {
-        subtitle <- paste0("Excess deaths in ", bquote(2020), " compared to Negative Binomial Regression on 2015-19")
+        subtitle <- paste0("excess deaths in ", bquote(2020), " compared to negative binomial regression on 2015-19")
         lower <- c_data[c_data$SERIES == "Cyclical spline","LOWER_LIMIT"] - c_data[c_data$SERIES == "Cyclical spline","NO_DEATHS"]
         upper <- c_data[c_data$SERIES == "Cyclical spline","UPPER_LIMIT"] - c_data[c_data$SERIES == "Cyclical spline","NO_DEATHS"]
         p <- c_data[c_data$SERIES == "Cyclical spline",] %>%
           ggplot() +
-          geom_ribbon(aes(x = PERIOD, y = EXCESS_DEATHS, ymin = lower, ymax = upper), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
+          geom_ribbon(aes(x = PERIOD, y = EXCESS_DEATHS, ymin = -1*lower, ymax = -1*upper), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
+          geom_line(aes(x = PERIOD, y = EXCESS_DEATHS, colour = "excess_from_expected")) +
+          scale_colour_manual(name="",
+                              values=c(excess_from_expected="indianred")) +
           geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
           scale_x_continuous(name = name_PERIOD) +
           scale_y_continuous(name = "Excess Deaths") +
@@ -354,12 +357,15 @@ shinyServer(
       
       # historical average
       if (input$EDcheck_avg & !input$EDcheck_spline) {
-        subtitle <- paste0("Excess deaths in ", bquote(2020), " compared to historical average on 2015-19")
+        subtitle <- paste0("excess deaths in ", bquote(2020), " compared to historical average on 2015-19")
         lower <- c_data[c_data$SERIES == "Historical average","LOWER_LIMIT"] - c_data[c_data$SERIES == "Historical average","NO_DEATHS"]
         upper <- c_data[c_data$SERIES == "Historical average","UPPER_LIMIT"] - c_data[c_data$SERIES == "Historical average","NO_DEATHS"]
         p <- c_data[c_data$SERIES == "Historical average",] %>%
           ggplot() +
-          geom_ribbon(aes(x = PERIOD, y = EXCESS_DEATHS, ymin = lower, ymax = upper), linetype = 2, alpha = 0.1, fill = "cyan2", colour = "cyan2") +
+          geom_ribbon(aes(x = PERIOD, y = EXCESS_DEATHS, ymin = -1*lower, ymax = -1*upper), linetype = 2, alpha = 0.1, fill = "cyan2", colour = "cyan2") +
+          geom_line(aes(x = PERIOD, y = EXCESS_DEATHS, colour = "excess_from_average")) +
+          scale_colour_manual(name="",
+                              values=c(excess_from_average="cyan2")) +
           geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
           scale_x_continuous(name = name_PERIOD) +
           scale_y_continuous(name = "Excess Deaths") +
@@ -372,11 +378,12 @@ shinyServer(
       
       # Both neg binom and hist avg
       if (input$EDcheck_avg & input$EDcheck_spline) {
-        subtitle <- paste0("Excess deaths in 2020 compared to Negative Binomial Regression and historical average on 2015-19")
+        subtitle <- paste0("excess deaths in 2020 compared to negative binomial regression and historical average on 2015-19")
         p <- c_data %>%
           ggplot() +
           geom_line(aes(x = PERIOD, y = EXCESS_DEATHS, group = SERIES, colour = SERIES)) +
-          scale_colour_manual(values=c("indianred", "cyan2")) + 
+          scale_colour_manual(name= "", values=c("indianred", "cyan2"),
+                              labels = c("excess from expected", "excess from average")) + 
           geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
           scale_x_continuous(name = name_PERIOD) +
           scale_y_continuous(name = "Excess Deaths") +
@@ -389,7 +396,7 @@ shinyServer(
       
       #neither box checked, just show actual
       if (!input$EDcheck_avg & !input$EDcheck_spline){
-        subtitle = paste0("Excess deaths in 2020")
+        subtitle = paste0("recorded deaths in 2020")
         p <- c_data[c_data$SERIES == "Cyclical spline",] %>% 
           ggplot() +
           geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
@@ -830,12 +837,15 @@ shinyServer(
       name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month in 2020", "Week in 2020")
       # Spline Regression
       if (input$EDcheck_spline & !input$EDcheck_avg) {
-        subtitle <- paste0("Excess deaths in ", bquote(2020), " compared to Negative Binomial Regression on 2015-19")
+        subtitle <- paste0("excess deaths in ", bquote(2020), " compared to negative binomial regression on 2015-19")
         lower <- c_data[c_data$SERIES == "Cyclical spline","LOWER_LIMIT"] - c_data[c_data$SERIES == "Cyclical spline","NO_DEATHS"]
         upper <- c_data[c_data$SERIES == "Cyclical spline","UPPER_LIMIT"] - c_data[c_data$SERIES == "Cyclical spline","NO_DEATHS"]
         p <- c_data[c_data$SERIES == "Cyclical spline",] %>%
           ggplot() +
-          geom_ribbon(aes(x = PERIOD, y = EXCESS_DEATHS, ymin = lower, ymax = upper), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
+          geom_ribbon(aes(x = PERIOD, y = EXCESS_DEATHS, ymin = -1*lower, ymax = -1*upper), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
+          geom_line(aes(x = PERIOD, y = EXCESS_DEATHS, colour = "excess_from_expected")) +
+          scale_colour_manual(name="",
+                              values=c(excess_from_expected="indianred")) +
           geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
           scale_x_continuous(name = name_PERIOD) +
           scale_y_continuous(name = "Excess Deaths") +
@@ -848,12 +858,15 @@ shinyServer(
       
       # historical average
       if (input$EDcheck_avg & !input$EDcheck_spline) {
-        subtitle <- paste0("Excess deaths in ", bquote(2020), " compared to historical average on 2015-19")
+        subtitle <- paste0("excess deaths in ", bquote(2020), " compared to historical average on 2015-19")
         lower <- c_data[c_data$SERIES == "Historical average","LOWER_LIMIT"] - c_data[c_data$SERIES == "Historical average","NO_DEATHS"]
         upper <- c_data[c_data$SERIES == "Historical average","UPPER_LIMIT"] - c_data[c_data$SERIES == "Historical average","NO_DEATHS"]
         p <- c_data[c_data$SERIES == "Historical average",] %>%
           ggplot() +
-          geom_ribbon(aes(x = PERIOD, y = EXCESS_DEATHS, ymin = lower, ymax = upper), linetype = 2, alpha = 0.1, fill = "cyan2", colour = "cyan2") +
+          geom_ribbon(aes(x = PERIOD, y = EXCESS_DEATHS, ymin = -1*lower, ymax = -1*upper), linetype = 2, alpha = 0.1, fill = "cyan2", colour = "cyan2") +
+          geom_line(aes(x = PERIOD, y = EXCESS_DEATHS, colour = "excess_from_average")) +
+          scale_colour_manual(name="",
+                              values=c(excess_from_average="cyan2")) +
           geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
           scale_x_continuous(name = name_PERIOD) +
           scale_y_continuous(name = "Excess Deaths") +
@@ -866,11 +879,12 @@ shinyServer(
       
       # Both neg binom and hist avg
       if (input$EDcheck_avg & input$EDcheck_spline) {
-        subtitle <- paste0("Excess deaths in 2020 compared to negative binomial regression and historical average on 2015-19")
+        subtitle <- paste0("excess deaths in 2020 compared to negative binomial regression and historical average on 2015-19")
         p <- c_data %>%
           ggplot() +
           geom_line(aes(x = PERIOD, y = EXCESS_DEATHS, group = SERIES, colour = SERIES)) +
-          scale_colour_manual(values=c("indianred", "cyan2")) + 
+          scale_colour_manual(name= "", values=c("indianred", "cyan2"),
+                              labels = c("excess from expected", "excess from average")) + 
           geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
           scale_x_continuous(name = name_PERIOD) +
           scale_y_continuous(name = "Excess Deaths") +
@@ -883,7 +897,7 @@ shinyServer(
       
       #neither box checked, just show actual
       if (!input$EDcheck_avg & !input$EDcheck_spline){
-        subtitle = paste0("Excess deaths in 2020")
+        subtitle = paste0("recorded deaths in 2020")
         p <- c_data[c_data$SERIES == "Cyclical spline",] %>% 
           ggplot() +
           geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
