@@ -174,29 +174,33 @@ shinyServer(
       },
       content = function(file) {
         pdf(file = file, height = 10, width = 10)
-      ACM_var <- output_spline() 
-#     c_data <- ACM_var %>% filter(ACM_var$COUNTRY == Countryname() & ACM_var$SEX == input$gender & ACM_var$AGE_GROUP == input$age)
-      c_data <- ACM_var[ACM_var$SEX == input$gender & ACM_var$AGE_GROUP == input$age,]
-      if(nrow(c_data) < 2) {
-        if (ACM_var$WM_IDENTIFIER[1] == "Month") {
-          p <- ACM_var[1:12,] %>%
-            ggplot() +
-            geom_line(aes(x = PERIOD, y = EXPECTED), colour = "indianred") +
-            geom_ribbon(aes(x = PERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
-            geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
-            scale_x_continuous(name = "Month in 2020") +
-            scale_y_continuous(name = "Deaths") +
-            labs(
-              title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
-              subtitle = "There are no data on this Gender and Age Group. This is a plot of the first group in the data."
-            ) +
-            theme_bw()
+        ACM_var <- output_spline() 
+        #     c_data <- ACM_var %>% filter(ACM_var$COUNTRY == Countryname() & ACM_var$SEX == input$gender & ACM_var$AGE_GROUP == input$age)
+        c_data <- ACM_var[ACM_var$SEX == input$gender & ACM_var$AGE_GROUP == input$age,]
+        if(nrow(c_data) < 2) {
+          if (ACM_var$WM_IDENTIFIER[1] == "Month") {
+            p <- ACM_var[1:12,] %>%
+              ggplot() +
+              geom_line(aes(x = PERIOD, y = NO_DEATHS, colour = "recorded")) +
+              geom_ribbon(aes(x = PERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
+              geom_line(aes(x = PERIOD, y = EXPECTED, colour = "expected")) +
+              scale_colour_manual(name="",
+                                  values=c(recorded="black", expected="indianred")) +
+              scale_x_continuous(name = "Month in 2020") +
+              scale_y_continuous(name = "Deaths") +
+              labs(
+                title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
+                subtitle = "There are no data on this Gender and Age Group. This is a plot of the first group in the data."
+              ) +
+              theme_bw()
         } else {
           p <- ACM_var[1:52,] %>%
             ggplot() +
-            geom_line(aes(x = PERIOD, y = EXPECTED), colour = "indianred") +
+            geom_line(aes(x = PERIOD, y = NO_DEATHS, colour = "recorded")) +
             geom_ribbon(aes(x = PERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
-            geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
+            geom_line(aes(x = PERIOD, y = EXPECTED, colour = "expected")) +
+            scale_colour_manual(name="",
+                                values=c(recorded="black", expected="indianred")) +
             scale_x_continuous(name = "Week in 2020") +
             scale_y_continuous(name = "Deaths") +
             labs(
@@ -212,14 +216,16 @@ shinyServer(
       name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month in 2020", "Week in 2020")
       # Spline Regression
       if (input$check_spline & !input$check_avg) {
-        subtitle <- paste0("deaths in ", bquote(2020), " compared to Negative Binomial Regression on 2015-19")
+        subtitle <- paste0("deaths in ", bquote(2020), " compared to negative binomial regression on 2015-19")
         p <- c_data[c_data$SERIES == "Cyclical spline",] %>%
           ggplot() +
-          geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
+          geom_line(aes(x = PERIOD, y = NO_DEATHS, colour = "recorded")) +
           geom_ribbon(aes(x = PERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
-          geom_line(aes(x = PERIOD, y = EXPECTED), colour = "indianred") +
+          geom_line(aes(x = PERIOD, y = EXPECTED, colour = "expected")) +
+          scale_colour_manual(name="",
+                              values=c(recorded="black", expected="indianred")) +
           scale_x_continuous(name = name_PERIOD) +
-          scale_y_continuous(name = "Deaths", limits = c(0, NA)) +
+          scale_y_continuous(name = "Deaths") + #, limits = c(0, NA)) +
           labs(
             title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
@@ -232,11 +238,13 @@ shinyServer(
         subtitle <- paste0("deaths in ", bquote(2020), " compared to historical average on 2015-19")
         p <- c_data[c_data$SERIES == "Historical average",] %>%
           ggplot() +
-          geom_line(aes(x = PERIOD, y = EXPECTED), colour = "cyan2") +
+          geom_line(aes(x = PERIOD, y = EXPECTED, colour = "average")) +
           geom_ribbon(aes(x = PERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "cyan2", colour = "cyan2") +
-          geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
+          geom_line(aes(x = PERIOD, y = NO_DEATHS, colour = "recorded")) +
+          scale_colour_manual(name="",
+                              values=c(recorded="black", average="cyan2")) +
           scale_x_continuous(name = name_PERIOD) +
-          scale_y_continuous(name = "Deaths", limits = c(0, NA)) +
+          scale_y_continuous(name = "Deaths") + #, limits = c(0, NA)) +
           labs(
             title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
@@ -246,14 +254,15 @@ shinyServer(
       
       # Both neg binom and hist avg
       if (input$check_avg & input$check_spline) {
-        subtitle <- paste0("deaths in 2020 compared to Negative Binomial Regression and historical average on 2015-19")
+        subtitle <- paste0("deaths in 2020 compared to negative binomial regression and historical average on 2015-19")
         p <- c_data %>%
           ggplot() +
-          geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
+          geom_line(aes(x = PERIOD, y = NO_DEATHS, colour = "recorded")) +
           geom_line(aes(x = PERIOD, y = EXPECTED, group = SERIES, colour = SERIES)) +
-          scale_colour_manual(values=c("indianred", "cyan2")) + 
+          scale_colour_manual(name="", labels = c("expected", "average", "recorded"),
+                              values=c("indianred", "cyan2", recorded="black")) + 
           scale_x_continuous(name = name_PERIOD) +
-          scale_y_continuous(name = "Deaths", limits = c(0, NA)) +
+          scale_y_continuous(name = "Deaths") + #, limits = c(0, NA)) +
           labs(
             title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 16
@@ -268,7 +277,7 @@ shinyServer(
           ggplot() +
           geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
           scale_x_continuous(name = name_PERIOD) +
-          scale_y_continuous(name = "Deaths", limits = c(0, NA)) +
+          scale_y_continuous(name = "Deaths") + #, limits = c(0, NA)) +
           labs(
             title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
@@ -676,9 +685,11 @@ shinyServer(
         if (ACM_var$WM_IDENTIFIER[1] == "Month") {
           p <- ACM_var[1:12,] %>%
             ggplot() +
-            geom_line(aes(x = PERIOD, y = EXPECTED), colour = "indianred") +
+            geom_line(aes(x = PERIOD, y = NO_DEATHS, colour = "recorded")) +
             geom_ribbon(aes(x = PERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
-            geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
+            geom_line(aes(x = PERIOD, y = EXPECTED, colour = "expected")) +
+            scale_colour_manual(name="",
+                                values=c(recorded="black", expected="indianred")) +
             scale_x_continuous(name = "Month in 2020") +
             scale_y_continuous(name = "Deaths") +
             labs(
@@ -689,9 +700,11 @@ shinyServer(
         } else {
           p <- ACM_var[1:52,] %>%
             ggplot() +
-            geom_line(aes(x = PERIOD, y = EXPECTED), colour = "indianred") +
+            geom_line(aes(x = PERIOD, y = NO_DEATHS, colour = "recorded")) +
             geom_ribbon(aes(x = PERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
-            geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
+            geom_line(aes(x = PERIOD, y = EXPECTED, colour = "expected")) +
+            scale_colour_manual(name="",
+                                values=c(recorded="black", expected="indianred")) +
             scale_x_continuous(name = "Week in 2020") +
             scale_y_continuous(name = "Deaths") +
             labs(
@@ -706,14 +719,16 @@ shinyServer(
       name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month in 2020", "Week in 2020")
       # Spline Regression
       if (input$check_spline & !input$check_avg) {
-        subtitle <- paste0("deaths in ", bquote(2020), " compared to Negative Binomial Regression on 2015-19")
+        subtitle <- paste0("deaths in ", bquote(2020), " compared to negative binomial regression on 2015-19")
         p <- c_data[c_data$SERIES == "Cyclical spline",] %>%
           ggplot() +
-          geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
+          geom_line(aes(x = PERIOD, y = NO_DEATHS, colour = "recorded")) +
           geom_ribbon(aes(x = PERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
-          geom_line(aes(x = PERIOD, y = EXPECTED), colour = "indianred") +
+          geom_line(aes(x = PERIOD, y = EXPECTED, colour = "expected")) +
+          scale_colour_manual(name="",
+                              values=c(recorded="black", expected="indianred")) +
           scale_x_continuous(name = name_PERIOD) +
-          scale_y_continuous(name = "Deaths", limits = c(0, NA)) +
+          scale_y_continuous(name = "Deaths") + #, limits = c(0, NA)) +
           labs(
             title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
@@ -726,11 +741,13 @@ shinyServer(
         subtitle <- paste0("deaths in ", bquote(2020), " compared to historical average on 2015-19")
         p <- c_data[c_data$SERIES == "Historical average",] %>%
           ggplot() +
-          geom_line(aes(x = PERIOD, y = EXPECTED), colour = "cyan2") +
+          geom_line(aes(x = PERIOD, y = EXPECTED, colour = "average")) +
           geom_ribbon(aes(x = PERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "cyan2", colour = "cyan2") +
-          geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
+          geom_line(aes(x = PERIOD, y = NO_DEATHS, colour = "recorded")) +
+          scale_colour_manual(name="",
+                              values=c(recorded="black", average="cyan2")) +
           scale_x_continuous(name = name_PERIOD) +
-          scale_y_continuous(name = "Deaths", limits = c(0, NA)) +
+          scale_y_continuous(name = "Deaths") + #, limits = c(0, NA)) +
           labs(
             title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
@@ -740,14 +757,15 @@ shinyServer(
       
       # Both neg binom and hist avg
       if (input$check_avg & input$check_spline) {
-        subtitle <- paste0("deaths in 2020 compared to Negative Binomial Regression and historical average on 2015-19")
+        subtitle <- paste0("deaths in 2020 compared to negative binomial regression and historical average on 2015-19")
         p <- c_data %>%
           ggplot() +
-          geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
+          geom_line(aes(x = PERIOD, y = NO_DEATHS, colour = "recorded")) +
           geom_line(aes(x = PERIOD, y = EXPECTED, group = SERIES, colour = SERIES)) +
-          scale_colour_manual(values=c("indianred", "cyan2")) + 
+          scale_colour_manual(name="", labels = c("expected", "average", "recorded"),
+            values=c("indianred", "cyan2", recorded="black")) + 
           scale_x_continuous(name = name_PERIOD) +
-          scale_y_continuous(name = "Deaths", limits = c(0, NA)) +
+          scale_y_continuous(name = "Deaths") + #, limits = c(0, NA)) +
           labs(
             title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 16
@@ -762,7 +780,7 @@ shinyServer(
           ggplot() +
           geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
           scale_x_continuous(name = name_PERIOD) +
-          scale_y_continuous(name = "Deaths", limits = c(0, NA)) +
+          scale_y_continuous(name = "Deaths") + #, limits = c(0, NA)) +
           labs(
             title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
@@ -848,7 +866,7 @@ shinyServer(
       
       # Both neg binom and hist avg
       if (input$EDcheck_avg & input$EDcheck_spline) {
-        subtitle <- paste0("Excess deaths in 2020 compared to Negative Binomial Regression and historical average on 2015-19")
+        subtitle <- paste0("Excess deaths in 2020 compared to negative binomial regression and historical average on 2015-19")
         p <- c_data %>%
           ggplot() +
           geom_line(aes(x = PERIOD, y = EXCESS_DEATHS, group = SERIES, colour = SERIES)) +
