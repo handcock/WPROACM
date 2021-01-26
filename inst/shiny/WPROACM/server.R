@@ -186,7 +186,11 @@ shinyServer(
               geom_line(aes(x = PERIOD, y = EXPECTED, colour = "expected")) +
               scale_colour_manual(name="",
                                   values=c(recorded="black", expected="indianred")) +
-              scale_x_continuous(name = "Month in 2020") +
+              scale_x_continuous(name = "Month in 2020",
+                                 labels = c("JAN", "FEB", "MAR", "APR",
+                                            "MAY", "JUN", "JUL", "AUG",
+                                            "SEP", "OCT", "NOV", "DEC"),
+                                 breaks = 1:12) +
               scale_y_continuous(name = "Deaths") +
               labs(
                 title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
@@ -224,13 +228,21 @@ shinyServer(
           geom_line(aes(x = PERIOD, y = EXPECTED, colour = "expected")) +
           scale_colour_manual(name="",
                               values=c(recorded="black", expected="indianred")) +
-          scale_x_continuous(name = name_PERIOD) +
           scale_y_continuous(name = "Deaths") + #, limits = c(0, NA)) +
           labs(
             title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
           ) +
-          theme_bw()
+          theme_bw() + 
+          if(name_PERIOD == "Month in 2020"){
+            scale_x_continuous(name = name_PERIOD, 
+                               labels = c("JAN", "FEB", "MAR", "APR",
+                                          "MAY", "JUN", "JUL", "AUG",
+                                          "SEP", "OCT", "NOV", "DEC"),
+                               breaks = 1:nrow(c_data[c_data$SERIES == "Cyclical spline",]))
+          } else {
+            scale_x_continuous(name = name_PERIOD)
+          }
       }
       
       # historical average
@@ -243,13 +255,21 @@ shinyServer(
           geom_line(aes(x = PERIOD, y = NO_DEATHS, colour = "recorded")) +
           scale_colour_manual(name="",
                               values=c(recorded="black", average="cyan2")) +
-          scale_x_continuous(name = name_PERIOD) +
           scale_y_continuous(name = "Deaths") + #, limits = c(0, NA)) +
           labs(
             title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
           ) +
-          theme_bw()
+          theme_bw() + 
+          if(name_PERIOD == "Month in 2020"){
+            scale_x_continuous(name = name_PERIOD, 
+                               labels = c("JAN", "FEB", "MAR", "APR",
+                                          "MAY", "JUN", "JUL", "AUG",
+                                          "SEP", "OCT", "NOV", "DEC"),
+                               breaks = 1:nrow(c_data[c_data$SERIES == "Historical average",]))
+          } else {
+            scale_x_continuous(name = name_PERIOD)
+          }
       }
       
       # Both neg binom and hist avg
@@ -261,13 +281,21 @@ shinyServer(
           geom_line(aes(x = PERIOD, y = EXPECTED, group = SERIES, colour = SERIES)) +
           scale_colour_manual(name="", labels = c("expected", "average", "recorded"),
                               values=c("indianred", "cyan2", recorded="black")) + 
-          scale_x_continuous(name = name_PERIOD) +
           scale_y_continuous(name = "Deaths") + #, limits = c(0, NA)) +
           labs(
             title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 16
           ) +
-          theme_bw()
+          theme_bw() + 
+          if(name_PERIOD == "Month in 2020"){
+            scale_x_continuous(name = name_PERIOD, 
+                               labels = c("JAN", "FEB", "MAR", "APR",
+                                          "MAY", "JUN", "JUL", "AUG",
+                                          "SEP", "OCT", "NOV", "DEC"),
+                               breaks = 1:nrow(c_data[c_data$SERIES == "Historical average",]))
+          } else {
+            scale_x_continuous(name = name_PERIOD)
+          }
       }
       
       #neither box checked, just show actual
@@ -276,13 +304,21 @@ shinyServer(
         p <- c_data[c_data$SERIES == "Cyclical spline",] %>% 
           ggplot() +
           geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
-          scale_x_continuous(name = name_PERIOD) +
           scale_y_continuous(name = "Deaths") + #, limits = c(0, NA)) +
           labs(
             title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
           ) +
-          theme_bw()
+          theme_bw() + 
+          if(name_PERIOD == "Month in 2020"){
+            scale_x_continuous(name = name_PERIOD, 
+                               labels = c("JAN", "FEB", "MAR", "APR",
+                                          "MAY", "JUN", "JUL", "AUG",
+                                          "SEP", "OCT", "NOV", "DEC"),
+                               breaks = 1:nrow(c_data[c_data$SERIES == "Historical average",]))
+          } else {
+            scale_x_continuous(name = name_PERIOD)
+          }
       }
         print(p)
         dev.off()
@@ -307,7 +343,11 @@ shinyServer(
             geom_ribbon(aes(x = PERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
             geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
             geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
-            scale_x_continuous(name = "Month in 2020") +
+            scale_x_continuous(name = "Month in 2020",
+                               labels = c("JAN", "FEB", "MAR", "APR",
+                                          "MAY", "JUN", "JUL", "AUG",
+                                          "SEP", "OCT", "NOV", "DEC"),
+                               breaks = 1:12) +
             scale_y_continuous(name = "Deaths") +
             labs(
               title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
@@ -346,13 +386,21 @@ shinyServer(
           scale_colour_manual(name="",
                               values=c(excess_from_expected="indianred")) +
           geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
-          scale_x_continuous(name = name_PERIOD) +
           scale_y_continuous(name = "Excess Deaths") +
           labs(
             title = paste0("Excess Mortality in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
           ) +
-          theme_bw()
+          theme_bw() + 
+          if(name_PERIOD == "Month in 2020"){
+            scale_x_continuous(name = name_PERIOD, 
+                               labels = c("JAN", "FEB", "MAR", "APR",
+                                          "MAY", "JUN", "JUL", "AUG",
+                                          "SEP", "OCT", "NOV", "DEC"),
+                               breaks = 1:nrow(c_data[c_data$SERIES == "Cyclical spline",]))
+          } else {
+            scale_x_continuous(name = name_PERIOD)
+          }
       }
       
       # historical average
@@ -367,13 +415,21 @@ shinyServer(
           scale_colour_manual(name="",
                               values=c(excess_from_average="cyan2")) +
           geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
-          scale_x_continuous(name = name_PERIOD) +
           scale_y_continuous(name = "Excess Deaths") +
           labs(
             title = paste0("Excess Mortality in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
           ) +
-          theme_bw()
+          theme_bw() + 
+          if(name_PERIOD == "Month in 2020"){
+            scale_x_continuous(name = name_PERIOD, 
+                               labels = c("JAN", "FEB", "MAR", "APR",
+                                          "MAY", "JUN", "JUL", "AUG",
+                                          "SEP", "OCT", "NOV", "DEC"),
+                               breaks = 1:nrow(c_data[c_data$SERIES == "Cyclical spline",]))
+          } else {
+            scale_x_continuous(name = name_PERIOD)
+          }
       }
       
       # Both neg binom and hist avg
@@ -385,13 +441,21 @@ shinyServer(
           scale_colour_manual(name= "", values=c("indianred", "cyan2"),
                               labels = c("excess from expected", "excess from average")) + 
           geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
-          scale_x_continuous(name = name_PERIOD) +
           scale_y_continuous(name = "Excess Deaths") +
           labs(
             title = paste0("Excess Mortality in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
           ) +
-          theme_bw()
+          theme_bw() + 
+          if(name_PERIOD == "Month in 2020"){
+            scale_x_continuous(name = name_PERIOD, 
+                               labels = c("JAN", "FEB", "MAR", "APR",
+                                          "MAY", "JUN", "JUL", "AUG",
+                                          "SEP", "OCT", "NOV", "DEC"),
+                               breaks = 1:nrow(c_data[c_data$SERIES == "Cyclical spline",]))
+          } else {
+            scale_x_continuous(name = name_PERIOD)
+          }
       }
       
       #neither box checked, just show actual
@@ -401,13 +465,21 @@ shinyServer(
           ggplot() +
           geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
           geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
-          scale_x_continuous(name = name_PERIOD) +
           scale_y_continuous(name = "All Cause Deaths") +
           labs(
             title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
           ) +
-          theme_bw()
+          theme_bw() + 
+          if(name_PERIOD == "Month in 2020"){
+            scale_x_continuous(name = name_PERIOD, 
+                               labels = c("JAN", "FEB", "MAR", "APR",
+                                          "MAY", "JUN", "JUL", "AUG",
+                                          "SEP", "OCT", "NOV", "DEC"),
+                               breaks = 1:nrow(c_data[c_data$SERIES == "Cyclical spline",]))
+          } else {
+            scale_x_continuous(name = name_PERIOD)
+          }
       }
         print(p)
         dev.off()
@@ -697,7 +769,11 @@ shinyServer(
             geom_line(aes(x = PERIOD, y = EXPECTED, colour = "expected")) +
             scale_colour_manual(name="",
                                 values=c(recorded="black", expected="indianred")) +
-            scale_x_continuous(name = "Month in 2020") +
+            scale_x_continuous(name = "Month in 2020",
+                               labels = c("JAN", "FEB", "MAR", "APR",
+                                          "MAY", "JUN", "JUL", "AUG",
+                                          "SEP", "OCT", "NOV", "DEC"),
+                               breaks = 1:12) +
             scale_y_continuous(name = "Deaths") +
             labs(
               title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
@@ -734,13 +810,21 @@ shinyServer(
           geom_line(aes(x = PERIOD, y = EXPECTED, colour = "expected")) +
           scale_colour_manual(name="",
                               values=c(recorded="black", expected="indianred")) +
-          scale_x_continuous(name = name_PERIOD) +
           scale_y_continuous(name = "Deaths") + #, limits = c(0, NA)) +
           labs(
             title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
           ) +
-          theme_bw()
+          theme_bw() +
+            if(name_PERIOD == "Month in 2020"){
+              scale_x_continuous(name = name_PERIOD, 
+                                 labels = c("JAN", "FEB", "MAR", "APR",
+                                            "MAY", "JUN", "JUL", "AUG",
+                                            "SEP", "OCT", "NOV", "DEC"),
+                                 breaks = 1:nrow(c_data[c_data$SERIES == "Cyclical spline",]))
+            } else {
+              scale_x_continuous(name = name_PERIOD)
+            }
       }
       
       # historical average
@@ -753,13 +837,21 @@ shinyServer(
           geom_line(aes(x = PERIOD, y = NO_DEATHS, colour = "recorded")) +
           scale_colour_manual(name="",
                               values=c(recorded="black", average="cyan2")) +
-          scale_x_continuous(name = name_PERIOD) +
           scale_y_continuous(name = "Deaths") + #, limits = c(0, NA)) +
           labs(
             title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
           ) +
-          theme_bw()
+          theme_bw() +
+          if(name_PERIOD == "Month in 2020"){
+            scale_x_continuous(name = name_PERIOD, 
+                               labels = c("JAN", "FEB", "MAR", "APR",
+                                          "MAY", "JUN", "JUL", "AUG",
+                                          "SEP", "OCT", "NOV", "DEC"),
+                               breaks = 1:nrow(c_data[c_data$SERIES == "Historical average",]))
+          } else {
+            scale_x_continuous(name = name_PERIOD)
+          }
       }
       
       # Both neg binom and hist avg
@@ -771,13 +863,21 @@ shinyServer(
           geom_line(aes(x = PERIOD, y = EXPECTED, group = SERIES, colour = SERIES)) +
           scale_colour_manual(name="", labels = c("expected", "average", "recorded"),
             values=c("indianred", "cyan2", recorded="black")) + 
-          scale_x_continuous(name = name_PERIOD) +
           scale_y_continuous(name = "Deaths") + #, limits = c(0, NA)) +
           labs(
             title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 16
           ) +
-          theme_bw()
+          theme_bw() + 
+          if(name_PERIOD == "Month in 2020"){
+            scale_x_continuous(name = name_PERIOD, 
+                               labels = c("JAN", "FEB", "MAR", "APR",
+                                          "MAY", "JUN", "JUL", "AUG",
+                                          "SEP", "OCT", "NOV", "DEC"),
+                               breaks = 1:nrow(c_data[c_data$SERIES == "Historical average",]))
+          } else {
+            scale_x_continuous(name = name_PERIOD)
+          }
       }
       
       #neither box checked, just show actual
@@ -792,7 +892,16 @@ shinyServer(
             title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
           ) +
-          theme_bw()
+          theme_bw() +
+          if(name_PERIOD == "Month in 2020"){
+            scale_x_continuous(name = name_PERIOD, 
+                               labels = c("JAN", "FEB", "MAR", "APR",
+                                          "MAY", "JUN", "JUL", "AUG",
+                                          "SEP", "OCT", "NOV", "DEC"),
+                               breaks = 1:nrow(c_data[c_data$SERIES == "Historical average",]))
+          } else {
+            scale_x_continuous(name = name_PERIOD)
+          }
       }
       p
     })
@@ -809,7 +918,11 @@ shinyServer(
             geom_ribbon(aes(x = PERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
             geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
             geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
-            scale_x_continuous(name = "Month in 2020") +
+            scale_x_continuous(name = "Month in 2020",
+                               labels = c("JAN", "FEB", "MAR", "APR",
+                                          "MAY", "JUN", "JUL", "AUG",
+                                          "SEP", "OCT", "NOV", "DEC"),
+                               breaks = 12) +
             scale_y_continuous(name = "Deaths") +
             labs(
               title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
@@ -847,13 +960,21 @@ shinyServer(
           scale_colour_manual(name="",
                               values=c(excess_from_expected="indianred")) +
           geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
-          scale_x_continuous(name = name_PERIOD) +
           scale_y_continuous(name = "Excess Deaths") +
           labs(
             title = paste0("Excess Mortality in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
           ) +
-          theme_bw()
+          theme_bw() + 
+          if(name_PERIOD == "Month in 2020"){
+            scale_x_continuous(name = name_PERIOD, 
+                               labels = c("JAN", "FEB", "MAR", "APR",
+                                          "MAY", "JUN", "JUL", "AUG",
+                                          "SEP", "OCT", "NOV", "DEC"),
+                               breaks = 1:nrow(c_data[c_data$SERIES == "Cyclical spline",]))
+          } else {
+            scale_x_continuous(name = name_PERIOD)
+          }
       }
       
       # historical average
@@ -868,13 +989,21 @@ shinyServer(
           scale_colour_manual(name="",
                               values=c(excess_from_average="cyan2")) +
           geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
-          scale_x_continuous(name = name_PERIOD) +
           scale_y_continuous(name = "Excess Deaths") +
           labs(
             title = paste0("Excess Mortality in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
           ) +
-          theme_bw()
+          theme_bw() + 
+          if(name_PERIOD == "Month in 2020"){
+            scale_x_continuous(name = name_PERIOD, 
+                               labels = c("JAN", "FEB", "MAR", "APR",
+                                          "MAY", "JUN", "JUL", "AUG",
+                                          "SEP", "OCT", "NOV", "DEC"),
+                               breaks = 1:nrow(c_data[c_data$SERIES == "Cyclical spline",]))
+          } else {
+            scale_x_continuous(name = name_PERIOD)
+          }
       }
       
       # Both neg binom and hist avg
@@ -886,13 +1015,21 @@ shinyServer(
           scale_colour_manual(name= "", values=c("indianred", "cyan2"),
                               labels = c("excess from expected", "excess from average")) + 
           geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
-          scale_x_continuous(name = name_PERIOD) +
           scale_y_continuous(name = "Excess Deaths") +
           labs(
             title = paste0("Excess Mortality in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
           ) +
-          theme_bw()
+          theme_bw() + 
+          if(name_PERIOD == "Month in 2020"){
+            scale_x_continuous(name = name_PERIOD, 
+                               labels = c("JAN", "FEB", "MAR", "APR",
+                                          "MAY", "JUN", "JUL", "AUG",
+                                          "SEP", "OCT", "NOV", "DEC"),
+                               breaks = 1:nrow(c_data[c_data$SERIES == "Cyclical spline",]))
+          } else {
+            scale_x_continuous(name = name_PERIOD)
+          }
       }
       
       #neither box checked, just show actual
@@ -902,13 +1039,21 @@ shinyServer(
           ggplot() +
           geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
           geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
-          scale_x_continuous(name = name_PERIOD) +
           scale_y_continuous(name = "All Cause Deaths") +
           labs(
             title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
           ) +
-          theme_bw()
+          theme_bw() + 
+          if(name_PERIOD == "Month in 2020"){
+            scale_x_continuous(name = name_PERIOD, 
+                               labels = c("JAN", "FEB", "MAR", "APR",
+                                          "MAY", "JUN", "JUL", "AUG",
+                                          "SEP", "OCT", "NOV", "DEC"),
+                               breaks = 1:nrow(c_data[c_data$SERIES == "Cyclical spline",]))
+          } else {
+            scale_x_continuous(name = name_PERIOD)
+          }
       }
       p
     })
