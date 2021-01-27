@@ -26,7 +26,7 @@ tabPanel(title=span('WPROACM', id="sWtitle"),
                  actionButton('startButton', label='Get Started',
                               class="btn btn-primary"),
                  fluidRow(column(1,
-                  a(img(src = 'WHO-WPRO Logo PMS 2925.png', width = 175),
+                  a(img(src = 'WHO-WPRO_Logo_PMS_2925.png', width = 175),
                     href = 'https://www.who.int/westernpacific/', target = '_blank') ))
           ),
    column(6, style="padding: 0 30px 0 0;",
