@@ -381,8 +381,12 @@ shinyServer(
         upper <- c_data[c_data$SERIES == "Cyclical spline","UPPER_LIMIT"] - c_data[c_data$SERIES == "Cyclical spline","NO_DEATHS"]
         p <- c_data[c_data$SERIES == "Cyclical spline",] %>%
           ggplot() +
-          geom_ribbon(aes(x = PERIOD, y = EXCESS_DEATHS, ymin = -1*lower, ymax = -1*upper), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
-          geom_line(aes(x = PERIOD, y = EXCESS_DEATHS, colour = "excess_from_expected")) +
+          #geom_ribbon(aes(x = PERIOD, y = EXCESS_DEATHS, ymin = -1*lower, ymax = -1*upper), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
+          #geom_line(aes(x = PERIOD, y = EXCESS_DEATHS, colour = "excess_from_expected")) +
+          geom_col(aes(x = PERIOD, y = EXCESS_DEATHS, colour = "excess_from_expected"),
+                   fill = "indianred", alpha= 0.1) +
+          geom_errorbar(aes(x = PERIOD, y = EXCESS_DEATHS, ymin = -1*lower, ymax = -1*upper), 
+                        linetype = 1, colour = "indianred") +
           scale_colour_manual(name="",
                               values=c(excess_from_expected="indianred")) +
           geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
@@ -410,8 +414,12 @@ shinyServer(
         upper <- c_data[c_data$SERIES == "Historical average","UPPER_LIMIT"] - c_data[c_data$SERIES == "Historical average","NO_DEATHS"]
         p <- c_data[c_data$SERIES == "Historical average",] %>%
           ggplot() +
-          geom_ribbon(aes(x = PERIOD, y = EXCESS_DEATHS, ymin = -1*lower, ymax = -1*upper), linetype = 2, alpha = 0.1, fill = "cyan2", colour = "cyan2") +
-          geom_line(aes(x = PERIOD, y = EXCESS_DEATHS, colour = "excess_from_average")) +
+          #geom_ribbon(aes(x = PERIOD, y = EXCESS_DEATHS, ymin = -1*lower, ymax = -1*upper), linetype = 2, alpha = 0.1, fill = "cyan2", colour = "cyan2") +
+          #geom_line(aes(x = PERIOD, y = EXCESS_DEATHS, colour = "excess_from_average")) +
+          geom_col(aes(x = PERIOD, y = EXCESS_DEATHS, colour = "excess_from_average"),
+                   fill = "cyan2", alpha= 0.1) +
+          geom_errorbar(aes(x = PERIOD, y = EXCESS_DEATHS, ymin = -1*lower, ymax = -1*upper), 
+                        linetype = 1, colour = "cyan2") +
           scale_colour_manual(name="",
                               values=c(excess_from_average="cyan2")) +
           geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
@@ -437,7 +445,11 @@ shinyServer(
         subtitle <- paste0("excess deaths in 2020 compared to negative binomial regression and historical average on 2015-19")
         p <- c_data %>%
           ggplot() +
-          geom_line(aes(x = PERIOD, y = EXCESS_DEATHS, group = SERIES, colour = SERIES)) +
+          #geom_line(aes(x = PERIOD, y = EXCESS_DEATHS, group = SERIES, colour = SERIES)) +
+          geom_col(aes(x = PERIOD, y = EXCESS_DEATHS, group = SERIES, colour = SERIES),
+                   fill = c(rep("indianred", nrow(c_data)/2 ),
+                            rep("cyan2", nrow(c_data)/2) ), 
+                   position = "dodge", alpha = 0.1) +
           scale_colour_manual(name= "", values=c("indianred", "cyan2"),
                               labels = c("excess from expected", "excess from average")) + 
           geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
@@ -719,10 +731,28 @@ shinyServer(
     #      datatable(iris(),  extensions = 'Responsive')
     #      })
     output$ACM_table <- shiny::renderDataTable({
-      ACMinit()
+      #ACMinit()
+      acmtable <- ACMinit()
+      acmtable$ISO3 <- NULL
+      names(acmtable)[names(acmtable) == "WM_IDENTIFIER"] <- "WEEK/MONTH"
+      names(acmtable)[names(acmtable) == "AREA"] <- "REGION/AREA"
+      names(acmtable)[names(acmtable) == "NO_DEATHS"] <- "DEATHS_IN_2020"
+      names(acmtable)[names(acmtable) == "WM_IDENTIFIER"] <- "WEEK/MONTH"
+      names(acmtable)[names(acmtable) == "EXPECTED"] <- "EXPECTED_DEATHS"
+      acmtable
     })
     output$spline_table <- shiny::renderDataTable({
-      output_spline()
+      #output_spline()
+      acmtable <- output_spline()
+      acmtable$ISO3 <- NULL
+      names(acmtable)[names(acmtable) == "WM_IDENTIFIER"] <- "WEEK/MONTH"
+      names(acmtable)[names(acmtable) == "AREA"] <- "REGION/AREA"
+      names(acmtable)[names(acmtable) == "NO_DEATHS"] <- "DEATHS_IN_2020"
+      names(acmtable)[names(acmtable) == "WM_IDENTIFIER"] <- "WEEK/MONTH"
+      names(acmtable)[names(acmtable) == "EXPECTED"] <- "EXPECTED_DEATHS"
+      names(acmtable)[names(acmtable) == "LOWER_LIMIT"] <- "95%_CI_LOWER"
+      names(acmtable)[names(acmtable) == "UPPER_LIMIT"] <- "95%_CI_UPPER"
+      acmtable
     })
     output$iris_table <- shiny::renderDataTable(
       {
@@ -741,16 +771,23 @@ shinyServer(
       write.table(raw, quote = FALSE, col.names = FALSE)
     })
 
-    # summary of network attributes
+    # data summary panel under data tab
     output$ACMsum <- renderPrint({
       if (is.null(ACMinit())) {
         return(cat("Please load the data using the drop-down menu on the left."))
       }
-      ACM_var <- ACMinit()
-      if (class(ACM_var) != "data.frame") {
-        return(str(ACM_var))
+      #ACM_var <- ACMinit()
+      acmtable <- ACMinit()
+      acmtable$ISO3 <- NULL
+      names(acmtable)[names(acmtable) == "WM_IDENTIFIER"] <- "WEEK/MONTH"
+      names(acmtable)[names(acmtable) == "AREA"] <- "REGION/AREA"
+      names(acmtable)[names(acmtable) == "NO_DEATHS"] <- "DEATHS_IN_2020"
+      names(acmtable)[names(acmtable) == "WM_IDENTIFIER"] <- "WEEK/MONTH"
+      names(acmtable)[names(acmtable) == "EXPECTED"] <- "EXPECTED_DEATHS"
+      if (class(acmtable) != "data.frame") {
+        return(str(acmtable))
       }
-      return(str(ACM_var))
+      return(str(acmtable))
     })
 
     ## Network Descriptives ------------------------------------------------------
@@ -955,8 +992,12 @@ shinyServer(
         upper <- c_data[c_data$SERIES == "Cyclical spline","UPPER_LIMIT"] - c_data[c_data$SERIES == "Cyclical spline","NO_DEATHS"]
         p <- c_data[c_data$SERIES == "Cyclical spline",] %>%
           ggplot() +
-          geom_ribbon(aes(x = PERIOD, y = EXCESS_DEATHS, ymin = -1*lower, ymax = -1*upper), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
-          geom_line(aes(x = PERIOD, y = EXCESS_DEATHS, colour = "excess_from_expected")) +
+          #geom_ribbon(aes(x = PERIOD, y = EXCESS_DEATHS, ymin = -1*lower, ymax = -1*upper), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
+          #geom_line(aes(x = PERIOD, y = EXCESS_DEATHS, colour = "excess_from_expected")) +
+          geom_col(aes(x = PERIOD, y = EXCESS_DEATHS, colour = "excess_from_expected"),
+                   fill = "indianred", alpha= 0.1) +
+          geom_errorbar(aes(x = PERIOD, y = EXCESS_DEATHS, ymin = -1*lower, ymax = -1*upper), 
+                        linetype = 1, colour = "indianred") +
           scale_colour_manual(name="",
                               values=c(excess_from_expected="indianred")) +
           geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
@@ -984,8 +1025,12 @@ shinyServer(
         upper <- c_data[c_data$SERIES == "Historical average","UPPER_LIMIT"] - c_data[c_data$SERIES == "Historical average","NO_DEATHS"]
         p <- c_data[c_data$SERIES == "Historical average",] %>%
           ggplot() +
-          geom_ribbon(aes(x = PERIOD, y = EXCESS_DEATHS, ymin = -1*lower, ymax = -1*upper), linetype = 2, alpha = 0.1, fill = "cyan2", colour = "cyan2") +
-          geom_line(aes(x = PERIOD, y = EXCESS_DEATHS, colour = "excess_from_average")) +
+          #geom_ribbon(aes(x = PERIOD, y = EXCESS_DEATHS, ymin = -1*lower, ymax = -1*upper), linetype = 2, alpha = 0.1, fill = "cyan2", colour = "cyan2") +
+          #geom_line(aes(x = PERIOD, y = EXCESS_DEATHS, colour = "excess_from_average")) +
+          geom_col(aes(x = PERIOD, y = EXCESS_DEATHS, colour = "excess_from_average"),
+                   fill = "cyan2", alpha= 0.1) +
+          geom_errorbar(aes(x = PERIOD, y = EXCESS_DEATHS, ymin = -1*lower, ymax = -1*upper), 
+                        linetype = 1, colour = "cyan2") +
           scale_colour_manual(name="",
                               values=c(excess_from_average="cyan2")) +
           geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
@@ -1011,7 +1056,11 @@ shinyServer(
         subtitle <- paste0("excess deaths in 2020 compared to negative binomial regression and historical average on 2015-19")
         p <- c_data %>%
           ggplot() +
-          geom_line(aes(x = PERIOD, y = EXCESS_DEATHS, group = SERIES, colour = SERIES)) +
+          #geom_line(aes(x = PERIOD, y = EXCESS_DEATHS, group = SERIES, colour = SERIES)) +
+          geom_col(aes(x = PERIOD, y = EXCESS_DEATHS, group = SERIES, colour = SERIES),
+                       fill = c(rep("indianred", nrow(c_data)/2 ),
+                                rep("cyan2", nrow(c_data)/2) ), 
+                   position = "dodge", alpha = 0.1) +
           scale_colour_manual(name= "", values=c("indianred", "cyan2"),
                               labels = c("excess from expected", "excess from average")) + 
           geom_hline(aes(yintercept=0), linetype="dashed", color="black") +

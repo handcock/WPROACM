@@ -360,6 +360,17 @@ tabPanel(title='Methods', value='tab5',
    column(6, style="padding: 0 30px 0 0;",
           div(id="methodsbox",
             p("This page has a description of the statistical methods used in the calculator to compute the expected and excess deaths in countries"),
+            
+            p(strong("All-cause mortality"),
+              "is defined as the total number of recorded deaths across all causes."),
+            
+            p(strong("Excess death"),
+              "is defined as the difference between the number of all-cause deaths during 2020 and the expected number of deaths."),
+            
+            p(strong("Expected death"), "is defined as the expected number of deaths in 2020 if no pandemic had occured.",
+              "The expected number of deaths is calculated in two different ways, using either a",
+              strong("negative binomial regression"), "or the", strong("historical five year average"),
+              ", both of which are based on the years 2015-2019."),
 
             p(strong("Negative-binomial regression")),
 
@@ -367,11 +378,10 @@ tabPanel(title='Methods', value='tab5',
               "for the predictor variables. Since the date and period are input as discrete values, they are smoothed using cubic splines,",
               "a common smoothing technique."),
 
-            p(strong("Historical 5-years average")),
+            p(strong("Historical 5-year average")),
 
-            p("The 5-years historical average is calculated based on and their 95% confidence interval (95% CI) are calculated",
-              "from the deaths observed in 2015-2019. The excess deaths are calculated as the difference of all-causes deaths in",
-              "2020 to the historical average."),
+            p("The 5-years historical average is based on, and the 95% confidence interval (95% CI) are calculated",
+              "from, the deaths observed in 2015-2019."),
 
             p("Below is a detailed description of the methods in statistical language. It is in PDF format and can be saved for separate
 study."),
