@@ -191,10 +191,10 @@ shinyServer(
                                             "MAY", "JUN", "JUL", "AUG",
                                             "SEP", "OCT", "NOV", "DEC"),
                                  breaks = 1:12) +
-              scale_y_continuous(name = "Deaths") +
+              scale_y_continuous(name = "Monthly Deaths") +
               labs(
                 title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
-                subtitle = "There are no data on this Gender and Age Group. This is a plot of the first group in the data."
+                subtitle = "There are no data on this Sex and Age Group. This is a plot of the first group in the data."
               ) +
               theme_bw()
         } else {
@@ -206,10 +206,10 @@ shinyServer(
             scale_colour_manual(name="",
                                 values=c(recorded="black", expected="indianred")) +
             scale_x_continuous(name = "Week in 2020") +
-            scale_y_continuous(name = "Deaths") +
+            scale_y_continuous(name = "Weekly Deaths") +
             labs(
               title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
-              subtitle = "There are no data on this Gender and Age Group. This is a plot of the first group in the data."
+              subtitle = "There are no data on this Sex and Age Group. This is a plot of the first group in the data."
             ) +
             theme_bw()
         }
@@ -334,38 +334,58 @@ shinyServer(
         pdf(file = file, height = 10, width = 10)
       ACM_var <- output_spline() 
 #     c_data <- ACM_var %>% filter(ACM_var$COUNTRY == Countryname() & ACM_var$SEX == input$gender & ACM_var$AGE_GROUP == input$age)
-      c_data <- ACM_var[ACM_var$SEX == input$gender & ACM_var$AGE_GROUP == input$age,]
+      c_data <- ACM_var[ACM_var$SEX == input$EDgender & ACM_var$AGE_GROUP == input$EDage,]
       if(nrow(c_data) < 2) {
         if (ACM_var$WM_IDENTIFIER[1] == "Month") {
+          #lower <- c_data[c_data$SERIES == "Cyclical spline","LOWER_LIMIT"] - c_data[c_data$SERIES == "Cyclical spline","NO_DEATHS"]
+          #upper <- c_data[c_data$SERIES == "Cyclical spline","UPPER_LIMIT"] - c_data[c_data$SERIES == "Cyclical spline","NO_DEATHS"]
+          lower <- ACM_var[ACM_var$SERIES == "Cyclical spline","LOWER_LIMIT"] - ACM_var[ACM_var$SERIES == "Cyclical spline","NO_DEATHS"]
+          upper <- ACM_var[ACM_var$SERIES == "Cyclical spline","UPPER_LIMIT"] - ACM_var[ACM_var$SERIES == "Cyclical spline","NO_DEATHS"]
           p <- ACM_var[1:12,] %>%
             ggplot() +
-            geom_line(aes(x = PERIOD, y = EXPECTED), colour = "indianred") +
-            geom_ribbon(aes(x = PERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
-            geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
+            #geom_line(aes(x = PERIOD, y = EXPECTED), colour = "indianred") +
+            #geom_ribbon(aes(x = PERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
+            #geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
+            geom_col(aes(x = PERIOD, y = EXCESS_DEATHS, colour = "excess_from_expected"),
+                     fill = "indianred", alpha= 0.1) +
+            geom_errorbar(aes(x = PERIOD, y = EXCESS_DEATHS, ymin = -1*lower[1:12], ymax = -1*upper[1:12]), 
+                          linetype = 1, colour = "indianred") +
+            scale_colour_manual(name="",
+                                values=c(excess_from_expected="indianred")) +
             geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
             scale_x_continuous(name = "Month in 2020",
                                labels = c("JAN", "FEB", "MAR", "APR",
                                           "MAY", "JUN", "JUL", "AUG",
                                           "SEP", "OCT", "NOV", "DEC"),
                                breaks = 1:12) +
-            scale_y_continuous(name = "Deaths") +
+            scale_y_continuous(name = "Monthly Excess Deaths") +
             labs(
               title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
-              subtitle = "There are no data on this Gender and Age Group. This is a plot of the first group in the data."
+              subtitle = "There are no data on this Sex and Age Group. This is a plot of the first group in the data."
             ) +
             theme_bw()
         } else {
+          #lower <- c_data[c_data$SERIES == "Cyclical spline","LOWER_LIMIT"] - c_data[c_data$SERIES == "Cyclical spline","NO_DEATHS"]
+          #upper <- c_data[c_data$SERIES == "Cyclical spline","UPPER_LIMIT"] - c_data[c_data$SERIES == "Cyclical spline","NO_DEATHS"]
+          lower <- ACM_var[ACM_var$SERIES == "Cyclical spline","LOWER_LIMIT"] - ACM_var[ACM_var$SERIES == "Cyclical spline","NO_DEATHS"]
+          upper <- ACM_var[ACM_var$SERIES == "Cyclical spline","UPPER_LIMIT"] - ACM_var[ACM_var$SERIES == "Cyclical spline","NO_DEATHS"]
           p <- ACM_var[1:52,] %>%
             ggplot() +
-            geom_line(aes(x = PERIOD, y = EXPECTED), colour = "indianred") +
-            geom_ribbon(aes(x = PERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
-            geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
+            #geom_line(aes(x = PERIOD, y = EXPECTED), colour = "indianred") +
+            #geom_ribbon(aes(x = PERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
+            #geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
+            geom_col(aes(x = PERIOD, y = EXCESS_DEATHS, colour = "excess_from_expected"),
+                     fill = "indianred", alpha= 0.1) +
+            geom_errorbar(aes(x = PERIOD, y = EXCESS_DEATHS, ymin = -1*lower[1:52], ymax = -1*upper[1:52]), 
+                          linetype = 1, colour = "indianred") +
+            scale_colour_manual(name="",
+                                values=c(excess_from_expected="indianred")) +
             geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
             scale_x_continuous(name = "Week in 2020") +
-            scale_y_continuous(name = "Deaths") +
+            scale_y_continuous(name = "Weekly Excess Deaths") +
             labs(
               title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
-              subtitle = "There are no data on this Gender and Age Group. This is a plot of the first group in the data."
+              subtitle = "There are no data on this Sex and Age Group. This is a plot of the first group in the data."
             ) +
             theme_bw()
         }
@@ -811,10 +831,10 @@ shinyServer(
                                           "MAY", "JUN", "JUL", "AUG",
                                           "SEP", "OCT", "NOV", "DEC"),
                                breaks = 1:12) +
-            scale_y_continuous(name = "Deaths") +
+            scale_y_continuous(name = "Monthly Deaths") +
             labs(
               title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
-              subtitle = "There are no data on this Gender and Age Group. This is a plot of the first group in the data."
+              subtitle = "There are no data on this Sex and Age Group. This is a plot of the first group in the data."
             ) +
             theme_bw()
         } else {
@@ -826,10 +846,10 @@ shinyServer(
             scale_colour_manual(name="",
                                 values=c(recorded="black", expected="indianred")) +
             scale_x_continuous(name = "Week in 2020") +
-            scale_y_continuous(name = "Deaths") +
+            scale_y_continuous(name = "Weekly Deaths") +
             labs(
               title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
-              subtitle = "There are no data on this Gender and Age Group. This is a plot of the first group in the data."
+              subtitle = "There are no data on this Sex and Age Group. This is a plot of the first group in the data."
             ) +
             theme_bw()
         }
@@ -946,38 +966,58 @@ shinyServer(
     output$EDplot <- renderPlot({
       ACM_var <- output_spline() 
 #     c_data <- ACM_var %>% filter(ACM_var$COUNTRY == Countryname() & ACM_var$SEX == input$gender & ACM_var$AGE_GROUP == input$age)
-      c_data <- ACM_var[ACM_var$SEX == input$gender & ACM_var$AGE_GROUP == input$age,]
+      c_data <- ACM_var[ACM_var$SEX == input$EDgender & ACM_var$AGE_GROUP == input$EDage,]
       if(nrow(c_data) < 2) {
         if (ACM_var$WM_IDENTIFIER[1] == "Month") {
+          #lower <- c_data[c_data$SERIES == "Cyclical spline","LOWER_LIMIT"] - c_data[c_data$SERIES == "Cyclical spline","NO_DEATHS"]
+          #upper <- c_data[c_data$SERIES == "Cyclical spline","UPPER_LIMIT"] - c_data[c_data$SERIES == "Cyclical spline","NO_DEATHS"]
+          lower <- ACM_var[ACM_var$SERIES == "Cyclical spline","LOWER_LIMIT"] - ACM_var[ACM_var$SERIES == "Cyclical spline","NO_DEATHS"]
+          upper <- ACM_var[ACM_var$SERIES == "Cyclical spline","UPPER_LIMIT"] - ACM_var[ACM_var$SERIES == "Cyclical spline","NO_DEATHS"]
           p <- ACM_var[1:12,] %>%
             ggplot() +
-            geom_line(aes(x = PERIOD, y = EXPECTED), colour = "indianred") +
-            geom_ribbon(aes(x = PERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
-            geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
+            #geom_line(aes(x = PERIOD, y = EXPECTED), colour = "indianred") +
+            #geom_ribbon(aes(x = PERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
+            #geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
+            geom_col(aes(x = PERIOD, y = EXCESS_DEATHS, colour = "excess_from_expected"),
+                     fill = "indianred", alpha= 0.1) +
+            geom_errorbar(aes(x = PERIOD, y = EXCESS_DEATHS, ymin = -1*lower[1:12], ymax = -1*upper[1:12]), 
+                          linetype = 1, colour = "indianred") +
+            scale_colour_manual(name="",
+                                values=c(excess_from_expected="indianred")) +
             geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
             scale_x_continuous(name = "Month in 2020",
                                labels = c("JAN", "FEB", "MAR", "APR",
                                           "MAY", "JUN", "JUL", "AUG",
                                           "SEP", "OCT", "NOV", "DEC"),
-                               breaks = 12) +
-            scale_y_continuous(name = "Deaths") +
+                               breaks = 1:12) +
+            scale_y_continuous(name = "Monthly Excess Deaths") +
             labs(
               title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
-              subtitle = "There are no data on this Gender and Age Group. This is a plot of the first group in the data."
+              subtitle = "There are no data on this Sex and Age Group. This is a plot of the first group in the data."
             ) +
             theme_bw()
         } else {
+          #lower <- c_data[c_data$SERIES == "Cyclical spline","LOWER_LIMIT"] - c_data[c_data$SERIES == "Cyclical spline","NO_DEATHS"]
+          #upper <- c_data[c_data$SERIES == "Cyclical spline","UPPER_LIMIT"] - c_data[c_data$SERIES == "Cyclical spline","NO_DEATHS"]
+          lower <- ACM_var[ACM_var$SERIES == "Cyclical spline","LOWER_LIMIT"] - ACM_var[ACM_var$SERIES == "Cyclical spline","NO_DEATHS"]
+          upper <- ACM_var[ACM_var$SERIES == "Cyclical spline","UPPER_LIMIT"] - ACM_var[ACM_var$SERIES == "Cyclical spline","NO_DEATHS"]
           p <- ACM_var[1:52,] %>%
             ggplot() +
-            geom_line(aes(x = PERIOD, y = EXPECTED), colour = "indianred") +
-            geom_ribbon(aes(x = PERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
-            geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
+            #geom_line(aes(x = PERIOD, y = EXPECTED), colour = "indianred") +
+            #geom_ribbon(aes(x = PERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
+            #geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
+            geom_col(aes(x = PERIOD, y = EXCESS_DEATHS, colour = "excess_from_expected"),
+                     fill = "indianred", alpha= 0.1) +
+            geom_errorbar(aes(x = PERIOD, y = EXCESS_DEATHS, ymin = -1*lower[1:52], ymax = -1*upper[1:52]), 
+                          linetype = 1, colour = "indianred") +
+            scale_colour_manual(name="",
+                                values=c(excess_from_expected="indianred")) +
             geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
             scale_x_continuous(name = "Week in 2020") +
-            scale_y_continuous(name = "Deaths") +
+            scale_y_continuous(name = "Weekly Excess Deaths") +
             labs(
               title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
-              subtitle = "There are no data on this Gender and Age Group. This is a plot of the first group in the data."
+              subtitle = "There are no data on this Sex and Age Group. This is a plot of the first group in the data."
             ) +
             theme_bw()
         }

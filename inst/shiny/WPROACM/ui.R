@@ -314,7 +314,7 @@ actionLink('dataright', icon=icon('arrow-right', class='fa-2x'), label=NULL)
               "Excess Mortality Plot", br(),
               wellPanel(
                 fluidRow(
-                  selectInput("EDgender", "Select Gender", gender_labels),
+                  selectInput("EDgender", "Select Sex", gender_labels),
                   selectInput("EDage", "Select Age Group", age_group_labels),
                   checkboxInput('EDcheck_avg', '5-year Average'),
                   checkboxInput('EDcheck_spline', "Negative Binomial Regression"),
