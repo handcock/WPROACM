@@ -183,7 +183,7 @@ column(4,
              column(8,
                     selectInput('filetype',label='File type',
                                  choices=c(
-                                           'CSV spreadsheet of All Cause Mortality data (*.csv)' = 1,
+                                           'Excel spreadsheet of All Cause Mortality data (*.xls or *.xlsx)' = 1,
                                            'built-in example All Cause Mortality data'= 2
                                           )
                     ),
@@ -201,19 +201,31 @@ column(4,
                                           'Australia','Japan',
                                           'Republic of Korea', 'New Zealand', 'Philippines')),
                               p(class="helper", id="BIhelp", icon("question-circle"),
-                                span("These are example CSV files from some countries with data from January 1, 2015 through August, 2020.", style="font-size:0.85em;"),
+                                span("These are example Excel files from some countries with data from January 1, 2015 through August, 2020.", style="font-size:0.85em;"),
                                  br(),'You try select a country in the drop-down menu', em("Choose a country"),
                                  'above this message and view the data in the above', em("View Data"),' tab.',
-                                 'You can then try the tool out on this data to see an analysis similar to that for your own country.')
+                                 'You can then try the calculator out on this data to see an analysis similar to that for your own country.')
+                )
+               ),
+             conditionalPanel(condition = 'input.filetype == 1',
+                column(12,
+                    br(style="line-height:26px;"),
+                    selectizeInput('chosesheet', label=NULL,
+                                choices=c("Choose a region" = '', 'PHL', 'BARMM', 'NCR')),
+                              p(class="helper", id="CShelp", icon("question-circle"),
+                                span("These are example Excel files from some countries with data from January 1, 2015 through August, 2020.", style="font-size:0.85em;"),
+                                 br(),'You try select a country in the drop-down menu', em("Choose a country"),
+                                 'above this message and view the data in the above', em("View Data"),' tab.',
+                                 'You can then try the calculator out on this data to see an analysis similar to that for your own country.')
                 )
                )
              ),
              conditionalPanel(condition='input.filetype == 1',
-                              p(class="helper", id="CSVhelp", icon("question-circle"),
-                                span("What format does the CSV file need to be in?", style="font-size:0.85em;"),
-                                 br(),'Upload a *csv file of all-cause mortality data.',
+                              p(class="helper", id="Excelhelp", icon("question-circle"),
+                                span("What format does the Excel file need to be in?", style="font-size:0.85em;"),
+                                 br(),'Upload a *.xls or *.xlsx file of all-cause mortality data.',
                                  'The file should be saved from the WHO standardized Excel template. Click', a("here",
-                                  href = "https://www.who.int/westernpacific/", target = "_blank"), ' to download.')
+                                  src="PHL_monthly_template.xlsx", href = "https://www.who.int/westernpacific/", target = "_blank"), ' to download the monthly template.')
                               )
            )),
          conditionalPanel(
@@ -268,7 +280,7 @@ tabsetPanel(
 
 icon('question-circle', class='fa-2x helper-btn'),
 div(class="helper-box", style="display:none",
-    p('Upload a file of all-cause mortality data. The data should be a *.csv file',
+    p('Upload a file of all-cause mortality data. The data should be a *.xls or *xlsx file',
     'saved from the WHO standardized Excel template. Click', a("here",
       href = "https://www.who.int/westernpacific/", target = "_blank"), ' to download.')),
 actionLink('dataleft', icon=icon('arrow-left', class='fa-2x'), label=NULL),

@@ -9,6 +9,7 @@ require(stats); require(graphics)
 # TODO:dynamically generate input labels
 gender_labels <- c("Total", "Female", "Male")
 age_group_labels <- c("Total", "0-44", "45-64", "65-74", "75-84", "85 and over")
+age_group_labels <- c("Total", "18-24")
 
 # version of textInput with more size options.
 # specify class = 'input-small' or class='input-mini' in
@@ -94,7 +95,7 @@ attr.info <- function(df, colname, numattrs, breaks) {
 }
 
 calculate_spline <- function(src) {
-  src <- src[src$AREA == "Total" & src$CAUSE == "Total", ]
+  src <- src[src$YEAR <= "2020", ]
   src <- src[order(src$SEX, src$AGE_GROUP, src$YEAR, src$PERIOD), ]
   src$NO_DEATHS <- as.numeric(src$NO_DEATHS)
 
@@ -105,15 +106,9 @@ calculate_spline <- function(src) {
     src_PERIOD <- src$PERIOD
     DATE <- cumsum(c(0, 365, 366, 365, 365, 365))[src$YEAR - 2014] + day
   } else {
-    day <- as.numeric(substr(src$DATE_TO_SPECIFY_WEEK, 5, 6))
-    Date <- match(substr(src$DATE_TO_SPECIFY_WEEK, 1, 3), moy)
-    day <- cumsum(c(0, dom))[Date] + day - 3.5
-    src_PERIOD <- floor(day / 7) + 1
-    src_PERIOD[day < 0 & !is.na(day)] <- 53
-    aaa <- src$YEAR
-    bbb <- (day - 0) < 0 & !is.na(day)
-    aaa[bbb] <- aaa[bbb] + 1
-    DATE <- cumsum(c(0, 365, 366, 365, 365, 365))[aaa - 2014] + day
+    day <- cumsum(c(0, rep(7,52)))[src$PERIOD] + 3.5
+    src_PERIOD <- src$PERIOD
+    DATE <- cumsum(c(0, 365, 366, 365, 365, 365))[src$YEAR - 2014] + day
   }
 
   out <- src %>% dplyr::filter(YEAR == "2020")
@@ -130,14 +125,14 @@ calculate_spline <- function(src) {
 
   for (j in 1:n_pat) {
     if (l_period > 51) {
-      temp_src <- src[paste(src$SEX, src$AGE_GROUP) == pattern[j], ] %>% dplyr::filter(YEAR != "2020" & DATE_TO_SPECIFY_WEEK != "")
+      temp_src <- src[paste(src$SEX, src$AGE_GROUP) == pattern[j], ] %>% dplyr::filter(YEAR < "2020")
       if (sum(temp_src$NO_DEATHS, na.rm = TRUE) == 0) next
-      src_2020 <- src[paste(src$SEX, src$AGE_GROUP) == pattern[j], ] %>% dplyr::filter(DATE_TO_SPECIFY_WEEK != "")
-      aDATE <- DATE[paste(src$SEX, src$AGE_GROUP) == pattern[j] & src$DATE_TO_SPECIFY_WEEK != ""]
+      src_2020 <- src[paste(src$SEX, src$AGE_GROUP) == pattern[j], ]
+      aDATE <- DATE[paste(src$SEX, src$AGE_GROUP) == pattern[j]]
       num.cycle <- 53
       len.cycle <- 7
-      loc_DATE <- DATE[paste(src$SEX, src$AGE_GROUP) == pattern[j] & src$YEAR != "2020" & src$DATE_TO_SPECIFY_WEEK != ""]
-      loc_PERIOD <- src_PERIOD[paste(src$SEX, src$AGE_GROUP) == pattern[j] & src$YEAR != "2020" & src$DATE_TO_SPECIFY_WEEK != ""]
+      loc_DATE <- DATE[paste(src$SEX, src$AGE_GROUP) == pattern[j] & src$YEAR < "2020"]
+      loc_PERIOD <- src_PERIOD[paste(src$SEX, src$AGE_GROUP) == pattern[j] & src$YEAR < "2020"]
       days <- diff(c(0, loc_DATE))
       days[1] <- 7
       temp_src$logdays <- log(days)
@@ -146,13 +141,13 @@ calculate_spline <- function(src) {
         family = nb(), data = temp_src
       )
     } else {
-      temp_src <- src[paste(src$SEX, src$AGE_GROUP) == pattern[j], ] %>% dplyr::filter(YEAR != "2020")
+      temp_src <- src[paste(src$SEX, src$AGE_GROUP) == pattern[j], ] %>% dplyr::filter(YEAR < "2020")
       if (sum(temp_src$NO_DEATHS, na.rm = TRUE) == 0) next
       src_2020 <- src[paste(src$SEX, src$AGE_GROUP) == pattern[j], ]
       aDATE <- DATE[paste(src$SEX, src$AGE_GROUP) == pattern[j]]
       num.cycle <- 12
       len.cycle <- 30
-      loc_DATE <- DATE[paste(src$SEX, src$AGE_GROUP) == pattern[j] & src$YEAR != "2020"]
+      loc_DATE <- DATE[paste(src$SEX, src$AGE_GROUP) == pattern[j] & src$YEAR < "2020"]
       loc_PERIOD <- temp_src$PERIOD
       days <- rep(dom, 5)
       days[14] <- 29
@@ -243,9 +238,7 @@ calculate_spline <- function(src) {
     ), 1), "sec)"))
   }
 
-  out[, 3] <- rep(wm_ident)
-
-  names(out)[c(3:4)] <- c("WM_IDENTIFIER", "PERIOD")
+  out$WM_IDENTIFIER <- rep(wm_ident)
 
   out[, "EXCESS_DEATHS"] <- out$NO_DEATHS - out$ESTIMATE
   out[, "EXPECTED"] <- out$ESTIMATE
@@ -264,9 +257,7 @@ calculate_spline <- function(src) {
 
   if (any(out$SERIES == "Unknown series, plz check")) message("Unknown series, plz check")
 
-  out <- out[, c("COUNTRY", "ISO3", "WM_IDENTIFIER", "PERIOD", "DATE_TO_SPECIFY_WEEK", "SEX", "AGE_GROUP", "AREA", "SERIES", "NO_DEATHS", "EXPECTED", "LOWER_LIMIT", "UPPER_LIMIT", "EXCESS_DEATHS")]
-
-# out <- out[out$SERIES != "Current deaths", ]
+  out <- out[, c("REGION", "WM_IDENTIFIER", "PERIOD", "SEX", "AGE_GROUP", "SERIES", "NO_DEATHS", "EXPECTED", "LOWER_LIMIT", "UPPER_LIMIT", "EXCESS_DEATHS")]
 
   message("Computation of the expected deaths completed successfully.")
 
