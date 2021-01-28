@@ -9,5 +9,6 @@
 #' @import lattice
 #' @import latticeExtra
 #' @import mgcv
+#' @import readxl
 #' @importFrom RColorBrewer brewer.pal
 NULL

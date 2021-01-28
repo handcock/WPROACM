@@ -4,14 +4,14 @@ require(graphics)
 require(stats)
 require(methods)
 
-require("WPROACM")
 require("readxl")
 require("RColorBrewer")
 require("ggplot2")
 require("lattice")
 require("latticeExtra")
 
-data(ExampleCountries, package = "WPROACM")
+#data(ExampleCountries, package = "WPROACM")
+load("./data/ExampleCountries.RData")
 BRGcol <- "darkred"
 CUGcol <- "darkorange"
 obsblue <- "#076EC3"
@@ -122,6 +122,11 @@ shinyServer(
          choices=c("Choose a region" = '', sheets ))
      })
 
+     output$age <- renderUI({
+       selectInput('ageg', label=NULL,
+         choices=output_age() )
+     })
+
 #     output$genderlabels <- renderUI({
 #      if (is.null(input$rawdatafile)) {
 #        genderlabels <- NULL
@@ -165,7 +170,7 @@ shinyServer(
         filename <- input$rawdatafile[1, 1]
         fileext <- substr(filename, nchar(filename) - 3, nchar(filename))
 
-        if (input$filetype == 1) {
+        if (input$filetype == 1 && !is.null(input$chosesheet) && input$chosesheet != "") {
           validate(
             need(
               fileext %in% c("xls", "xlsx", "XLS", "XLSX"),
@@ -252,6 +257,13 @@ shinyServer(
         return()
       }
       calculate_spline(ACMinit())
+    })
+
+    output_age <- reactive({
+      if (!is.data.frame(ACMinit())) {
+        return()
+      }
+      calculate_age(ACMinit())
     })
 
     output$EDdownload <- downloadHandler(
@@ -863,7 +875,7 @@ shinyServer(
       acmtable$ISO3 <- NULL
       names(acmtable)[names(acmtable) == "WM_IDENTIFIER"] <- "WEEK/MONTH"
       names(acmtable)[names(acmtable) == "AREA"] <- "REGION/AREA"
-      names(acmtable)[names(acmtable) == "NO_DEATHS"] <- "DEATHS_IN_2020"
+      names(acmtable)[names(acmtable) == "NO_DEATHS"] <- "DEATHS"
       names(acmtable)[names(acmtable) == "WM_IDENTIFIER"] <- "WEEK/MONTH"
       names(acmtable)[names(acmtable) == "EXPECTED"] <- "EXPECTED_DEATHS"
       names(acmtable)[names(acmtable) == "LOWER_LIMIT"] <- "95%_CI_LOWER"
@@ -897,7 +909,7 @@ shinyServer(
       acmtable$ISO3 <- NULL
       names(acmtable)[names(acmtable) == "WM_IDENTIFIER"] <- "WEEK/MONTH"
       names(acmtable)[names(acmtable) == "AREA"] <- "REGION/AREA"
-      names(acmtable)[names(acmtable) == "NO_DEATHS"] <- "DEATHS_IN_2020"
+#     names(acmtable)[names(acmtable) == "NO_DEATHS"] <- "DEATHS_IN_2020"
       names(acmtable)[names(acmtable) == "WM_IDENTIFIER"] <- "WEEK/MONTH"
       names(acmtable)[names(acmtable) == "EXPECTED"] <- "EXPECTED_DEATHS"
       if (class(acmtable) != "data.frame") {

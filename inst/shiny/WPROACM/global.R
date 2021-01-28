@@ -17,7 +17,7 @@ age_group_labels <- c("Total", "18-24")
 # specify class = 'input-small' or class='input-mini' in
 # addition to other textInput args
 customTextInput <- function(inputId, label, value = "",
-                            labelstyle = "dispay:inline;", ...) {
+                            labelstyle = "display:inline;", ...) {
   tagList(
     tags$label(label, `for` = inputId, style = labelstyle),
     tags$input(
@@ -95,6 +95,8 @@ attr.info <- function(df, colname, numattrs, breaks) {
   }
   return(tab)
 }
+
+calculate_age <- function(src) { return(sort(unique(src$AGE_GROUP)))}
 
 calculate_spline <- function(src) {
   src <- src[src$YEAR <= "2020", ]

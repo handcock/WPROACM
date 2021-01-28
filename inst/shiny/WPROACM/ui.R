@@ -313,7 +313,9 @@ actionLink('dataright', icon=icon('arrow-right', class='fa-2x'), label=NULL)
                 fluidRow(
                   selectInput("gender", "Select Sex", gender_labels),
                   #selectInput("gender", "Select Sex", sort(as.character(unique(ACM_var$SEX)))),
-                  selectInput("age", "Select Age Group", age_group_labels),
+                  #selectInput("age", "Select Age Group", output_age),
+                  div(id="agebox", strong("Select Age Group")),
+                  uiOutput('age'),
                   #selectInput("age", "Select Age Group", sort(as.character(unique(ACM_var$AGE_GROUP)))),
                   checkboxInput('check_avg', '5-year Average'),
                   checkboxInput('check_spline', "Negative Binomial Regression"),
