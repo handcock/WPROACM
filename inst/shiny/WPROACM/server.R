@@ -85,44 +85,74 @@ shinyServer(
 
     ## Data Selection ------------------------------------------------------
 
-#    # ACMinit is used to get the initial values of the network
-#    sheets <- reactive({
-#      # input$rawdatafile comes as a dataframe with name, size, type and datapath
-#      # datapath is stored in 4th column of dataframe
-#      # network creates a network object from the input file
+     # ACMinit is used to get the initial values of the network
+     output$selectsheet <- renderUI({
+       # input$rawdatafile comes as a dataframe with name, size, type and datapath
+       # datapath is stored in 4th column of dataframe
+       # network creates a network object from the input file
+         filepath <- input$rawdatafile[1, 4]
+         filename <- input$rawdatafile[1, 1]
+         fileext <- substr(filename, nchar(filename) - 3, nchar(filename))
+ 
+         if (input$filetype == 1) {
+           validate(
+             need(
+               fileext %in% c("xls", "xlsx", "XLS", "XLSX"),
+               "Upload an Excel file"
+             )
+           )
+           try({
+             ACM_sheets <- readxl::excel_sheets(path=paste(filepath))
+           })
+           sheets <- c()
+           for(i in seq_along(ACM_sheets)){
+            if(ACM_sheets[i] != "Instructions"){
+             ACM_all <- readxl::read_excel(path=paste(filepath), sheet = ACM_sheets[i])
+             max.types <- dim(ACM_all)[1]
+             max.times <- dim(ACM_all)[2]
+             is.data <- apply(!is.na(as.matrix(ACM_all[5:nrow(ACM_all),3:ncol(ACM_all)])),1,sum)
+             skip <- max(is.data) < 24
+             if(!skip){
+               sheets <- c(sheets, ACM_sheets[i])
+             }
+            }
+           }
+         }
+       selectizeInput('chosesheet', label=NULL,
+         choices=c("Choose a region" = '', sheets ))
+     })
+
+#     output$genderlabels <- renderUI({
 #      if (is.null(input$rawdatafile)) {
-#        ACM_var <- NULL
+#        genderlabels <- NULL
 #      } else {
 #        filepath <- input$rawdatafile[1, 4]
 #        filename <- input$rawdatafile[1, 1]
 #        fileext <- substr(filename, nchar(filename) - 3, nchar(filename))
 #
-#        if (input$filetype == 1) {
-#          validate(
+#         validate(
 #            need(
 #              fileext %in% c("xls", "xlsx", "XLS", "XLSX"),
 #              "Upload an Excel file"
 #            )
 #          )
 #          try({
-#            ACM_sheets <- readxl::excel_sheets(path=paste(filepath))
+#            ACM_all <- readxl::read_excel(path=paste(filepath), sheet = input$chosesheet)
 #          })
-##           ACM_var <- readxl::read_excel(path=paste(filepath), sheet = ACM_sheets[i])
-#          sheets <- c()
-#          for(i in seq_along(ACM_sheets)){
-#            ACM_all <- readxl::read_excel(path=paste(filepath), sheet = ACM_sheets[i])
-#            max.types <- dim(ACM_all)[1]
-#            max.times <- dim(ACM_all)[2]
-#            is.data <- apply(!is.na(as.matrix(ACM_all[5:nrow(ACM_all),3:ncol(ACM_all)])),1,sum)
-#            skip <- max(is.data) < 24
-#            if(!skip){
-#              sheets <- c(sheets, ACM_sheets[i])
-#            }
-#           }
-#        }
-#      }
-#      return(sheets)
-#    })
+#          max.types <- dim(ACM_all)[1]
+#          max.times <- dim(ACM_all)[2]
+#          is.data <- apply(!is.na(as.matrix(ACM_all[5:nrow(ACM_all),3:ncol(ACM_all)])),1,sum)
+#          skip <- max(is.data) < 24
+#          a <- as.matrix(ACM_all[5:nrow(ACM_all),3:ncol(ACM_all)])[is.data > 24,]
+#          mode(a) <- "numeric"
+#          a <- round(a)
+#          age <- as.data.frame(ACM_all[,1])[seq(5,nrow(a)+2,by=3),1]
+#          sex <- as.data.frame(ACM_all[5:nrow(ACM_all), 2])[is.data > 24,]
+#          genderlabels <- sort(unique(age))
+#       }
+#       selectizeInput('gender', label=NULL,
+#         choices=c("Select Sex" = '', genderlabels ))
+#     })
 
     ACMinit <- reactive({
       # input$rawdatafile comes as a dataframe with name, size, type and datapath
