@@ -282,7 +282,7 @@ shinyServer(
               geom_line(aes(x = PERIOD, y = EXPECTED, colour = "expected")) +
               scale_colour_manual(name="",
                                   values=c(recorded="black", expected="indianred")) +
-              scale_x_continuous(name = "Month in 2020",
+              scale_x_continuous(name = "Month in 2020 through 2021",
                                  labels = c("JAN", "FEB", "MAR", "APR",
                                             "MAY", "JUN", "JUL", "AUG",
                                             "SEP", "OCT", "NOV", "DEC"),
@@ -301,7 +301,7 @@ shinyServer(
             geom_line(aes(x = PERIOD, y = EXPECTED, colour = "expected")) +
             scale_colour_manual(name="",
                                 values=c(recorded="black", expected="indianred")) +
-            scale_x_continuous(name = "Week in 2020") +
+            scale_x_continuous(name = "Week in 2020 through 2021") +
             scale_y_continuous(name = "Weekly Deaths") +
             labs(
               title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
@@ -313,7 +313,7 @@ shinyServer(
         print(p)
         dev.off()
       }else{
-      name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month in 2020", "Week in 2020")
+      name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month in 2020 through 2021", "Week in 2020 through 2021")
       # Spline Regression
       if (input$check_spline & !input$check_avg) {
         subtitle <- paste0("deaths in ", bquote(2020), " compared to negative binomial regression on 2015-19")
@@ -330,7 +330,7 @@ shinyServer(
             subtitle = subtitle, size = 12
           ) +
           theme_bw() + 
-          if(name_PERIOD == "Month in 2020"){
+          if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = c("JAN", "FEB", "MAR", "APR",
                                           "MAY", "JUN", "JUL", "AUG",
@@ -357,7 +357,7 @@ shinyServer(
             subtitle = subtitle, size = 12
           ) +
           theme_bw() + 
-          if(name_PERIOD == "Month in 2020"){
+          if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = c("JAN", "FEB", "MAR", "APR",
                                           "MAY", "JUN", "JUL", "AUG",
@@ -383,7 +383,7 @@ shinyServer(
             subtitle = subtitle, size = 16
           ) +
           theme_bw() + 
-          if(name_PERIOD == "Month in 2020"){
+          if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = c("JAN", "FEB", "MAR", "APR",
                                           "MAY", "JUN", "JUL", "AUG",
@@ -406,7 +406,7 @@ shinyServer(
             subtitle = subtitle, size = 12
           ) +
           theme_bw() + 
-          if(name_PERIOD == "Month in 2020"){
+          if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = c("JAN", "FEB", "MAR", "APR",
                                           "MAY", "JUN", "JUL", "AUG",
@@ -449,7 +449,7 @@ shinyServer(
             scale_colour_manual(name="",
                                 values=c(excess_from_expected="indianred")) +
             geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
-            scale_x_continuous(name = "Month in 2020",
+            scale_x_continuous(name = "Month in 2020 through 2021",
                                labels = c("JAN", "FEB", "MAR", "APR",
                                           "MAY", "JUN", "JUL", "AUG",
                                           "SEP", "OCT", "NOV", "DEC"),
@@ -477,7 +477,7 @@ shinyServer(
             scale_colour_manual(name="",
                                 values=c(excess_from_expected="indianred")) +
             geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
-            scale_x_continuous(name = "Week in 2020") +
+            scale_x_continuous(name = "Week in 2020 through 2021") +
             scale_y_continuous(name = "Weekly Excess Deaths") +
             labs(
               title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
@@ -489,7 +489,7 @@ shinyServer(
         print(p)
         dev.off()
       }else{
-      name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month in 2020", "Week in 2020")
+      name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month in 2020 through 2021", "Week in 2020 through 2021")
       # Spline Regression
       if (input$EDcheck_spline & !input$EDcheck_avg) {
         subtitle <- paste0("excess deaths in ", bquote(2020), " compared to negative binomial regression on 2015-19")
@@ -512,7 +512,7 @@ shinyServer(
             subtitle = subtitle, size = 12
           ) +
           theme_bw() + 
-          if(name_PERIOD == "Month in 2020"){
+          if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = c("JAN", "FEB", "MAR", "APR",
                                           "MAY", "JUN", "JUL", "AUG",
@@ -545,7 +545,7 @@ shinyServer(
             subtitle = subtitle, size = 12
           ) +
           theme_bw() + 
-          if(name_PERIOD == "Month in 2020"){
+          if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = c("JAN", "FEB", "MAR", "APR",
                                           "MAY", "JUN", "JUL", "AUG",
@@ -575,7 +575,7 @@ shinyServer(
             subtitle = subtitle, size = 12
           ) +
           theme_bw() + 
-          if(name_PERIOD == "Month in 2020"){
+          if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = c("JAN", "FEB", "MAR", "APR",
                                           "MAY", "JUN", "JUL", "AUG",
@@ -599,7 +599,7 @@ shinyServer(
             subtitle = subtitle, size = 12
           ) +
           theme_bw() + 
-          if(name_PERIOD == "Month in 2020"){
+          if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = c("JAN", "FEB", "MAR", "APR",
                                           "MAY", "JUN", "JUL", "AUG",
@@ -852,7 +852,7 @@ shinyServer(
       acmtable$ISO3 <- NULL
       names(acmtable)[names(acmtable) == "WM_IDENTIFIER"] <- "WEEK/MONTH"
       names(acmtable)[names(acmtable) == "AREA"] <- "REGION/AREA"
-      names(acmtable)[names(acmtable) == "NO_DEATHS"] <- "DEATHS_IN_2020"
+      names(acmtable)[names(acmtable) == "NO_DEATHS"] <- "DEATHS"
       names(acmtable)[names(acmtable) == "WM_IDENTIFIER"] <- "WEEK/MONTH"
       names(acmtable)[names(acmtable) == "EXPECTED"] <- "EXPECTED_DEATHS"
       acmtable
@@ -922,7 +922,7 @@ shinyServer(
             geom_line(aes(x = PERIOD, y = EXPECTED, colour = "expected")) +
             scale_colour_manual(name="",
                                 values=c(recorded="black", expected="indianred")) +
-            scale_x_continuous(name = "Month in 2020",
+            scale_x_continuous(name = "Month in 2020 through 2021",
                                labels = c("JAN", "FEB", "MAR", "APR",
                                           "MAY", "JUN", "JUL", "AUG",
                                           "SEP", "OCT", "NOV", "DEC"),
@@ -941,7 +941,7 @@ shinyServer(
             geom_line(aes(x = PERIOD, y = EXPECTED, colour = "expected")) +
             scale_colour_manual(name="",
                                 values=c(recorded="black", expected="indianred")) +
-            scale_x_continuous(name = "Week in 2020") +
+            scale_x_continuous(name = "Week in 2020 through 2021") +
             scale_y_continuous(name = "Weekly Deaths") +
             labs(
               title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
@@ -952,7 +952,7 @@ shinyServer(
         p <- p + theme(plot.subtitle=element_text(size=18, hjust=0.5, face="italic", color="darkred"))    
         return(p)
       }
-      name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month in 2020", "Week in 2020")
+      name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month in 2020 through 2021", "Week in 2020 through 2021")
       # Spline Regression
       if (input$check_spline & !input$check_avg) {
         subtitle <- paste0("deaths in ", bquote(2020), " compared to negative binomial regression on 2015-19")
@@ -969,7 +969,7 @@ shinyServer(
             subtitle = subtitle, size = 12
           ) +
           theme_bw() +
-            if(name_PERIOD == "Month in 2020"){
+            if(name_PERIOD == "Month in 2020 through 2021"){
               scale_x_continuous(name = name_PERIOD, 
                                  labels = c("JAN", "FEB", "MAR", "APR",
                                             "MAY", "JUN", "JUL", "AUG",
@@ -996,7 +996,7 @@ shinyServer(
             subtitle = subtitle, size = 12
           ) +
           theme_bw() +
-          if(name_PERIOD == "Month in 2020"){
+          if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = c("JAN", "FEB", "MAR", "APR",
                                           "MAY", "JUN", "JUL", "AUG",
@@ -1022,7 +1022,7 @@ shinyServer(
             subtitle = subtitle, size = 16
           ) +
           theme_bw() + 
-          if(name_PERIOD == "Month in 2020"){
+          if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = c("JAN", "FEB", "MAR", "APR",
                                           "MAY", "JUN", "JUL", "AUG",
@@ -1046,7 +1046,7 @@ shinyServer(
             subtitle = subtitle, size = 12
           ) +
           theme_bw() +
-          if(name_PERIOD == "Month in 2020"){
+          if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = c("JAN", "FEB", "MAR", "APR",
                                           "MAY", "JUN", "JUL", "AUG",
@@ -1081,7 +1081,7 @@ shinyServer(
             scale_colour_manual(name="",
                                 values=c(excess_from_expected="indianred")) +
             geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
-            scale_x_continuous(name = "Month in 2020",
+            scale_x_continuous(name = "Month in 2020 through 2021",
                                labels = c("JAN", "FEB", "MAR", "APR",
                                           "MAY", "JUN", "JUL", "AUG",
                                           "SEP", "OCT", "NOV", "DEC"),
@@ -1109,7 +1109,7 @@ shinyServer(
             scale_colour_manual(name="",
                                 values=c(excess_from_expected="indianred")) +
             geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
-            scale_x_continuous(name = "Week in 2020") +
+            scale_x_continuous(name = "Week in 2020 through 2021") +
             scale_y_continuous(name = "Weekly Excess Deaths") +
             labs(
               title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
@@ -1120,7 +1120,7 @@ shinyServer(
         p <- p + theme(plot.subtitle=element_text(size=18, hjust=0.5, face="italic", color="darkred"))    
         return(p)
       }
-      name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month in 2020", "Week in 2020")
+      name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month in 2020 through 2021", "Week in 2020 through 2021")
       # Spline Regression
       if (input$EDcheck_spline & !input$EDcheck_avg) {
         subtitle <- paste0("excess deaths in ", bquote(2020), " compared to negative binomial regression on 2015-19")
@@ -1143,7 +1143,7 @@ shinyServer(
             subtitle = subtitle, size = 12
           ) +
           theme_bw() + 
-          if(name_PERIOD == "Month in 2020"){
+          if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = c("JAN", "FEB", "MAR", "APR",
                                           "MAY", "JUN", "JUL", "AUG",
@@ -1176,7 +1176,7 @@ shinyServer(
             subtitle = subtitle, size = 12
           ) +
           theme_bw() + 
-          if(name_PERIOD == "Month in 2020"){
+          if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = c("JAN", "FEB", "MAR", "APR",
                                           "MAY", "JUN", "JUL", "AUG",
@@ -1206,7 +1206,7 @@ shinyServer(
             subtitle = subtitle, size = 12
           ) +
           theme_bw() + 
-          if(name_PERIOD == "Month in 2020"){
+          if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = c("JAN", "FEB", "MAR", "APR",
                                           "MAY", "JUN", "JUL", "AUG",
@@ -1230,7 +1230,7 @@ shinyServer(
             subtitle = subtitle, size = 12
           ) +
           theme_bw() + 
-          if(name_PERIOD == "Month in 2020"){
+          if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = c("JAN", "FEB", "MAR", "APR",
                                           "MAY", "JUN", "JUL", "AUG",
