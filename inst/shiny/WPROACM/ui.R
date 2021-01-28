@@ -325,6 +325,11 @@ actionLink('dataright', icon=icon('arrow-right', class='fa-2x'), label=NULL)
               "Excess Mortality Plot", br(),
               wellPanel(
                 fluidRow(
+                  div(id="barplotbox",
+                      "The excess mortality is displayed here using a bar graph.",
+                      "The height of each bar represents the excess death for that month/week.",
+                      "The lines above and below the end of each bar indicate what the height ",
+                      "of the bar would be using the 95% confidence interval upper bound and lower bound, respectively."),
                   selectInput("EDgender", "Select Sex", gender_labels),
                   selectInput("EDage", "Select Age Group", age_group_labels),
                   checkboxInput('EDcheck_avg', '5-year Average'),
