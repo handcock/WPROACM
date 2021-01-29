@@ -694,154 +694,64 @@ shinyServer(
       if (country == "Australia") {
         text <- div(
           p("This is the data from Australia."),br(),
-           p("It is weekly data from January 1, 2015 to August 2020. Each row corresponds to a All Cause Mortality count for the",
+           p("It is weekly data from January 1, 2015 through week 30 of 2020. Each row corresponds to an All Cause Mortality count for the",
              "year in 'YEAR' and the week number in that year given by 'PERIOD'. The column variables are",
             "'REGION', 'AGE_GROUP', 'SEX'",
-            "'YEAR', 'PERIOD', 'NO_DEATHS'."),
+            "'YEAR', 'PERIOD', 'DEATHS'."),
            p("The All Cause Mortality counts are disaggregated by 'SEX' ('Female', 'Male' and 'Total' (i.e., both combined)).",
-             "Similarly, they are also disaggregated by 'AGE_GROUP'. The 'REGION' variable is just set to 'AUSTRALIA' as this",
-             "data is not disaggregated by sub-national regions (e.g., states)")
+             "Similarly, they are also disaggregated by 'AGE_GROUP'. The 'REGION' variable is just set to 'Australia' as this",
+             "data is not disaggregated by sub-national regions (e.g., states).")
+        )
+      }
+      if (country == "Japan") {
+        text <- div(
+          p("This is the data from Japan."),br(),
+          p("It is monthly data from January 2015 through June 2020. Each row corresponds to an All Cause Mortality count for the",
+            "year in 'YEAR' and the month number in that year given by 'PERIOD'. The column variables are",
+            "'REGION', 'AGE_GROUP', 'SEX'",
+            "'YEAR', 'PERIOD', 'DEATHS'."),
+          p("The All Cause Mortality counts are disaggregated by 'SEX' ('Female', 'Male' and 'Total' (i.e., both combined)).",
+            "Similarly, they are also disaggregated by 'AGE_GROUP'. The 'REGION' variable is just set to 'Japan' as this",
+            "data is not disaggregated by sub-national regions.")
         )
       }
       if (country == "Republic of Korea") {
         text <- div(
-          p("This is the data from Republic of Korea"),br(),
-           p("It is monthly data from January 2015 to September 2020. Each row corresponds to a All Cause Mortality count for the",
+          p("This is the data from Republic of Korea."),br(),
+           p("It is monthly data from January 2015 through September 2020. Each row corresponds to an All Cause Mortality count for the",
              "year in 'YEAR' and the month number in that year given by 'PERIOD'. The column variables are",
             "'REGION', 'AGE_GROUP', 'SEX'",
-            "'YEAR', 'PERIOD', 'NO_DEATHS'."),
-           p("The All Cause Mortality counts are not disaggregated by 'SEX' (i.e., 'Total' is all sexes combined)).",
+            "'YEAR', 'PERIOD', 'DEATHS'."),
+           p("The All Cause Mortality counts are not disaggregated by 'SEX' (i.e., 'Total' is all sexes combined).",
              "Similarly, they are not disaggregated by 'AGE_GROUP'. The 'REGION' variable is just set to 'Republic of Korea' as this",
-             "data is not disaggregated by sub-national regions")
+             "data is not disaggregated by sub-national regions.")
         )
       }
-      if (country == "kapferer" | country == "kapferer2") {
+      if (country == "New Zealand") {
         text <- div(
-          p(
-            "This well-known social network dataset, collected by Bruce Kapferer",
-            "in Zambia from June 1965 to August 1965, involves interactions among",
-            "workers in a tailor shop as observed by Kapferer himself. Here, an",
-            'interaction is defined by Kapferer as "continuous uninterrupted social',
-            'activity involving the participation of at least two persons"; only',
-            "transactions that were relatively frequent are recorded. All of the",
-            'interactions in this particular dataset are "sociational", as opposed',
-            'to "instrumental". Kapferer explains the difference (p. 164) as follows:'
-          ),
-          p(
-            '"I have classed as transactions which were sociational in content those',
-            "where the activity was markedly convivial such as general conversation,",
-            "the sharing of gossip and the enjoyment of a drink together. Examples",
-            "of instrumental transactions are the lending or giving of money,",
-            'assistance at times of personal crisis and help at work."'
-          ),
-          p(
-            "Kapferer also observed and recorded instrumental transactions, many of",
-            "which are unilateral (directed) rather than reciprocal (undirected),",
-            "though those transactions are not recorded here. In addition, there was",
-            "a second period of data collection, from September 1965 to January 1966,",
-            "but these data are also not recorded here. All data are given in",
-            "Kapferer's 1972 book on pp. 176-179."
-          ),
-          p(
-            "During the first time period, there were 43 individuals working in this",
-            "particular tailor shop; however, the better-known dataset includes only",
-            "those 39 individuals who were present during both time collection",
-            "periods. (Missing are the workers named Lenard, Peter, Lazarus, and",
-            "Laurent.) Thus, we give two separate networks here:",
-            code("kapferer", class = "codetxt"), "is the well-known 39-individual",
-            "dataset, whereas", code("kapferer2", class = "codetxt"), "is the full",
-            "43-individual dataset."
-          ),
-          strong("References"),
-          p(
-            "Kapferer, Bruce (1972), Strategy and Transaction in an African Factory,",
-            "Manchester University Press."
-          )
+          p("This is the data from New Zealand."),br(),
+          p("It is weekly data from the beginning of January 2015 through week 46 of 2020. Each row corresponds to an All Cause Mortality count for the",
+            "year in 'YEAR' and the week number in that year given by 'PERIOD'. The column variables are",
+            "'REGION', 'AGE_GROUP', 'SEX'",
+            "'YEAR', 'PERIOD', 'DEATHS'."),
+          p("The All Cause Mortality counts are disaggregated by 'SEX' ('Female', 'Male' and 'Total' (i.e., both combined)).",
+            "Similarly, they are also disaggregated by 'AGE_GROUP'. The 'REGION' variable is just set to 'New Zealand' as this",
+            "data is not disaggregated by sub-national regions.")
         )
       }
-      if (country == "molecule") {
+      if (country == "Philippines") {
         text <- div(
-          p(
-            code("molecule", class = "codetxt"),
-            "is a synthetic network of 20 nodes that is used as an example within",
-            "the", code("ergm", class = "codetxt"),
-            "documentation. It has an interesting elongated shape - reminiscent of",
-            "a chemical molecule."
-          )
+          p("This is the data from Philippines."),br(),
+          p("It is monthly data from January 2015 through August 2020. Each row corresponds to an All Cause Mortality count for the",
+            "year in 'YEAR' and the month number in that year given by 'PERIOD'. The column variables are",
+            "'REGION', 'AGE_GROUP', 'SEX'",
+            "'YEAR', 'PERIOD', 'DEATHS'."),
+          p("The All Cause Mortality counts are not disaggregated by 'SEX' (i.e., 'Total' is all sexes combined).",
+            "However, they are disaggregated by 'AGE_GROUP'. The 'REGION' variable is just set to 'Philippines' as this",
+            "data is not disaggregated by sub-national regions.")
         )
       }
-      if (country == "samplike" | country == "samplk1" | country == "samplk2" | country == "samplk3") {
-        text <- div(
-          p(
-            "Sampson (1969) recorded the social interactions among a group of monks",
-            "while resident as an experimenter on vision, and collected numerous",
-            "sociometric rankings. During his stay, a political “crisis in the",
-            'cloister" resulted in the expulsion of four monks (Nos. 2, 3, 17, and',
-            "18) and the voluntary departure of several others - most immediately,",
-            "Nos. 1, 7, 14, 15, and 16. (In the end, only 5, 6, 9, and 11 remained).",
-            "Of particular interest is the data on positive affect relations",
-            '(“liking"), in which each monk was asked if they had positive',
-            "relations to each of the other monks."
-          ),
-          p(
-            "The data were gathered at three times to capture changes in group",
-            "sentiment over time:", code("samplk1, samplk2", class = "codetxt"), "and",
-            code("samplk3.", class = "codetxt"), "They represent three time points",
-            "in the period during which a new cohort entered the monastery near the",
-            "end of the study but before the major conflict began. Each member",
-            'ranked only his top three choices on “liking." (Some subjects offered',
-            "tied ranks for their top four choices). A tie from monk A to monk B",
-            "exists if A nominated B as one of his three best friends at that that",
-            "time point."
-          ),
-          p(
-            code("samplk3", class = "codetxt"),
-            "is a data set of Hoff, Raftery and Handcock (2002)."
-          ),
-          p(
-            code("samplike", class = "codetxt"),
-            'is the time-aggregated graph. It is the cumulative tie for “liking"',
-            "over the three periods. For this, a tie from monk A to monk B exists",
-            "if A nominated B as one of his three best friends at any of the three",
-            "time points."
-          ),
-          p(
-            "The graphs have three vertex attributes: ",
-            tags$ul(
-              tags$li(
-                'Groups of novices as classified by Sampson: "Loyal",',
-                '"Outcasts", and "Turks". There is also an interstitial',
-                "group not represented here."
-              ),
-              tags$li(
-                "An indicator of attendance the minor seminary of",
-                '“Cloisterville" before coming to the monastery.'
-              ),
-              tags$li("The given names of the novices.")
-            )
-          ),
-          strong("References"),
-          p(
-            "Sampson, S.F. (1968), A novitiate in a period of change:",
-            em("An experimental and case study of relationships,"),
-            "Unpublished Ph.D. dissertation, Department of Sociology,",
-            "Cornell University."
-          ),
-          p(
-            "White, H.C., Boorman, S.A. and Breiger, R.L. (1976).",
-            em(
-              "Social structure from multiple networks. I. Blockmodels of roles",
-              "and positions."
-            ), "American Journal of Sociology, 81(4), 730-780."
-          ),
-          p(
-            "Wouter de Nooy, Andrej Mrvar, Vladimir Batagelj (2005)",
-            em("Exploratory Social Network Analysis with Pajek,"),
-            "Cambridge: Cambridge University Press"
-          )
-        )
-      }
-
+      
       text
     })
 
