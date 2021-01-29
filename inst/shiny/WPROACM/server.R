@@ -204,7 +204,7 @@ shinyServer(
         if (input$samplecountry == "") {
           ACM_var <- NULL
         } else {
-          country_name <- c("Australia", "Japan", "South_Korea", "New_Zealand", "Philippines")[
+          country_name <- c("Australia", "Japan", "Republic_of_Korea", "New_Zealand", "Philippines")[
             match(input$samplecountry, c(
               "Australia", "Japan",
               "Republic of Korea", "New Zealand", "Philippines"
@@ -634,7 +634,7 @@ shinyServer(
      }
     )
 
-    ## Network Descriptives (Plots) ------------------------------------------------------
+    ## Data Descriptives (Plots) ------------------------------------------------------
 
     # Output Expressions -------------------------------------------------------
 
@@ -679,54 +679,26 @@ shinyServer(
       # }
       if (country == "Australia") {
         text <- div(
-          p("This is the data from Australia.")
+          p("This is the data from Australia."),br(),
+           p("It is weekly data from January 1, 2015 to August 2020. Each row corresponds to a All Cause Mortality count for the",
+             "year in 'YEAR' and the week number in that year given by 'PERIOD'. The column variables are",
+            "'REGION', 'AGE_GROUP', 'SEX'",
+            "'YEAR', 'PERIOD', 'NO_DEATHS'."),
+           p("The All Cause Mortality counts are disaggregated by 'SEX' ('Female', 'Male' and 'Total' (i.e., both combined)).",
+             "Similarily, they are also disaggregated by 'AGE_GROUP'. The 'REGION' variable is just set to 'AUSTRALIA' as this",
+             "data is not disaggregated by sub-national regions (e.g., states)")
         )
       }
-      if (country == "Korea") {
+      if (country == "Republic of Korea") {
         text <- div(
-          p(
-            "The two", code("florentine", class = "codetxt"), "networks are of",
-            "marriage and business ties among Renaissance",
-            "Florentine families. The data is originally from Padgett (1994) via",
-            "UCINET and stored as", code("statnet", class = "codetxt"),
-            "network objects."
-          ),
-          p(
-            "Breiger & Pattison (1986), in their discussion of local role analysis,",
-            "use a subset of data on the social relations among Renaissance",
-            "Florentine families (person aggregates) collected by John Padgett from",
-            "historical documents.", code("flobusiness", class = "codetxt"),
-            "contains business ties - specifically, recorded",
-            "financial ties such as loans, credits and joint partnerships.",
-            code("flomarriage", class = "codetxt"), "contains marriage alliances."
-          ),
-          p(
-            "As Breiger & Pattison point out, the original data are symmetrically",
-            "coded. This is acceptable perhaps for marital ties, but is unfortunate",
-            "for the financial ties (which are almost certainly directed). Both",
-            "graphs provide vertex information on (1) each family's net wealth in",
-            "1427 (in thousands of lira); (2) the number of priorates (seats on the",
-            "civic council) held between 1282- 1344; and (3) the total number of",
-            "business or marriage ties in the total dataset of 116 families",
-            "(see Breiger & Pattison (1986), p 239)."
-          ),
-          p(
-            "Substantively, the data include families who were locked in a struggle",
-            "for political control of the city of Florence around 1430. Two",
-            "factions were dominant in this struggle: one revolved around the",
-            "infamous Medicis (9), the other around the powerful Strozzis (15)."
-          ),
-          strong("References"),
-          p(
-            "Wasserman, S. and Faust, K. (1994)",
-            em("Social Network Analysis: Methods and Applications,"),
-            "Cambridge University Press, Cambridge, England."
-          ),
-          p(
-            "Breiger, R. and Pattison, P. (1986).",
-            em("Cumulated social roles: The duality of persons and their algebras,"),
-            "Social Networks, 8, 215-256."
-          )
+          p("This is the data from Republic of Korea"),br(),
+           p("It is monthly data from January 2015 to September 2020. Each row corresponds to a All Cause Mortality count for the",
+             "year in 'YEAR' and the month number in that year given by 'PERIOD'. The column variables are",
+            "'REGION', 'AGE_GROUP', 'SEX'",
+            "'YEAR', 'PERIOD', 'NO_DEATHS'."),
+           p("The All Cause Mortality counts are not disaggregated by 'SEX' (i.e., 'Total' is all sexes combined)).",
+             "Similarily, they are not disaggregated by 'AGE_GROUP'. The 'REGION' variable is just set to 'Republic of Korea' as this",
+             "data is not disaggregated by sub-national regions")
         )
       }
       if (country == "kapferer" | country == "kapferer2") {

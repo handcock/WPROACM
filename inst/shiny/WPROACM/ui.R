@@ -21,8 +21,8 @@ tabPanel(title=span('WPROACM', id="sWtitle"),
           column(2,
                  actionButton("aboutButton", label = "About WPROACM",
                               class = "btn active"),
-    #            actionButton("citeButton", label = "Citing WPROACM",
-    #                         class = "btn"),
+                 actionButton("citeButton", label = "Citing WPROACM",
+                              class = "btn"),
                  actionButton('startButton', label='Get Started',
                               class="btn btn-primary"),
                  fluidRow(column(1,
@@ -207,7 +207,6 @@ column(4,
                                  'You can then try the calculator out on this data to see an analysis similar to that for your own country.')
                 )
                ),
-             conditionalPanel(condition = 'input.filetype == 1',
                 column(12,
                     br(style="line-height:26px;"),
                     uiOutput('selectsheet'),
@@ -222,19 +221,18 @@ column(4,
                  uiOutput('download_t')
                 )
              )
-           #   downloadButton("download_template", label = "Download the WHO standardized Excel template", class = "btn-sm")
            )),
-         conditionalPanel(
-           condition="input.filetype == 1 & input.samplecountry != ''",
-           wellPanel(uiOutput("datadesc"))
+           conditionalPanel(condition = 'input.filetype == 2 & input.samplecountry != ""',
+             wellPanel(uiOutput("datadesc"))
            )
-         )),
+         ),
     tabPanel('View Data', br(),
           div(id="viewdata",
-            p("Below is displayed the all cause of mortality data as read in. It should display column variables calle",
+            p("Below is displayed the all cause of mortality data as read in. It should display column variables called",
             "'REGION', 'AGE_GROUP', 'SEX'",
-            "'YEAR', 'PERIOD', 'NO_DEATHS'",
-            "and few values should be missing (denoted NA). If your files does not look like this, try to load the built-in",
+            "'YEAR', 'PERIOD', 'NO_DEATHS'.",
+            "The row correspond to the time periods from 2015, designated by the 'YEAR' and 'PERIOD' variables.",
+            "It is ok for a few values should be missing (denoted NA). If your files does not look like this, try to load the built-in",
             "example All Cause Mortality data under the 'Upload All Cause Mortality data' tab on the top left. If you view that",
             "it will show what to expect."),
             p("If your data does not look correct, try to correct it by using the WHO standardized Excel template under the",
@@ -281,7 +279,7 @@ actionLink('dataright', icon=icon('arrow-right', class='fa-2x'), label=NULL)
 ),
 
 
-# Network Descriptives ----------------------------------------------------
+# Data Descriptives ----------------------------------------------------
 
 # There are no calls to selectInput for the options to color code or size the nodes,
 # even though they appear in the app. Most widget functions are called in ui.R, but
