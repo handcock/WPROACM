@@ -214,11 +214,12 @@ column(4,
                       span("What format does the Excel file need to be in?", style="font-size:0.85em;"),
                        br(),'Upload a *.xls or *.xlsx file of all-cause mortality data.',
                        'The file should be saved from the WHO standardized Excel template.',
-                       'Select the template you want from this dropdown list:'),
+                       'Select the template you want from this dropdown list and click "Save template":'),
                     selectizeInput('template_country', label=NULL,
                                 choices=c("Choose a country" = '', 
                  'Australia', 'Philippines', 'French Polynesia', 'Generic Monthly', 'Generic Weekly')),
-                 uiOutput('download_t')
+                 downloadButton('download_t2',"Save template")
+               # uiOutput('download_t')
                 )
              )
            )),
@@ -314,7 +315,7 @@ actionLink('dataright', icon=icon('arrow-right', class='fa-2x'), label=NULL)
                   checkboxInput('check_avg', '5-year Average'),
                   checkboxInput('check_spline', "Negative Binomial Regression"),
                   plotOutput('ACMplot'),
-                  downloadButton("ACMplotdownload", label = "Download plot as image", class = "btn-sm")
+                  downloadButton("ACMplotdownload", label = "Download plot as PDF", class = "btn-sm")
                 ) ),
             ),
             tabPanel(
@@ -333,7 +334,7 @@ actionLink('dataright', icon=icon('arrow-right', class='fa-2x'), label=NULL)
                   checkboxInput('EDcheck_avg', '5-year Average'),
                   checkboxInput('EDcheck_spline', "Negative Binomial Regression"),
                   plotOutput('EDplot'),
-                  downloadButton("EDplotdownload", label = "Download Excess mortality plot as image", class = "btn-sm")
+                  downloadButton("EDplotdownload", label = "Download Excess mortality plot as PDF", class = "btn-sm")
                 ) ),
             )
           )
@@ -381,7 +382,7 @@ tabPanel(title='Methods', value='tab5',
             p(strong("Excess death"),
               "is defined as the difference between the number of all-cause deaths during 2020 and the expected number of deaths."),
             
-            p(strong("Expected death"), "is defined as the expected number of deaths in 2020 if no pandemic had occured.",
+            p(strong("Expected death"), "is defined as the expected number of deaths in 2020 if no pandemic had occurred.",
               "The expected number of deaths is calculated in two different ways, using either a",
               strong("negative binomial regression"), "or the", strong("historical five year average"),
               ", both of which are based on the years 2015-2019."),

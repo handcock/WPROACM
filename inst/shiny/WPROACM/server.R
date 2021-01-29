@@ -269,9 +269,23 @@ shinyServer(
               "Australia", "Philippines", "French Polynesia", "Generic Monthly", "Generic Weekly"))],".xlsx"))
       return(paste0(filename," downloaded to",path.expand("~"),"/Downloads")) 
       }else{
-      return(paste0("The file will be downloaded to",path.expand("~"),"/Downloads")) 
+      return(paste0("The file will be downloaded to ",path.expand("~"),"/Downloads")) 
       }
     })
+
+    output$download_t2 <- downloadHandler(
+      filename = function(){ 
+       paste0(c("AUS", "PHL", "PYF", "Data Entry Template - monthly", "Data Entry Template - weekly")[
+              match(input$template_country, c(
+              "Australia", "Philippines", "French Polynesia", "Generic Monthly", "Generic Weekly"))],".xlsx") 
+      },
+      content = function(file) {
+       file.copy(from=paste0("./XLSX/",c("AUS", "PHL", "PYF", "Data Entry Template - monthly", "Data Entry Template - weekly")[
+              match(input$template_country, c(
+              "Australia", "Philippines", "French Polynesia", "Generic Monthly", "Generic Weekly"))],".xlsx"),
+              to = file)
+      }
+    )
 
     output$EDdownload <- downloadHandler(
       filename = function() {
@@ -685,7 +699,7 @@ shinyServer(
             "'REGION', 'AGE_GROUP', 'SEX'",
             "'YEAR', 'PERIOD', 'NO_DEATHS'."),
            p("The All Cause Mortality counts are disaggregated by 'SEX' ('Female', 'Male' and 'Total' (i.e., both combined)).",
-             "Similarily, they are also disaggregated by 'AGE_GROUP'. The 'REGION' variable is just set to 'AUSTRALIA' as this",
+             "Similarly, they are also disaggregated by 'AGE_GROUP'. The 'REGION' variable is just set to 'AUSTRALIA' as this",
              "data is not disaggregated by sub-national regions (e.g., states)")
         )
       }
@@ -697,7 +711,7 @@ shinyServer(
             "'REGION', 'AGE_GROUP', 'SEX'",
             "'YEAR', 'PERIOD', 'NO_DEATHS'."),
            p("The All Cause Mortality counts are not disaggregated by 'SEX' (i.e., 'Total' is all sexes combined)).",
-             "Similarily, they are not disaggregated by 'AGE_GROUP'. The 'REGION' variable is just set to 'Republic of Korea' as this",
+             "Similarly, they are not disaggregated by 'AGE_GROUP'. The 'REGION' variable is just set to 'Republic of Korea' as this",
              "data is not disaggregated by sub-national regions")
         )
       }
@@ -751,7 +765,7 @@ shinyServer(
             code("molecule", class = "codetxt"),
             "is a synthetic network of 20 nodes that is used as an example within",
             "the", code("ergm", class = "codetxt"),
-            "documentation. It has an interesting elongated shape - reminencent of",
+            "documentation. It has an interesting elongated shape - reminiscent of",
             "a chemical molecule."
           )
         )
