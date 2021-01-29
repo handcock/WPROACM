@@ -463,7 +463,7 @@ shinyServer(
         pdf(file = file, height = 10, width = 10)
       ACM_var <- output_spline() 
 #     c_data <- ACM_var %>% filter(ACM_var$COUNTRY == Countryname() & ACM_var$SEX == input$gender & ACM_var$AGE_GROUP == input$age)
-      c_data <- ACM_var[ACM_var$SEX == input$EDgender & ACM_var$AGE_GROUP == input$age,]
+      c_data <- ACM_var[ACM_var$SEX == input$EDgender & ACM_var$AGE_GROUP == input$EDage,]
       if(nrow(c_data) < 2) {
         if (ACM_var$WM_IDENTIFIER[1] == "Month") {
           #lower <- c_data[c_data$SERIES == "Cyclical spline","LOWER_LIMIT"] - c_data[c_data$SERIES == "Cyclical spline","NO_DEATHS"]
@@ -1067,7 +1067,7 @@ shinyServer(
     output$EDplot <- renderPlot({
       ACM_var <- output_spline() 
 #     c_data <- ACM_var %>% filter(ACM_var$COUNTRY == Countryname() & ACM_var$SEX == input$gender & ACM_var$AGE_GROUP == input$age)
-      c_data <- ACM_var[ACM_var$SEX == input$EDgender & ACM_var$AGE_GROUP == input$age,]
+      c_data <- ACM_var[ACM_var$SEX == input$EDgender & ACM_var$AGE_GROUP == input$EDage,]
       if(nrow(c_data) < 2) {
         if (ACM_var$WM_IDENTIFIER[1] == "Month") {
           #lower <- c_data[c_data$SERIES == "Cyclical spline","LOWER_LIMIT"] - c_data[c_data$SERIES == "Cyclical spline","NO_DEATHS"]
