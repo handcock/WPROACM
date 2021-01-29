@@ -11,7 +11,7 @@ ACM_all <- NULL
 sheets <- NULL
 gender_labels <- c("Total", "Female", "Male")
 age_group_labels <- c("Total", "0-44", "45-64", "65-74", "75-84", "85 and over")
-age_group_labels <- c("Total", "18-24")
+age_group_labels <- c("Total")
 
 # version of textInput with more size options.
 # specify class = 'input-small' or class='input-mini' in

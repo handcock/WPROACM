@@ -85,15 +85,14 @@ shinyServer(
 
     ## Data Selection ------------------------------------------------------
 
-     # ACMinit is used to get the initial values of the network
      output$selectsheet <- renderUI({
        # input$rawdatafile comes as a dataframe with name, size, type and datapath
        # datapath is stored in 4th column of dataframe
-       # network creates a network object from the input file
          filepath <- input$rawdatafile[1, 4]
          filename <- input$rawdatafile[1, 1]
          fileext <- substr(filename, nchar(filename) - 3, nchar(filename))
  
+         sheets <- 1
          if (input$filetype == 1) {
            validate(
              need(
@@ -108,8 +107,6 @@ shinyServer(
            for(i in seq_along(ACM_sheets)){
             if(ACM_sheets[i] != "Instructions"){
              ACM_all <- readxl::read_excel(path=paste(filepath), sheet = ACM_sheets[i])
-             max.types <- dim(ACM_all)[1]
-             max.times <- dim(ACM_all)[2]
              is.data <- apply(!is.na(as.matrix(ACM_all[5:nrow(ACM_all),3:ncol(ACM_all)])),1,sum)
              skip <- max(is.data) < 24
              if(!skip){
@@ -123,7 +120,12 @@ shinyServer(
      })
 
      output$age <- renderUI({
-       selectInput('ageg', label=NULL,
+       selectizeInput('age_list', label=NULL,
+         choices=output_age() )
+     })
+
+     output$EDage <- renderUI({
+       selectizeInput('age_list', label=NULL,
          choices=output_age() )
      })
 
@@ -162,7 +164,6 @@ shinyServer(
     ACMinit <- reactive({
       # input$rawdatafile comes as a dataframe with name, size, type and datapath
       # datapath is stored in 4th column of dataframe
-      # network creates a network object from the input file
       if (is.null(input$rawdatafile)) {
         ACM_var <- NULL
       } else {
@@ -170,6 +171,7 @@ shinyServer(
         filename <- input$rawdatafile[1, 1]
         fileext <- substr(filename, nchar(filename) - 3, nchar(filename))
 
+        ACM_var <- NULL
         if (input$filetype == 1 && !is.null(input$chosesheet) && input$chosesheet != "") {
           validate(
             need(
@@ -180,49 +182,35 @@ shinyServer(
           try({
             ACM_all <- readxl::read_excel(path=paste(filepath), sheet = input$chosesheet)
           })
-#           ACM_sheets <- readxl::excel_sheets(path=paste(filepath))
-#         for(i in seq_along(ACM_sheets)){
-#           ACM_all <- readxl::read_excel(path=paste(filepath), sheet = ACM_sheets[i])
-            max.types <- dim(ACM_all)[1]
-            max.times <- dim(ACM_all)[2]
-            is.data <- apply(!is.na(as.matrix(ACM_all[5:nrow(ACM_all),3:ncol(ACM_all)])),1,sum)
-            skip <- max(is.data) < 24
-#           if(!skip){
-#             sheets <- c(sheets, ACM_sheets[i])
-#           }
-#          }
-      #   net_name <- sheets[
-      #     match(input$samplenet, sheets)
-      #   ]
-#             save(ACM_all, file = paste0("~/",filename,".RData"))
-              a <- as.matrix(ACM_all[5:nrow(ACM_all),3:ncol(ACM_all)])[is.data > 24,]
-              mode(a) <- "numeric"
-              a <- round(a)
-              age <- as.data.frame(ACM_all[,1])[seq(5,nrow(a)+2,by=3),1]
-              ACM_var <- data.frame(
-                                  REGION=rep(input$chosesheet,length(a)),
-                                  AGE_GROUP=rep(rep(age,3),rep(ncol(a),3*length(age)))[1:length(a)],
-                                  SEX=rep(as.data.frame(ACM_all[5:nrow(ACM_all), 2])[is.data > 24,],rep(ncol(a),nrow(a))),
-                                  YEAR=rep(as.numeric(ACM_all[1, 3:ncol(ACM_all)]),nrow(a)),
-                                  PERIOD=rep(as.numeric(ACM_all[3, 3:ncol(ACM_all)]),nrow(a)),
-                                  NO_DEATHS=as.vector(t(a))
-                                    )
-              return(ACM_var)
-         #  }
-      #   }
+          max.types <- dim(ACM_all)[1]
+          max.times <- dim(ACM_all)[2]
+          is.data <- apply(!is.na(as.matrix(ACM_all[5:nrow(ACM_all),3:ncol(ACM_all)])),1,sum)
+          skip <- max(is.data) < 24
+          a <- as.matrix(ACM_all[5:nrow(ACM_all),3:ncol(ACM_all)])[is.data > 24,]
+          mode(a) <- "numeric"
+          a <- round(a)
+          age <- as.data.frame(ACM_all[,1])[seq(5,nrow(a)+2,by=3),1]
+          ACM_var <- data.frame(
+              REGION=rep(input$chosesheet,length(a)),
+               AGE_GROUP=rep(rep(age,3),rep(ncol(a),3*length(age)))[1:length(a)],
+               SEX=rep(as.data.frame(ACM_all[5:nrow(ACM_all), 2])[is.data > 24,],rep(ncol(a),nrow(a))),
+               YEAR=rep(as.numeric(ACM_all[1, 3:ncol(ACM_all)]),nrow(a)),
+               PERIOD=rep(as.numeric(ACM_all[3, 3:ncol(ACM_all)]),nrow(a)),
+               NO_DEATHS=as.vector(t(a))
+                                )
         }
       }
       if (input$filetype == 2) {
-        if (input$samplenet == "") {
+        if (input$samplecountry == "") {
           ACM_var <- NULL
         } else {
-          net_name <- c("Australia", "Japan", "South_Korea", "New_Zealand", "Philippines")[
-            match(input$samplenet, c(
+          country_name <- c("Australia", "Japan", "South_Korea", "New_Zealand", "Philippines")[
+            match(input$samplecountry, c(
               "Australia", "Japan",
               "Republic of Korea", "New Zealand", "Philippines"
             ))
           ]
-          ACM_var <- eval(parse(text = net_name))
+          ACM_var <- eval(parse(text = country_name))
         }
       }
       return(ACM_var)
@@ -231,9 +219,9 @@ shinyServer(
     iso3 <- reactive({
       iso3 <- NULL
       if (input$filetype == 2) {
-        if (input$samplenet != "") {
+        if (input$samplecountry != "") {
           iso3 <- c("AUD", "JPN", "KOR", "NZL", "PHL")[
-            match(input$samplenet, c(
+            match(input$samplecountry, c(
               "Australia", "Japan",
               "Republic of Korea", "New Zealand", "Philippines"
             ))
@@ -246,7 +234,7 @@ shinyServer(
     Countryname <- reactive({
       name <- input$rawdatafile[1, 1]
       if (input$filetype == 2) {
-        name <- input$samplenet
+        name <- input$samplecountry
       }
       name
     })
@@ -264,6 +252,25 @@ shinyServer(
         return()
       }
       calculate_age(ACMinit())
+    })
+
+    output$download_t <- renderUI({
+      if(input$template_country != ""){
+      filename = 
+       paste0(c("AUS", "PHL", "PYF", "Data Entry Template - monthly", "Data Entry Template - weekly")[
+              match(input$template_country, c(
+              "Australia", "Philippines", "French Polynesia", "Generic Monthly", "Generic Weekly"))],".xlsx") 
+       file.copy(paste0("./XLSX/",c("AUS", "PHL", "PYF", "Data Entry Template - monthly", "Data Entry Template - weekly")[
+              match(input$template_country, c(
+              "Australia", "Philippines", "French Polynesia", "Generic Monthly", "Generic Weekly"))],".xlsx"),
+              to = paste0(path.expand("~"),"/Downloads/",
+               c("AUS", "PHL", "PYF", "Data Entry Template - monthly", "Data Entry Template - weekly")[
+              match(input$template_country, c(
+              "Australia", "Philippines", "French Polynesia", "Generic Monthly", "Generic Weekly"))],".xlsx"))
+      return(paste0(filename," downloaded to",path.expand("~"),"/Downloads")) 
+      }else{
+      return(paste0("The file will be downloaded to",path.expand("~"),"/Downloads")) 
+      }
     })
 
     output$EDdownload <- downloadHandler(
@@ -442,7 +449,7 @@ shinyServer(
         pdf(file = file, height = 10, width = 10)
       ACM_var <- output_spline() 
 #     c_data <- ACM_var %>% filter(ACM_var$COUNTRY == Countryname() & ACM_var$SEX == input$gender & ACM_var$AGE_GROUP == input$age)
-      c_data <- ACM_var[ACM_var$SEX == input$EDgender & ACM_var$AGE_GROUP == input$EDage,]
+      c_data <- ACM_var[ACM_var$SEX == input$EDgender & ACM_var$AGE_GROUP == input$age,]
       if(nrow(c_data) < 2) {
         if (ACM_var$WM_IDENTIFIER[1] == "Month") {
           #lower <- c_data[c_data$SERIES == "Cyclical spline","LOWER_LIMIT"] - c_data[c_data$SERIES == "Cyclical spline","NO_DEATHS"]
@@ -643,7 +650,7 @@ shinyServer(
 
 
     output$datadesc <- renderUI({
-      net <- input$samplenet
+      country <- input$samplecountry
       text <- div()
       # if(net == "ecoli1" | net == "ecoli2"){
       #   text <- div(
@@ -670,12 +677,12 @@ shinyServer(
       #       "31(1): 64-68.")
       #   )
       # }
-      if (net == "Australia") {
+      if (country == "Australia") {
         text <- div(
           p("This is the data from Australia.")
         )
       }
-      if (net == "Korea") {
+      if (country == "Korea") {
         text <- div(
           p(
             "The two", code("florentine", class = "codetxt"), "networks are of",
@@ -722,7 +729,7 @@ shinyServer(
           )
         )
       }
-      if (net == "kapferer" | net == "kapferer2") {
+      if (country == "kapferer" | country == "kapferer2") {
         text <- div(
           p(
             "This well-known social network dataset, collected by Bruce Kapferer",
@@ -766,7 +773,7 @@ shinyServer(
           )
         )
       }
-      if (net == "molecule") {
+      if (country == "molecule") {
         text <- div(
           p(
             code("molecule", class = "codetxt"),
@@ -777,7 +784,7 @@ shinyServer(
           )
         )
       }
-      if (net == "samplike" | net == "samplk1" | net == "samplk2" | net == "samplk3") {
+      if (country == "samplike" | country == "samplk1" | country == "samplk2" | country == "samplk3") {
         text <- div(
           p(
             "Sampson (1969) recorded the social interactions among a group of monks",
@@ -1074,7 +1081,7 @@ shinyServer(
     output$EDplot <- renderPlot({
       ACM_var <- output_spline() 
 #     c_data <- ACM_var %>% filter(ACM_var$COUNTRY == Countryname() & ACM_var$SEX == input$gender & ACM_var$AGE_GROUP == input$age)
-      c_data <- ACM_var[ACM_var$SEX == input$EDgender & ACM_var$AGE_GROUP == input$EDage,]
+      c_data <- ACM_var[ACM_var$SEX == input$EDgender & ACM_var$AGE_GROUP == input$age,]
       if(nrow(c_data) < 2) {
         if (ACM_var$WM_IDENTIFIER[1] == "Month") {
           #lower <- c_data[c_data$SERIES == "Cyclical spline","LOWER_LIMIT"] - c_data[c_data$SERIES == "Cyclical spline","NO_DEATHS"]

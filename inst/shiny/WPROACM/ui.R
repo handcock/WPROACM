@@ -196,7 +196,7 @@ column(4,
              conditionalPanel(condition = 'input.filetype == 2',
                 column(12,
                     br(style="line-height:26px;"),
-                    selectizeInput('samplenet', label=NULL,
+                    selectizeInput('samplecountry', label=NULL,
                                 choices=c("Choose a country" = '', 
                                           'Australia','Japan',
                                           'Republic of Korea', 'New Zealand', 'Philippines')),
@@ -211,47 +211,41 @@ column(4,
                 column(12,
                     br(style="line-height:26px;"),
                     uiOutput('selectsheet'),
-                              p(class="helper", id="CShelp", icon("question-circle"),
-                                span("These are example Excel files from some countries with data from January 1, 2015 through August, 2020.", style="font-size:0.85em;"),
-                                 br(),'You try select a country in the drop-down menu', em("Choose a country"),
-                                 'above this message and view the data in the above', em("View Data"),' tab.',
-                                 'You can then try the calculator out on this data to see an analysis similar to that for your own country.')
+                    p(class="helper", id="Excelhelp", icon("question-circle"),
+                      span("What format does the Excel file need to be in?", style="font-size:0.85em;"),
+                       br(),'Upload a *.xls or *.xlsx file of all-cause mortality data.',
+                       'The file should be saved from the WHO standardized Excel template.',
+                       'Select the template you want from this dropdown list:'),
+                    selectizeInput('template_country', label=NULL,
+                                choices=c("Choose a country" = '', 
+                 'Australia', 'Philippines', 'French Polynesia', 'Generic Monthly', 'Generic Weekly')),
+                 uiOutput('download_t')
                 )
-               )
-             ),
-             conditionalPanel(condition='input.filetype == 1',
-                              p(class="helper", id="Excelhelp", icon("question-circle"),
-                                span("What format does the Excel file need to be in?", style="font-size:0.85em;"),
-                                 br(),'Upload a *.xls or *.xlsx file of all-cause mortality data.',
-                                 'The file should be saved from the WHO standardized Excel template. Click', a("here",
-                                  src="PHL_monthly_template.xlsx", href = "https://www.who.int/westernpacific/", target = "_blank"), ' to download the monthly template.')
-                              )
+             )
+           #   downloadButton("download_template", label = "Download the WHO standardized Excel template", class = "btn-sm")
            )),
          conditionalPanel(
-           condition="input.filetype == 1 & input.samplenet != ''",
+           condition="input.filetype == 1 & input.samplecountry != ''",
            wellPanel(uiOutput("datadesc"))
            )
-         ),
+         )),
     tabPanel('View Data', br(),
           div(id="viewdata",
-            p("Below is displayed the all cause of mortality data as read in. It should display column variables called 'COUNTRY','ISO3','YEAR'",
-            "'PERIOD','SEX','AGE_GROUP','AREA','CAUSE','NO_DEATHS','DATE_TO_SPECIFY_WEEK','SE_IDENTIFIER'",
+            p("Below is displayed the all cause of mortality data as read in. It should display column variables calle",
+            "'REGION', 'AGE_GROUP', 'SEX'",
+            "'YEAR', 'PERIOD', 'NO_DEATHS'",
             "and few values should be missing (denoted NA). If your files does not look like this, try to load the built-in",
             "example All Cause Mortality data under the 'Upload All Cause Mortality data' tab on the top left. If you view that",
             "it will show what to expect."),
-            p("If your data does not look correct, try to correct it in the WHO standardized Excel template. Click", a('here',
-      href = 'https://www.who.int/westernpacific/', target = '_blank'), " to download."),
+            p("If your data does not look correct, try to correct it by using the WHO standardized Excel template under the",
+               em("Data"),"tab on the top left."), 
             p("A typical analysis will move sequentially through the tabs at the top of the page",
               "Click on the help icon at the top of any page for guidance."),
             p("If you are having trouble getting the data in",
               "email us (see", actionLink("helpLink", "Help"), "tab)."),
             ),
            wellPanel(
- #h3('Grocery List'),
- #uiOutput('Grocery_List')
-#shiny::dataTableOutput("ACM_table")
-dataTableOutput("ACM_table")
-#DT::dataTableOutput('iris_table')
+             dataTableOutput("ACM_table")
            )
          )
 # tabPanel('Modify Attributes', br(),
@@ -314,7 +308,9 @@ actionLink('dataright', icon=icon('arrow-right', class='fa-2x'), label=NULL)
                   selectInput("gender", "Select Sex", gender_labels),
                   #selectInput("gender", "Select Sex", sort(as.character(unique(ACM_var$SEX)))),
                   #selectInput("age", "Select Age Group", output_age),
-                  div(id="agebox", strong("Select Age Group")),
+                 #div(id="agebox", strong("Select Age Group")),
+                  textInput("age", "Type in the Age Group (choosing from the list below)", age_group_labels),
+                 #selectInput("age", "Select Age Group", age_group_labels),
                   uiOutput('age'),
                   #selectInput("age", "Select Age Group", sort(as.character(unique(ACM_var$AGE_GROUP)))),
                   checkboxInput('check_avg', '5-year Average'),
@@ -333,7 +329,9 @@ actionLink('dataright', icon=icon('arrow-right', class='fa-2x'), label=NULL)
                       "The lines above and below the end of each bar indicate what the height ",
                       "of the bar would be using the 95% confidence interval upper bound and lower bound, respectively."),
                   selectInput("EDgender", "Select Sex", gender_labels),
-                  selectInput("EDage", "Select Age Group", age_group_labels),
+               #  selectInput("EDage", "Select Age Group", age_group_labels),
+                  textInput("EDage", "Type in the Age Group (choosing from the list below)", age_group_labels),
+                  uiOutput('EDage'),
                   checkboxInput('EDcheck_avg', '5-year Average'),
                   checkboxInput('EDcheck_spline', "Negative Binomial Regression"),
                   plotOutput('EDplot'),
