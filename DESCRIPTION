@@ -2,7 +2,7 @@ Package: WPROACM
 Type: Package
 Title: A Graphical User Interface for Analysing Excess Mortality from All Cause Mortality Data
 Version: 0.1
-Date: 2021-01-11
+Date: 2021-01-29
 Authors@R: c(
   person("Mark S.", "Handcock", role=c("aut","cre"), email="handcock@stat.ucla.edu"),
   person("Bart", "Blackburn", email = "bartblackburn@ucla.edu", role = "ctb"))
@@ -14,11 +14,12 @@ Depends:
     dplyr,
     reshape2,
     stringr,
-    mgcv,
     ggplot2,
     lattice,
     latticeExtra
 Imports:
+    mgcv,
+    writexl,
     readxl,
     RColorBrewer
 LazyData: true

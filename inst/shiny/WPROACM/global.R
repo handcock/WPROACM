@@ -5,6 +5,7 @@ require(stringr)
 require(mgcv)
 
 require(stats); require(graphics)
+require(compiler)
 
 # TODO:dynamically generate input labels
 ACM_all <- NULL
@@ -101,7 +102,15 @@ calculate_age <- function(src) { return(sort(unique(src$AGE_GROUP)))}
 calculate_spline <- function(src) {
   src <- src[src$YEAR <= "2020", ]
   src <- src[order(src$SEX, src$AGE_GROUP, src$YEAR, src$PERIOD), ]
-  src$NO_DEATHS <- as.numeric(src$NO_DEATHS)
+  if(is.null(src$NO_DEATHS)){
+    if(is.null(src$DEATHS)){
+      stop("The data should have a column called 'NO_DEATHS', containing the number of all-cause deaths for that period.")
+    }else{
+      src$NO_DEATHS <- as.numeric(src$DEATHS)
+    }
+  }else{
+    src$NO_DEATHS <- as.numeric(src$NO_DEATHS)
+  }
 
   dom <- c(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
   moy <- c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
@@ -115,7 +124,7 @@ calculate_spline <- function(src) {
     DATE <- cumsum(c(0, 365, 366, 365, 365, 365))[src$YEAR - 2014] + day
   }
 
-  out <- src %>% dplyr::filter(YEAR == "2020")
+  out <- src %>% dplyr::filter(YEAR >= "2020")
   out <- rbind(out,out)
   wm_ident <- ifelse(max(src$PERIOD, na.rm = TRUE) == 12, "Month", "Week")
   l_period <- ifelse(max(src$PERIOD, na.rm = TRUE) == 12, 12, 53)
@@ -181,7 +190,7 @@ calculate_spline <- function(src) {
       days[days > 3] <- len.cycle
     }
     src_2020$logdays <- log(days)
-    estim <- predict(fit, newdata = src_2020, se.fit = TRUE)
+    estim <- mgcv::predict.gam(fit, newdata = src_2020, se.fit = TRUE)
     estim.median <- estim$fit
     estim.lower <- estim$fit # [5*12-1+(1:12)]
     estim.upper <- estim$fit
@@ -197,43 +206,47 @@ calculate_spline <- function(src) {
     estim.lower.std <- len.cycle * estim.lower / exp(src_2020$logdays)
     estim.upper.std <- len.cycle * estim.upper / exp(src_2020$logdays)
 
-    for (k in 0:(l_period - 1)) {
-      y <- 2020
+    for (year_predict in sort(unique(out$YEAR))) {
+     for (k in 0:(l_period - 1)) {
+      y <- year_predict
       a <- src_2020$YEAR == y & src_2020$PERIOD == (k + 1)
       while (!any(a) & y >= 2017) {
         y <- y - 1
         a <- src_2020$YEAR == y & src_2020$PERIOD == (k + 1)
       }
-      y <- 2020
+      y <- year_predict
       while (!any(a) & y >= 2017) {
         y <- y - 1
         a <- src_2020$YEAR == y & src_2020$PERIOD == (k - 1)
       }
       if (!any(a)) {
-        a <- src_2020$YEAR == 2020 & src_2020$PERIOD == k
+        a <- src_2020$YEAR == year_predict & src_2020$PERIOD == k
       }
       out[l_period * (j - 1) + k + 1, "ESTIMATE"] <- estim.median[a]
       out[l_period * (j - 1) + k + 1, "LOWER_LIMIT"] <- estim.lower[a]
       out[l_period * (j - 1) + k + 1, "UPPER_LIMIT"] <- estim.upper[a]
+     }
     }
-    for (k in 0:(l_period - 1)) {
-      y <- 2020
+    for (year_predict in sort(unique(out$YEAR))) {
+     for (k in 0:(l_period - 1)) {
+      y <- year_predict
       a <- src_2020$YEAR == y & src_2020$PERIOD == (k + 1)
       while (!any(a) & y >= 2017) {
         y <- y - 1
         a <- src_2020$YEAR == y & src_2020$PERIOD == (k + 1)
       }
-      y <- 2020
+      y <- year_predict
       while (!any(a) & y >= 2017) {
         y <- y - 1
         a <- src_2020$YEAR == y & src_2020$PERIOD == (k - 1)
       }
       if (!any(a)) {
-        a <- src_2020$YEAR == 2020 & src_2020$PERIOD == k
+        a <- src_2020$YEAR == year_predict & src_2020$PERIOD == k
       }
       out[l_period*n_pat + l_period * (j - 1) + k + 1, "ESTIMATE"] <- ave_deaths[a]
       out[l_period*n_pat + l_period * (j - 1) + k + 1, "LOWER_LIMIT"] <- ave_deaths_lower[a]
       out[l_period*n_pat + l_period * (j - 1) + k + 1, "UPPER_LIMIT"] <- ave_deaths_upper[a]
+     }
     }
 
     message(paste0(out[l_period * (j - 1) + k + 1, "SEX"], " ", out[l_period * (j - 1) + k + 1, "AGE_GROUP"], " finished (", round(difftime(
@@ -261,9 +274,11 @@ calculate_spline <- function(src) {
 
   if (any(out$SERIES == "Unknown series, plz check")) message("Unknown series, plz check")
 
-  out <- out[, c("REGION", "WM_IDENTIFIER", "PERIOD", "SEX", "AGE_GROUP", "SERIES", "NO_DEATHS", "EXPECTED", "LOWER_LIMIT", "UPPER_LIMIT", "EXCESS_DEATHS")]
+  out <- out[, c("REGION", "WM_IDENTIFIER", "YEAR", "PERIOD", "SEX", "AGE_GROUP", "SERIES", "NO_DEATHS", "EXPECTED", "LOWER_LIMIT", "UPPER_LIMIT", "EXCESS_DEATHS")]
 
   message("Computation of the expected deaths completed successfully.")
 
   return(out)
 }
+
+calculate_spline <- cmpfun(calculate_spline)

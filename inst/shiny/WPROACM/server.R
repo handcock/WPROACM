@@ -5,6 +5,7 @@ require(stats)
 require(methods)
 
 require("readxl")
+require("writexl")
 require("RColorBrewer")
 require("ggplot2")
 require("lattice")
@@ -92,7 +93,7 @@ shinyServer(
          filename <- input$rawdatafile[1, 1]
          fileext <- substr(filename, nchar(filename) - 3, nchar(filename))
  
-         sheets <- 1
+         sheets <- ""
          if (input$filetype == 1) {
            validate(
              need(
@@ -289,11 +290,11 @@ shinyServer(
 
     output$EDdownload <- downloadHandler(
       filename = function() {
-        paste(Countryname(), "_ED.csv", sep = "")
+        paste(Countryname(), "_ED.xlsx", sep = "")
       },
-      contentType = "text/csv",
+      contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       content = function(file) {
-        write.csv(output_spline(), file = file)
+        writexl::write_xlsx(x=output_spline(), path = file)
       }
     )
 
@@ -805,7 +806,7 @@ shinyServer(
     # data summary panel under data tab
     output$ACMsum <- renderPrint({
       if (is.null(ACMinit())) {
-        return(cat("Please load the data using the drop-down menu on the left."))
+        return(cat("Please load the data using the pull-down menu on the left."))
       }
       #ACM_var <- ACMinit()
       acmtable <- ACMinit()
