@@ -667,38 +667,13 @@ shinyServer(
     output$datadesc <- renderUI({
       country <- input$samplecountry
       text <- div()
-      # if(net == "ecoli1" | net == "ecoli2"){
-      #   text <- div(
-      #     p("The", code("ecoli", class = "codetxt"),
-      #       "network data set comprises two versions of a",
-      #       "biological network in which the nodes are operons in",
-      #       em("Escherichia Coli"), "and a directed edge from one node to another",
-      #       "indicates that the first encodes the transcription factor that",
-      #       "regulates the second."),
-      #     p("The network object", code("ecoli1", class = "codetxt"),
-      #       "is directed, with 423 nodes", "and 519 ties. The object",
-      #       code("ecoli2", class = "codetxt"), "is an undirected",
-      #       "version of the same network, in which the five isolated nodes",
-      #       "(which exhibit only self-regulation in",
-      #       code("ecoli1", class = "codetxt"), "are removed, leaving 418 nodes."),
-      #     p("The data set is based on the RegulonDB network (Salgado et al, 2001)",
-      #       "and was modified by Shen-Orr et al (2002)."),
-      #     strong("References"),
-      #     p("Salgado et al (2001), Regulondb (version 3.2): Transcriptional",
-      #       "Regulation and Operon Organization in Escherichia Coli K-12,",
-      #       em("Nucleic Acids Research,"), "29(1): 72-74."),
-      #     p("Shen-Orr et al (2002), Network Motifs in the Transcriptional",
-      #       "Regulation Network of Escerichia Coli,", em("Nature Genetics,"),
-      #       "31(1): 64-68.")
-      #   )
-      # }
       if (country == "Australia") {
         text <- div(
           p("This is the data from Australia."),br(),
            p("It is weekly data from January 1, 2015 through week 30 of 2020. Each row corresponds to an All Cause Mortality count for the",
              "year in 'YEAR' and the week number in that year given by 'PERIOD'. The column variables are",
             "'REGION', 'AGE_GROUP', 'SEX'",
-            "'YEAR', 'PERIOD', 'DEATHS'."),
+            "'YEAR', 'PERIOD', 'NO_DEATHS'."),
            p("The All Cause Mortality counts are disaggregated by 'SEX' ('Female', 'Male' and 'Total' (i.e., both combined)).",
              "Similarly, they are also disaggregated by 'AGE_GROUP'. The 'REGION' variable is just set to 'Australia' as this",
              "data is not disaggregated by sub-national regions (e.g., states).")
@@ -710,7 +685,7 @@ shinyServer(
           p("It is monthly data from January 2015 through June 2020. Each row corresponds to an All Cause Mortality count for the",
             "year in 'YEAR' and the month number in that year given by 'PERIOD'. The column variables are",
             "'REGION', 'AGE_GROUP', 'SEX'",
-            "'YEAR', 'PERIOD', 'DEATHS'."),
+            "'YEAR', 'PERIOD', 'NO_DEATHS'."),
           p("The All Cause Mortality counts are disaggregated by 'SEX' ('Female', 'Male' and 'Total' (i.e., both combined)).",
             "Similarly, they are also disaggregated by 'AGE_GROUP'. The 'REGION' variable is just set to 'Japan' as this",
             "data is not disaggregated by sub-national regions.")
@@ -722,7 +697,7 @@ shinyServer(
            p("It is monthly data from January 2015 through September 2020. Each row corresponds to an All Cause Mortality count for the",
              "year in 'YEAR' and the month number in that year given by 'PERIOD'. The column variables are",
             "'REGION', 'AGE_GROUP', 'SEX'",
-            "'YEAR', 'PERIOD', 'DEATHS'."),
+            "'YEAR', 'PERIOD', 'NO_DEATHS'."),
            p("The All Cause Mortality counts are not disaggregated by 'SEX' (i.e., 'Total' is all sexes combined).",
              "Similarly, they are not disaggregated by 'AGE_GROUP'. The 'REGION' variable is just set to 'Republic of Korea' as this",
              "data is not disaggregated by sub-national regions.")
@@ -734,7 +709,7 @@ shinyServer(
           p("It is weekly data from the beginning of January 2015 through week 46 of 2020. Each row corresponds to an All Cause Mortality count for the",
             "year in 'YEAR' and the week number in that year given by 'PERIOD'. The column variables are",
             "'REGION', 'AGE_GROUP', 'SEX'",
-            "'YEAR', 'PERIOD', 'DEATHS'."),
+            "'YEAR', 'PERIOD', 'NO_DEATHS'."),
           p("The All Cause Mortality counts are disaggregated by 'SEX' ('Female', 'Male' and 'Total' (i.e., both combined)).",
             "Similarly, they are also disaggregated by 'AGE_GROUP'. The 'REGION' variable is just set to 'New Zealand' as this",
             "data is not disaggregated by sub-national regions.")
@@ -746,10 +721,9 @@ shinyServer(
           p("It is monthly data from January 2015 through August 2020. Each row corresponds to an All Cause Mortality count for the",
             "year in 'YEAR' and the month number in that year given by 'PERIOD'. The column variables are",
             "'REGION', 'AGE_GROUP', 'SEX'",
-            "'YEAR', 'PERIOD', 'DEATHS'."),
+            "'YEAR', 'PERIOD', 'NO_DEATHS'."),
           p("The All Cause Mortality counts are not disaggregated by 'SEX' (i.e., 'Total' is all sexes combined).",
-            "However, they are disaggregated by 'AGE_GROUP'. The 'REGION' variable is just set to 'Philippines' as this",
-            "data is not disaggregated by sub-national regions.")
+            "Similarly, they are not disaggregated by 'AGE_GROUP'.")
         )
       }
       
@@ -766,11 +740,6 @@ shinyServer(
       #ACMinit()
       acmtable <- ACMinit()
       acmtable$ISO3 <- NULL
-      names(acmtable)[names(acmtable) == "WM_IDENTIFIER"] <- "WEEK/MONTH"
-      names(acmtable)[names(acmtable) == "AREA"] <- "REGION/AREA"
-      names(acmtable)[names(acmtable) == "NO_DEATHS"] <- "DEATHS"
-      names(acmtable)[names(acmtable) == "WM_IDENTIFIER"] <- "WEEK/MONTH"
-      names(acmtable)[names(acmtable) == "EXPECTED"] <- "EXPECTED_DEATHS"
       acmtable
     })
     output$spline_table <- shiny::renderDataTable({
