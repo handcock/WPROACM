@@ -723,7 +723,11 @@ shinyServer(
             "'REGION', 'AGE_GROUP', 'SEX'",
             "'YEAR', 'PERIOD', 'NO_DEATHS'."),
           p("The All Cause Mortality counts are not disaggregated by 'SEX' (i.e., 'Total' is all sexes combined).",
-            "Similarly, they are not disaggregated by 'AGE_GROUP'.")
+            "Similarly, they are not disaggregated by 'AGE_GROUP'.",
+            "However, they are disaggregated by region. Note that the different regions",
+            "are actually listed under the 'AGE_GROUP' column. When viewing the plots",
+            "the disaggregation by region can be handled exactly the same as if",
+            "disaggregating by 'AGE_GROUP'.")
         )
       }
       
