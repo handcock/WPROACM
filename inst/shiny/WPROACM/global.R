@@ -100,7 +100,7 @@ attr.info <- function(df, colname, numattrs, breaks) {
 calculate_age <- function(src) { return(sort(unique(src$AGE_GROUP)))}
 
 calculate_spline <- function(src) {
-  src <- src[src$YEAR <= "2020", ]
+  src <- src[src$YEAR <= "2020" & src$PERIOD <= 52, ]
   src <- src[order(src$SEX, src$AGE_GROUP, src$YEAR, src$PERIOD), ]
   if(is.null(src$NO_DEATHS)){
     if(is.null(src$DEATHS)){
@@ -127,7 +127,7 @@ calculate_spline <- function(src) {
   out <- src %>% dplyr::filter(YEAR >= "2020")
   out <- rbind(out,out)
   wm_ident <- ifelse(max(src$PERIOD, na.rm = TRUE) == 12, "Month", "Week")
-  l_period <- ifelse(max(src$PERIOD, na.rm = TRUE) == 12, 12, 53)
+  l_period <- ifelse(max(src$PERIOD, na.rm = TRUE) == 12, 12, 52)
   out$ESTIMATE <- out$NO_DEATHS
   out$LOWER_LIMIT <- out$NO_DEATHS
   out$UPPER_LIMIT <- out$NO_DEATHS
@@ -142,7 +142,7 @@ calculate_spline <- function(src) {
       if (sum(temp_src$NO_DEATHS, na.rm = TRUE) == 0) next
       src_2020 <- src[paste(src$SEX, src$AGE_GROUP) == pattern[j], ]
       aDATE <- DATE[paste(src$SEX, src$AGE_GROUP) == pattern[j]]
-      num.cycle <- 53
+      num.cycle <- 52
       len.cycle <- 7
       loc_DATE <- DATE[paste(src$SEX, src$AGE_GROUP) == pattern[j] & src$YEAR < "2020"]
       loc_PERIOD <- src_PERIOD[paste(src$SEX, src$AGE_GROUP) == pattern[j] & src$YEAR < "2020"]

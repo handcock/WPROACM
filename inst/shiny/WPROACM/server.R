@@ -117,7 +117,7 @@ shinyServer(
            }
          }
        selectizeInput('chosesheet', label=NULL,
-         choices=c("Choose a region" = '', sheets ))
+         choices=c("Choose a region (if there is more than one)" = '', sheets ))
      })
 
      output$age <- renderUI({
@@ -183,22 +183,28 @@ shinyServer(
           try({
             ACM_all <- readxl::read_excel(path=paste(filepath), sheet = input$chosesheet)
           })
+          if(ACM_all[4,3]=="WEEKS"){
+            len.header <- 6
+          }else{
+            len.header <- 5
+          }
           max.types <- dim(ACM_all)[1]
           max.times <- dim(ACM_all)[2]
-          is.data <- apply(!is.na(as.matrix(ACM_all[5:nrow(ACM_all),3:ncol(ACM_all)])),1,sum)
+          is.data <- apply(!is.na(as.matrix(ACM_all[len.header:nrow(ACM_all),3:ncol(ACM_all)])),1,sum)
           skip <- max(is.data) < 24
-          a <- as.matrix(ACM_all[5:nrow(ACM_all),3:ncol(ACM_all)])[is.data > 24,]
+          a <- as.matrix(ACM_all[len.header:nrow(ACM_all),3:ncol(ACM_all)])[is.data > 24,]
           mode(a) <- "numeric"
           a <- round(a)
-          age <- as.data.frame(ACM_all[,1])[seq(5,nrow(a)+2,by=3),1]
+          age <- as.data.frame(ACM_all[,1])[seq(len.header,nrow(a)+3,by=3),1]
           ACM_var <- data.frame(
               REGION=rep(input$chosesheet,length(a)),
                AGE_GROUP=rep(rep(age,3),rep(ncol(a),3*length(age)))[1:length(a)],
-               SEX=rep(as.data.frame(ACM_all[5:nrow(ACM_all), 2])[is.data > 24,],rep(ncol(a),nrow(a))),
+               SEX=rep(as.data.frame(ACM_all[len.header:nrow(ACM_all), 2])[is.data > 24,],rep(ncol(a),nrow(a))),
                YEAR=rep(as.numeric(ACM_all[1, 3:ncol(ACM_all)]),nrow(a)),
-               PERIOD=rep(as.numeric(ACM_all[3, 3:ncol(ACM_all)]),nrow(a)),
+               PERIOD=rep(as.numeric(ACM_all[ifelse(len.header==6,5,3), 3:ncol(ACM_all)]),nrow(a)),
                NO_DEATHS=as.vector(t(a))
                                 )
+        # ACM_var <- ACM_var[ACM_var$SEX !="",]
         }
       }
       if (input$filetype == 2) {
@@ -723,11 +729,7 @@ shinyServer(
             "'REGION', 'AGE_GROUP', 'SEX'",
             "'YEAR', 'PERIOD', 'NO_DEATHS'."),
           p("The All Cause Mortality counts are not disaggregated by 'SEX' (i.e., 'Total' is all sexes combined).",
-            "Similarly, they are not disaggregated by 'AGE_GROUP'.",
-            "However, they are disaggregated by region. Note that the different regions",
-            "are actually listed under the 'AGE_GROUP' column. When viewing the plots",
-            "the disaggregation by region can be handled exactly the same as if",
-            "disaggregating by 'AGE_GROUP'.")
+            "Similarly, they are not disaggregated by 'AGE_GROUP'.")
         )
       }
       
@@ -753,7 +755,6 @@ shinyServer(
       names(acmtable)[names(acmtable) == "WM_IDENTIFIER"] <- "WEEK/MONTH"
       names(acmtable)[names(acmtable) == "AREA"] <- "REGION/AREA"
       names(acmtable)[names(acmtable) == "NO_DEATHS"] <- "DEATHS"
-      names(acmtable)[names(acmtable) == "WM_IDENTIFIER"] <- "WEEK/MONTH"
       names(acmtable)[names(acmtable) == "EXPECTED"] <- "EXPECTED_DEATHS"
       names(acmtable)[names(acmtable) == "LOWER_LIMIT"] <- "95%_CI_LOWER"
       names(acmtable)[names(acmtable) == "UPPER_LIMIT"] <- "95%_CI_UPPER"
@@ -779,7 +780,7 @@ shinyServer(
     # data summary panel under data tab
     output$ACMsum <- renderPrint({
       if (is.null(ACMinit())) {
-        return(cat("Please load the data using the pull-down menu on the left."))
+        return(cat("Please load the data using the pull-down menu on the left to\n select an Excel file and then 'Choose a region'."))
       }
       #ACM_var <- ACMinit()
       acmtable <- ACMinit()
