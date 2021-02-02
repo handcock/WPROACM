@@ -376,32 +376,38 @@ column(2,
 tabPanel(title='Methods', value='tab5',
    column(6, style="padding: 0 30px 0 0;",
           div(id="methodsbox",
-            p("This page has a description of the statistical methods used in the calculator to compute the expected and excess deaths in countries"),
+            p("This page has a description of the statistical methods used in the calculator to compute the expected and excess deaths in countries."),
+            
+            HTML("<br/>"),
             
             p(strong("All-cause mortality"),
               "is defined as the total number of recorded deaths across all causes."),
             
             p(strong("Excess death"),
-              "is defined as the difference between the number of all-cause deaths during 2020 and the expected number of deaths."),
+              "is defined as the difference between the number of all-cause deaths during 2020-21 and the expected number of deaths."),
             
-            p(strong("Expected death"), "is defined as the expected number of deaths in 2020 if no pandemic had occurred.",
+            p(strong("Expected death"), "is defined as the expected number of deaths in 2020-21 if no pandemic had occurred.",
               "The expected number of deaths is calculated in two different ways, using either a",
               strong("negative binomial regression"), "or the", strong("historical five year average"),
               ", both of which are based on the years 2015-2019."),
+            
+            HTML("<br/>"),
 
-            p(strong("Negative-binomial regression")),
+            p(strong(em("Negative-binomial regression"))),
 
             p("This particular negative-binomial regression model is a generalized additive model (GAM) in that it uses smoothing functions",
               "for the predictor variables. Since the date and period are input as discrete values, they are smoothed using cubic splines,",
               "a common smoothing technique."),
 
-            p(strong("Historical 5-year average")),
+            p(strong(em("Historical 5-year average"))),
 
             p("The 5-years historical average is based on, and the 95% confidence interval (95% CI) are calculated",
               "from, the deaths observed in 2015-2019."),
+            
+            HTML("<br/>"),
 
-            p("Below is a detailed description of the methods in statistical language. It is in PDF format and can be saved for separate
-study."),
+            p("Below is a detailed description of the methods in statistical language.",
+              "It is in PDF format and can be saved for separate study."),
           ),
          tags$iframe(style="height:600px; width:100%; scrolling=yes", 
                    src="ACMnotes_201230.pdf")
@@ -439,9 +445,9 @@ tabPanel(title='Help and Resources', value='tab6',
                            a("repository", href='https://github.com/handcock/WPROACM',
                              target="_blank"),
                            "or email us at", 
-                             a(actionButton(inputId = "email1", label = "handcock@stat.ucla.edu", 
-                               icon = icon("envelope", lib = "font-awesome")),
-                               href="mailto:handcock@stat.ucla.edu"),
+                             # a(actionButton(inputId = "email1", label = "handcock@stat.ucla.edu", 
+                             #   icon = icon("envelope", lib = "font-awesome")),
+                             #   href="mailto:handcock@stat.ucla.edu"),
                            a(actionButton(inputId = "email2", label = "wproncovinfoplan@who.int", 
                                           icon = icon("envelope", lib = "font-awesome")),
                              href="mailto:wproncovinfoplan@who.int"))
