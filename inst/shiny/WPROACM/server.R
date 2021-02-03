@@ -802,6 +802,12 @@ shinyServer(
     output$ACMplot <- renderPlot({
       ACM_var <- output_spline() 
 #     c_data <- ACM_var %>% filter(ACM_var$COUNTRY == Countryname() & ACM_var$SEX == input$gender & ACM_var$AGE_GROUP == input$age)
+      validate(
+        need(
+           (input$age %in% output_age()),
+          "Please enter an Age Group exactly as it appears from the pull-down list."
+        )
+      )
       c_data <- ACM_var[ACM_var$SEX == input$gender & ACM_var$AGE_GROUP == input$age,]
       if(nrow(c_data) < 2) {
         if (ACM_var$WM_IDENTIFIER[1] == "Month") {
@@ -952,6 +958,12 @@ shinyServer(
     output$EDplot <- renderPlot({
       ACM_var <- output_spline() 
 #     c_data <- ACM_var %>% filter(ACM_var$COUNTRY == Countryname() & ACM_var$SEX == input$gender & ACM_var$AGE_GROUP == input$age)
+      validate(
+        need(
+          (input$EDage %in% output_age()),
+          "Please enter an Age Group exactly as it appears from the pull-down list."
+        )
+      )
       c_data <- ACM_var[ACM_var$SEX == input$EDgender & ACM_var$AGE_GROUP == input$EDage,]
       if(nrow(c_data) < 2) {
         if (ACM_var$WM_IDENTIFIER[1] == "Month") {
