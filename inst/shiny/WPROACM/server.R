@@ -12,7 +12,8 @@ require("lattice")
 require("latticeExtra")
 
 #data(ExampleCountries, package = "WPROACM")
-load("./data/ExampleCountries.RData")
+#load("./data/ExampleCountries.RData")
+#load("./data/ExampleCountriesXLSX.RData")
 BRGcol <- "darkred"
 CUGcol <- "darkorange"
 obsblue <- "#076EC3"
@@ -86,38 +87,79 @@ shinyServer(
 
     ## Data Selection ------------------------------------------------------
 
-     output$selectsheet <- renderUI({
-       # input$rawdatafile comes as a dataframe with name, size, type and datapath
-       # datapath is stored in 4th column of dataframe
-         filepath <- input$rawdatafile[1, 4]
-         filename <- input$rawdatafile[1, 1]
-         fileext <- substr(filename, nchar(filename) - 3, nchar(filename))
- 
+    output$selectsheet <- renderUI({
+       sheets <- ""
+       if (input$filetype == 1) {
+        # input$rawdatafile comes as a dataframe with name, size, type and datapath
+        # datapath is stored in 4th column of dataframe
+        filepath <- input$rawdatafile[1, 4]
+        filename <- input$rawdatafile[1, 1]
+        fileext <- substr(filename, nchar(filename) - 3, nchar(filename))
+
+        validate(
+          need(
+            fileext %in% c("xls", "xlsx", "XLS", "XLSX"),
+            "Upload an Excel file"
+          )
+        )
+        try({
+         ACM_sheets <- readxl::excel_sheets(path=paste(filepath))
+        })
+        sheets <- c()
+        for(i in seq_along(ACM_sheets)){
+         if(ACM_sheets[i] != "Instructions"){
+          ACM_all <- readxl::read_excel(path=paste(filepath), sheet = ACM_sheets[i])
+          if(ACM_all[4,3]=="WEEKS"){
+            len.header <- 6
+          }else{
+            len.header <- 5
+          }
+          is.data <- apply(!is.na(as.matrix(ACM_all[len.header:nrow(ACM_all),3:ncol(ACM_all)])),1,sum)
+          skip <- max(is.data) < 24
+          if(!skip){
+            sheets <- c(sheets, ACM_sheets[i])
+          }
+         }
+        }
+       }
+     selectizeInput('chosesheet', label=NULL,
+       choices=c("Choose a region" = '', sheets ))
+ })
+
+     output$selectbuiltinsheet <- renderUI({
          sheets <- ""
-         if (input$filetype == 1) {
-           validate(
-             need(
-               fileext %in% c("xls", "xlsx", "XLS", "XLSX"),
-               "Upload an Excel file"
-             )
-           )
+         if (input$filetype == 2 & input$samplecountry!="") {
+           country_name <- c("Australia", "Japan", "Republic_of_Korea", "New_Zealand", "Philippines")[
+             match(input$samplecountry, c(
+               "Australia", "Japan",
+               "Republic of Korea", "New Zealand", "Philippines"
+             ))
+           ]
+           filepath <- paste0("XLSX/",country_name,"_built_in_data.xlsx")
            try({
-             ACM_sheets <- readxl::excel_sheets(path=paste(filepath))
+            ACM_sheets <- readxl::excel_sheets(path=paste(filepath))
            })
            sheets <- c()
            for(i in seq_along(ACM_sheets)){
             if(ACM_sheets[i] != "Instructions"){
              ACM_all <- readxl::read_excel(path=paste(filepath), sheet = ACM_sheets[i])
-             is.data <- apply(!is.na(as.matrix(ACM_all[5:nrow(ACM_all),3:ncol(ACM_all)])),1,sum)
-             skip <- max(is.data) < 24
-             if(!skip){
+             if(!is.null(ACM_all)){
+              if(ACM_all[4,3]=="WEEKS"){
+               len.header <- 6
+              }else{
+               len.header <- 5
+              }
+              is.data <- apply(!is.na(as.matrix(ACM_all[len.header:nrow(ACM_all),3:ncol(ACM_all)])),1,sum)
+              skip <- max(is.data) < 24
+              if(!skip){
                sheets <- c(sheets, ACM_sheets[i])
+              }
              }
             }
            }
          }
-       selectizeInput('chosesheet', label=NULL,
-         choices=c("Choose a region (if there is more than one)" = '', sheets ))
+         selectizeInput('chosebuiltinsheet', label=NULL,
+           choices=c("Choose a region" = '', sheets ))
      })
 
      output$age <- renderUI({
@@ -165,15 +207,16 @@ shinyServer(
     ACMinit <- reactive({
       # input$rawdatafile comes as a dataframe with name, size, type and datapath
       # datapath is stored in 4th column of dataframe
-      if (is.null(input$rawdatafile)) {
+      ACM_var <- NULL
+      if (is.null(input$rawdatafile) & is.null(input$samplecountry)) {
         ACM_var <- NULL
       } else {
-        filepath <- input$rawdatafile[1, 4]
-        filename <- input$rawdatafile[1, 1]
-        fileext <- substr(filename, nchar(filename) - 3, nchar(filename))
-
-        ACM_var <- NULL
         if (input$filetype == 1 && !is.null(input$chosesheet) && input$chosesheet != "") {
+          filepath <- input$rawdatafile[1, 4]
+          filename <- input$rawdatafile[1, 1]
+          fileext <- substr(filename, nchar(filename) - 3, nchar(filename))
+
+          ACM_var <- NULL
           validate(
             need(
               fileext %in% c("xls", "xlsx", "XLS", "XLSX"),
@@ -183,60 +226,85 @@ shinyServer(
           try({
             ACM_all <- readxl::read_excel(path=paste(filepath), sheet = input$chosesheet)
           })
-          if(ACM_all[4,3]=="WEEKS"){
-            len.header <- 6
-          }else{
-            len.header <- 5
-          }
-          max.types <- dim(ACM_all)[1]
-          max.times <- dim(ACM_all)[2]
-          is.data <- apply(!is.na(as.matrix(ACM_all[len.header:nrow(ACM_all),3:ncol(ACM_all)])),1,sum)
-          skip <- max(is.data) < 24
-          a <- as.matrix(ACM_all[len.header:nrow(ACM_all),3:ncol(ACM_all)])[is.data > 24,]
-          mode(a) <- "numeric"
-          a <- round(a)
-          age <- as.data.frame(ACM_all[,1])[seq(len.header,nrow(a)+3,by=3),1]
-          ACM_var <- data.frame(
+        }else{if (input$filetype == 2 && !is.null(input$chosebuiltinsheet) && input$chosebuiltinsheet != "") {
+           country_name <- c("Australia", "Japan", "Republic_of_Korea", "New_Zealand", "Philippines")[
+             match(input$samplecountry, c(
+               "Australia", "Japan",
+               "Republic of Korea", "New Zealand", "Philippines"
+             ))
+           ]
+           filepath <- paste0("XLSX/",country_name,"_built_in_data.xlsx")
+           try({
+            ACM_all <- readxl::read_excel(path=paste(filepath), sheet = input$chosebuiltinsheet)
+           })
+         }else{return(ACM_var)}
+        }
+        if(ACM_all[4,3]=="WEEKS"){
+          len.header <- 6
+        }else{
+          len.header <- 5
+        }
+        max.types <- dim(ACM_all)[1]
+        max.times <- dim(ACM_all)[2]
+        is.data <- apply(!is.na(as.matrix(ACM_all[len.header:nrow(ACM_all),3:ncol(ACM_all)])),1,sum)
+        skip <- max(is.data) < 24
+        a <- as.matrix(ACM_all[len.header:nrow(ACM_all),3:ncol(ACM_all)])[is.data > 24,,drop=FALSE]
+        mode(a) <- "numeric"
+        a <- round(a)
+        age <- as.data.frame(ACM_all[,1])[seq(len.header,max(len.header,len.header+nrow(a)-1),by=3),1]
+        ACM_var <- data.frame(
               REGION=rep(input$chosesheet,length(a)),
-               AGE_GROUP=rep(rep(age,3),rep(ncol(a),3*length(age)))[1:length(a)],
+               AGE_GROUP=rep(rep(age,rep(3,length(age))),rep(ncol(a),3*length(age)))[1:length(a)],
                SEX=rep(as.data.frame(ACM_all[len.header:nrow(ACM_all), 2])[is.data > 24,],rep(ncol(a),nrow(a))),
                YEAR=rep(as.numeric(ACM_all[1, 3:ncol(ACM_all)]),nrow(a)),
                PERIOD=rep(as.numeric(ACM_all[ifelse(len.header==6,5,3), 3:ncol(ACM_all)]),nrow(a)),
                NO_DEATHS=as.vector(t(a))
                                 )
-        # ACM_var <- ACM_var[ACM_var$SEX !="",]
-        }
-      }
-      if (input$filetype == 2) {
-        if (input$samplecountry == "") {
-          ACM_var <- NULL
-        } else {
-          country_name <- c("Australia", "Japan", "Republic_of_Korea", "New_Zealand", "Philippines")[
-            match(input$samplecountry, c(
-              "Australia", "Japan",
-              "Republic of Korea", "New Zealand", "Philippines"
-            ))
-          ]
-          ACM_var <- eval(parse(text = country_name))
-        }
-      }
-      return(ACM_var)
-    })
+       }
+       return(ACM_var)
+     })
 
-    iso3 <- reactive({
-      iso3 <- NULL
-      if (input$filetype == 2) {
-        if (input$samplecountry != "") {
-          iso3 <- c("AUD", "JPN", "KOR", "NZL", "PHL")[
-            match(input$samplecountry, c(
-              "Australia", "Japan",
-              "Republic of Korea", "New Zealand", "Philippines"
-            ))
-          ]
-        }
-      }
-      return(iso3)
-    })
+     output$age <- renderUI({
+       selectizeInput('age_list', label=NULL,
+         choices=output_age() )
+     })
+
+     output$EDage <- renderUI({
+       selectizeInput('age_list', label=NULL,
+         choices=output_age() )
+     })
+
+#     output$genderlabels <- renderUI({
+#      if (is.null(input$rawdatafile)) {
+#        genderlabels <- NULL
+#      } else {
+#        filepath <- input$rawdatafile[1, 4]
+#        filename <- input$rawdatafile[1, 1]
+#        fileext <- substr(filename, nchar(filename) - 3, nchar(filename))
+#
+#         validate(
+#            need(
+#              fileext %in% c("xls", "xlsx", "XLS", "XLSX"),
+#              "Upload an Excel file"
+#            )
+#          )
+#          try({
+#            ACM_all <- readxl::read_excel(path=paste(filepath), sheet = input$chosesheet)
+#          })
+#          max.types <- dim(ACM_all)[1]
+#          max.times <- dim(ACM_all)[2]
+#          is.data <- apply(!is.na(as.matrix(ACM_all[5:nrow(ACM_all),3:ncol(ACM_all)])),1,sum)
+#          skip <- max(is.data) < 24
+#          a <- as.matrix(ACM_all[5:nrow(ACM_all),3:ncol(ACM_all)])[is.data > 24,]
+#          mode(a) <- "numeric"
+#          a <- round(a)
+#          age <- as.data.frame(ACM_all[,1])[seq(5,nrow(a)+2,by=3),1]
+#          sex <- as.data.frame(ACM_all[5:nrow(ACM_all), 2])[is.data > 24,]
+#          genderlabels <- sort(unique(age))
+#       }
+#       selectizeInput('gender', label=NULL,
+#         choices=c("Select Sex" = '', genderlabels ))
+#     })
 
     Countryname <- reactive({
       name <- input$rawdatafile[1, 1]
@@ -261,35 +329,50 @@ shinyServer(
       calculate_age(ACMinit())
     })
 
-    output$download_t <- renderUI({
-      if(input$template_country != ""){
-      filename = 
-       paste0(c("AUS", "PHL", "PYF", "Data Entry Template - monthly", "Data Entry Template - weekly")[
-              match(input$template_country, c(
-              "Australia", "Philippines", "French Polynesia", "Generic Monthly", "Generic Weekly"))],".xlsx") 
-       file.copy(paste0("./XLSX/",c("AUS", "PHL", "PYF", "Data Entry Template - monthly", "Data Entry Template - weekly")[
-              match(input$template_country, c(
-              "Australia", "Philippines", "French Polynesia", "Generic Monthly", "Generic Weekly"))],".xlsx"),
-              to = paste0(path.expand("~"),"/Downloads/",
-               c("AUS", "PHL", "PYF", "Data Entry Template - monthly", "Data Entry Template - weekly")[
-              match(input$template_country, c(
-              "Australia", "Philippines", "French Polynesia", "Generic Monthly", "Generic Weekly"))],".xlsx"))
-      return(paste0(filename," downloaded to",path.expand("~"),"/Downloads")) 
-      }else{
-      return(paste0("The file will be downloaded to ",path.expand("~"),"/Downloads")) 
-      }
-    })
+#   output$download_t <- renderUI({
+#     if(input$template_country != ""){
+#     filename = 
+#      paste0(c("AUS", "PHL", "PYF", "Data Entry Template - monthly", "Data Entry Template - weekly")[
+#             match(input$template_country, c(
+#             "Australia", "Philippines", "French Polynesia", "Generic Monthly", "Generic Weekly"))],".xlsx") 
+#      file.copy(paste0("./XLSX/",c("AUS", "PHL", "PYF", "Data Entry Template - monthly", "Data Entry Template - weekly")[
+#             match(input$template_country, c(
+#             "Australia", "Philippines", "French Polynesia", "Generic Monthly", "Generic Weekly"))],".xlsx"),
+#             to = paste0(path.expand("~"),"/Downloads/",
+#              c("AUS", "PHL", "PYF", "Data Entry Template - monthly", "Data Entry Template - weekly")[
+#             match(input$template_country, c(
+#             "Australia", "Philippines", "French Polynesia", "Generic Monthly", "Generic Weekly"))],".xlsx"))
+#     return(paste0(filename," downloaded to",path.expand("~"),"/Downloads")) 
+#     }else{
+#     return(paste0("The file will be downloaded to ",path.expand("~"),"/Downloads")) 
+#     }
+#   })
 
-    output$download_t2 <- downloadHandler(
+    output$download_templates <- downloadHandler(
       filename = function(){ 
-       paste0(c("AUS", "PHL", "PYF", "Data Entry Template - monthly", "Data Entry Template - weekly")[
+       paste0(c("Australia (empty template).xlsx", "Philippines (empty template).xlsx", "French Polynesia (empty template).xlsx",
+                "Data Entry Template - monthly.xlsx", "Data Entry Template - weekly.xlsx",
+                "Australia_built_in_data.xlsx","Japan_built_in_data.xlsx",
+                "Republic_of_Korea_built_in_data.xlsx","New_Zealand_built_in_data.xlsx",
+                "Philippines_built_in_data.xlsx")[
               match(input$template_country, c(
-              "Australia", "Philippines", "French Polynesia", "Generic Monthly", "Generic Weekly"))],".xlsx") 
+                 'Australia (empty template)', 'Philippines (empty template)', 'French Polynesia (empty template)',
+                 'Generic Monthly template', 'Generic Weekly template',
+                 'Australia (filled up to August 2020)', 'Japan (filled up to August 2020)', 'Republic of Korea (filled up to August 2020)', 'New Zealand (filled up to August 2020)', 'Philippines (filled up to August 2020)')
+                      )]) 
       },
       content = function(file) {
-       file.copy(from=paste0("./XLSX/",c("AUS", "PHL", "PYF", "Data Entry Template - monthly", "Data Entry Template - weekly")[
+       file.copy(from=paste0("./XLSX/",
+           c("Australia (empty template).xlsx", "Philippines (empty template).xlsx", "French Polynesia (empty template).xlsx",
+                "Data Entry Template - monthly.xlsx", "Data Entry Template - weekly.xlsx",
+                "Australia_built_in_data.xlsx","Japan_built_in_data.xlsx",
+                "Republic_of_Korea_built_in_data.xlsx","New_Zealand_built_in_data.xlsx",
+                "Philippines_built_in_data.xlsx")[
               match(input$template_country, c(
-              "Australia", "Philippines", "French Polynesia", "Generic Monthly", "Generic Weekly"))],".xlsx"),
+                 'Australia (empty template)', 'Philippines (empty template)', 'French Polynesia (empty template)',
+                 'Generic Monthly template', 'Generic Weekly template',
+                 'Australia (filled up to August 2020)', 'Japan (filled up to August 2020)', 'Republic of Korea (filled up to August 2020)', 'New Zealand (filled up to August 2020)', 'Philippines (filled up to August 2020)')
+                      )]),
               to = file)
       }
     )
@@ -311,7 +394,12 @@ shinyServer(
       content = function(file) {
         pdf(file = file, height = 10, width = 10)
         ACM_var <- output_spline() 
-        #     c_data <- ACM_var %>% filter(ACM_var$COUNTRY == Countryname() & ACM_var$SEX == input$gender & ACM_var$AGE_GROUP == input$age)
+        validate(
+          need(
+             (input$age %in% output_age()),
+            "Please enter an Age Group exactly as it appears from the pull-down list."
+          )
+        )
         c_data <- ACM_var[ACM_var$SEX == input$gender & ACM_var$AGE_GROUP == input$age,]
         if(nrow(c_data) < 2) {
           if (ACM_var$WM_IDENTIFIER[1] == "Month") {
@@ -469,7 +557,12 @@ shinyServer(
       content = function(file) {
         pdf(file = file, height = 10, width = 10)
       ACM_var <- output_spline() 
-#     c_data <- ACM_var %>% filter(ACM_var$COUNTRY == Countryname() & ACM_var$SEX == input$gender & ACM_var$AGE_GROUP == input$age)
+      validate(
+        need(
+          (input$EDage %in% output_age()),
+          "Please enter an Age Group exactly as it appears from the pull-down list."
+        )
+      )
       c_data <- ACM_var[ACM_var$SEX == input$EDgender & ACM_var$AGE_GROUP == input$EDage,]
       if(nrow(c_data) < 2) {
         if (ACM_var$WM_IDENTIFIER[1] == "Month") {
@@ -801,7 +894,6 @@ shinyServer(
 
     output$ACMplot <- renderPlot({
       ACM_var <- output_spline() 
-#     c_data <- ACM_var %>% filter(ACM_var$COUNTRY == Countryname() & ACM_var$SEX == input$gender & ACM_var$AGE_GROUP == input$age)
       validate(
         need(
            (input$age %in% output_age()),
@@ -957,7 +1049,6 @@ shinyServer(
 
     output$EDplot <- renderPlot({
       ACM_var <- output_spline() 
-#     c_data <- ACM_var %>% filter(ACM_var$COUNTRY == Countryname() & ACM_var$SEX == input$gender & ACM_var$AGE_GROUP == input$age)
       validate(
         need(
           (input$EDage %in% output_age()),

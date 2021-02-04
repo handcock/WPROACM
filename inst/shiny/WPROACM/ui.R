@@ -170,61 +170,84 @@ fluidRow(
       tabPanel('Upload All Cause Mortality data', br(),
          wellPanel(
            fluidRow(
-column(4,
-  tabPanel('All cause mortality in 2020', br(),
-          div(id="viewdata",
-            p("This tool is designed to estimate the weekly or monthly excess deaths in countries in the Western Pacific Region",
-              "during the COVID-19 pandemic, using all-cause of mortality data."),
-            p("The", strong("5-years historical average"),"and", strong("expected deaths forecasted by negative-binomial regression"),
-              ", and their 95% confidence interval (95% CI) are calculated from the deaths observed in 2015-2019.")
-             )
-          )
-  ),
              column(8,
-                    selectInput('filetype',label='File type',
+              tabPanel('All cause mortality in 2020', br(),
+                      div(id="viewdata",
+                        p("This tool is designed to estimate the weekly or monthly excess deaths in countries in the Western Pacific Region",
+                          "during the COVID-19 pandemic, using all-cause of mortality data."),
+                        p("The", strong("5-years historical average"),"and", strong("expected deaths forecasted by negative-binomial regression"),
+                          ", and their 95% confidence interval (95% CI) are calculated from the deaths observed in 2015-2019.")
+                         )
+                      )
+             ),
+             column(8,
+                    p(class="helper", id="Excelhelp", icon("question-circle"),
+                      span("What format does the Excel file need to be in?", style="font-size:0.85em;"),
+                       br(),'The calculator needs to read in a *.xls or *.xlsx file of all-cause mortality data.',
+                       'The file should be saved from the WHO standardized Excel template.',
+                       br(),
+                       'As a guide, the calculator has built-in example data using the WHO standardized Excel template.', 
+                       'To download an example template, select the template you want from this pull-down list and click "Download template":'),
+                    selectizeInput('template_country', label=NULL,
+                                choices=c("Choose a country specific or generic template" = '', 
+                 'Australia (empty template)', 'Philippines (empty template)', 'French Polynesia (empty template)',
+                 'Generic Monthly template', 'Generic Weekly template',
+                 'Australia (filled up to August 2020)', 'Japan (filled up to August 2020)', 'Republic of Korea (filled up to August 2020)', 'New Zealand (filled up to August 2020)', 'Philippines (filled up to August 2020)')),
+                 downloadButton('download_templates',"Download template")
+             ),
+             column(8,
+                    br(), p("Once you have familarized yourself with the template, use this pull-down list below to upload your own data in a WHO standardized Excel sheet or use a built-in example data set"),
+                    selectInput('filetype',label='Open a data set',
                                  choices=c(
                                            'Excel spreadsheet of All Cause Mortality data (*.xls or *.xlsx)' = 1,
                                            'built-in example All Cause Mortality data'= 2
                                           )
                     ),
              conditionalPanel(condition = 'input.filetype < 2',
-               column(6,
+               column(8,
                     br(),
                     fileInput(inputId='rawdatafile', label=NULL, accept='text'),
-                    verbatimTextOutput('rawdatafile'))
-                ),
+                    verbatimTextOutput('rawdatafile')
+                    )
+             ),
+             conditionalPanel(condition = 'input.filetype < 2',
+               column(8,
+                    br(style="line-height:26px;"),
+                    p(class="helper", id="SNIhelp", icon("question-circle"),
+                       'Use the pull-down menu below to choose a region the country. Some countries only have one region.'),
+                    uiOutput('selectsheet')
+                    )
+             ),
              conditionalPanel(condition = 'input.filetype == 2',
                 column(12,
                     br(style="line-height:26px;"),
+                    p(class="helper", id="BIhelp", icon("question-circle"),
+                      span("These are example Excel files from some countries with data from January 1, 2015 through August 2020.", style="font-size:0.85em;"),
+                       br(),'Use the pull-down menu below to choose a country'),#, em("Choose a country"),
                     selectizeInput('samplecountry', label=NULL,
                                 choices=c("Choose a country" = '', 
                                           'Australia','Japan',
-                                          'Republic of Korea', 'New Zealand', 'Philippines')),
-                              p(class="helper", id="BIhelp", icon("question-circle"),
-                                span("These are example Excel files from some countries with data from January 1, 2015 through August 2020.", style="font-size:0.85em;"),
-                                 br(),'You try select a country in the pull-down menu', em("Choose a country"),
-                                 'above this message and view the data in the above', em("View Data"),' tab.',
-                                 'You can then try the calculator out on this data to see an analysis similar to that for your own country.')
+                                          'Republic of Korea', 'New Zealand', 'Philippines'))
                 )
-               ),
+             ),
+             conditionalPanel(condition = 'input.filetype == 2',
                 column(12,
                     br(style="line-height:26px;"),
-                    uiOutput('selectsheet'),
-                    p(class="helper", id="Excelhelp", icon("question-circle"),
-                      span("What format does the Excel file need to be in?", style="font-size:0.85em;"),
-                       br(),'Upload a *.xls or *.xlsx file of all-cause mortality data.',
-                       'The file should be saved from the WHO standardized Excel template.',
-                       'Select the template you want from this pull-down list and click "Save template":'),
-                    selectizeInput('template_country', label=NULL,
-                                choices=c("Choose a country" = '', 
-                 'Australia', 'Philippines', 'French Polynesia', 'Generic Monthly', 'Generic Weekly')),
-                 downloadButton('download_t2',"Save template")
-               # uiOutput('download_t')
+                    p(class="helper", id="SIhelp", icon("question-circle"),
+                       'Use the pull-down menu below to choose a region the country. Some countries only have one region.'),
+                    uiOutput('selectbuiltinsheet'),
                 )
+               )
              )
            )),
            conditionalPanel(condition = 'input.filetype == 2 & input.samplecountry != ""',
-             wellPanel(uiOutput("datadesc"))
+             wellPanel(uiOutput("datadesc")),
+             wellPanel(
+                    br(style="line-height:26px;"),
+                    p(class="helper", id="SIhelp", icon("question-circle"),
+                       'You can view the data by clicking in the ', em("View Data"),' tab at top of this page.',
+                       'You can then try the calculator out on this data to see an analysis similar to that for your own country.'),
+                      )
            )
          ),
     tabPanel('View Data', br(),
@@ -410,7 +433,7 @@ tabPanel(title='Methods', value='tab5',
               "It is in PDF format and can be saved for separate study."),
           ),
          tags$iframe(style="height:600px; width:100%; scrolling=yes", 
-                   src="ACMnotes_201230.pdf")
+                   src="ACMnotes_210204.pdf")
          )
          ),
 
