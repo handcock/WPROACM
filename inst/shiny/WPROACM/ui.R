@@ -24,10 +24,7 @@ tabPanel(title=span('WPROACM', id="sWtitle"),
                  actionButton("citeButton", label = "Citing WPROACM",
                               class = "btn"),
                  actionButton('startButton', label='Get Started',
-                              class="btn btn-primary"),
-                 fluidRow(column(1,
-                  a(img(src = 'WHO-WPRO_Logo_PMS_2925.png', width = 175),
-                    href = 'https://www.who.int/westernpacific/', target = '_blank') ))
+                              class="btn btn-primary")
           ),
    column(6, style="padding: 0 30px 0 0;",
           div(id="aboutbox",
@@ -73,35 +70,33 @@ tabPanel(title=span('WPROACM', id="sWtitle"),
           div(id="citebox",
             tabsetPanel(
               tabPanel("BibTeX",
-p(strong("WPROACM")),
-tags$pre(id='scitation','@Manual{handcock:WPROACM,
-  title = {WPROACM: Software tools for the Statistical Analysis of Excess Mortality from All Cause Mortality Data
-  author = {Mark S. Handcock},
-  year = {2021},
-  address = {Los Angeles, CA},
-  url = {http://hpmrg.org/}
-}'),
-
-p(strong("WPROACM")),
-tags$pre(id='swcitation',"@Manual{beylerian:WPROACM,
-  title = {\\pkg{WPROACM}: A Graphical User Interface for Analysing Excess Mortality from All Cause Mortality Data},
-  author = {Mark S. Handcock},
-  year = {2021},
-  note = {\\proglang{R}~package version~0.1},
-  address = {Los Angeles, CA},
-  url = {https://cran.r-project.org/web/packages/WPROACM/}
-}")
-                       ),
+                p(strong("WPROACM")),
+                tags$pre(id='scitation','@Manual{handcock:WPROACM,
+                  title = {WPROACM: Software tools for the Statistical Analysis of Excess Mortality from All Cause Mortality Data
+                  author = {Mark S. Handcock},
+                  year = {2021},
+                  address = {Los Angeles, CA},
+                  url = {http://hpmrg.org/}
+                }'),
+                p(strong("WPROACM")),
+                tags$pre(id='swcitation',"@Manual{beylerian:WPROACM,
+                  title = {\\pkg{WPROACM}: A Graphical User Interface for Analysing Excess Mortality from All Cause Mortality Data},
+                  author = {Mark S. Handcock},
+                  year = {2021},
+                  note = {\\proglang{R}~package version~0.1},
+                  address = {Los Angeles, CA},
+                  url = {https://cran.r-project.org/web/packages/WPROACM/}
+                }")
+              ),
               tabPanel("Other",
-p(strong("WPROACM")),
-tags$pre("Mark S. Handcock (2021). WPROACM: A Graphical User Interface for Analysing Excess Mortality from All Cause Mortality Data. URL http://hpmrg.org"),
-
-p(strong("WPROACM")),
-tags$pre("Mark S. Handcock (2021).
-WPROACM: A Graphical User Interface for Analysing Excess Mortality from All Cause Mortality Data.")
+                p(strong("WPROACM")),
+                tags$pre("Mark S. Handcock (2021). WPROACM: A Graphical User Interface for Analysing Excess Mortality from All Cause Mortality Data. URL http://hpmrg.org"),
+                
+                p(strong("WPROACM")),
+                tags$pre("Mark S. Handcock (2021).
+                WPROACM: A Graphical User Interface for Analysing Excess Mortality from All Cause Mortality Data.")
                        )
             ),
-
             p('If you use WPROACM, please cite it'),
             )
           ),
@@ -112,11 +107,15 @@ WPROACM: A Graphical User Interface for Analysing Excess Mortality from All Caus
                     target="_blank")),
               div(a("Shiny: a web application framework for R", href="http://shiny.rstudio.com/",
                     target="_blank"))
-   ),
-   fluidRow(a(img(src = 'UCLADepartmentofStatisticsSmall.png', width = 400),
+          ),
+          fluidRow(a(img(src = 'WHO-WPRO_Logo_PMS_2925.png', width = 300),
+             href = 'https://www.who.int/westernpacific/', target = '_blank'),
+             style="margin-left:15px;"),
+          br(),
+          fluidRow(a(img(src = 'UCLADepartmentofStatisticsSmall.png', width = 400),
              href = 'http://statistics.ucla.edu/', target = '_blank'),
              style="margin-left:15px;")
-   )
+         )
    )
  ),
 
