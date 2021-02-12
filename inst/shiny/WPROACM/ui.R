@@ -428,11 +428,11 @@ tabPanel(title='Methods', value='tab5',
             
             HTML("<br/>"),
 
-            p("Below is a detailed description of the methods in statistical language.",
-              "It is in PDF format and can be saved for separate study."),
+            # p("Below is a detailed description of the methods in statistical language.",
+            #   "It is in PDF format and can be saved for separate study."),
           ),
-         tags$iframe(style="height:600px; width:100%; scrolling=yes", 
-                   src="ACMnotes_210204.pdf")
+         # tags$iframe(style="height:600px; width:100%; scrolling=yes", 
+         #           src="ACMnotes_210204.pdf")
          )
          ),
 
@@ -467,9 +467,9 @@ tabPanel(title='Help and Resources', value='tab6',
                            a("repository", href='https://github.com/handcock/WPROACM',
                              target="_blank"),
                            "or email us at", 
-                             # a(actionButton(inputId = "email1", label = "handcock@stat.ucla.edu", 
-                             #   icon = icon("envelope", lib = "font-awesome")),
-                             #   href="mailto:handcock@stat.ucla.edu"),
+                             a(actionButton(inputId = "email1", label = "duanm@who.int",
+                               icon = icon("envelope", lib = "font-awesome")),
+                               href="mailto:duanm@who.int"),
                            a(actionButton(inputId = "email2", label = "wproncovinfoplan@who.int", 
                                           icon = icon("envelope", lib = "font-awesome")),
                              href="mailto:wproncovinfoplan@who.int"))
