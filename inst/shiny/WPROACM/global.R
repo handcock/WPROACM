@@ -140,7 +140,7 @@ calculate_spline <- function(src) {
     if (l_period > 51) {
       temp_src <- src[paste(src$SEX, src$AGE_GROUP) == pattern[j], ] %>% dplyr::filter(YEAR < "2020")
       if (sum(temp_src$NO_DEATHS, na.rm = TRUE) == 0) next
-      src_2020 <- src[paste(src$SEX, src$AGE_GROUP) == pattern[j], ]
+      src_pandemic <- src[paste(src$SEX, src$AGE_GROUP) == pattern[j], ]
       aDATE <- DATE[paste(src$SEX, src$AGE_GROUP) == pattern[j]]
       num.cycle <- 52
       len.cycle <- 7
@@ -156,7 +156,7 @@ calculate_spline <- function(src) {
     } else {
       temp_src <- src[paste(src$SEX, src$AGE_GROUP) == pattern[j], ] %>% dplyr::filter(YEAR < "2020")
       if (sum(temp_src$NO_DEATHS, na.rm = TRUE) == 0) next
-      src_2020 <- src[paste(src$SEX, src$AGE_GROUP) == pattern[j], ]
+      src_pandemic <- src[paste(src$SEX, src$AGE_GROUP) == pattern[j], ]
       aDATE <- DATE[paste(src$SEX, src$AGE_GROUP) == pattern[j]]
       num.cycle <- 12
       len.cycle <- 30
@@ -181,16 +181,19 @@ calculate_spline <- function(src) {
     ave_deaths_lower <- ave_deaths - qnorm(0.975)*sqrt(var_deaths/num_deaths)
     ave_deaths_upper <- ave_deaths + qnorm(0.975)*sqrt(var_deaths/num_deaths)
 
-    src_2020$loc_DATE <- aDATE
+    src_pandemic$loc_DATE <- aDATE
     days <- diff(c(0, aDATE))
     days[1] <- len.cycle
     if (l_period > 51) {
       # Adjust for variable number of days in a leap year
-      #         days <- rep(len.cycle,nrow(src_2020))
+      #         days <- rep(len.cycle,nrow(src_pandemic))
       days[days > 3] <- len.cycle
+    }else{
+      days[14] <- 29 # Feb 2016
+      days[62] <- 29 # Feb 2020
     }
-    src_2020$logdays <- log(days)
-    estim <- mgcv::predict.gam(fit, newdata = src_2020, se.fit = TRUE)
+    src_pandemic$logdays <- log(days)
+    estim <- mgcv::predict.gam(fit, newdata = src_pandemic, se.fit = TRUE)
     estim.median <- estim$fit
     estim.lower <- estim$fit # [5*12-1+(1:12)]
     estim.upper <- estim$fit
@@ -202,25 +205,25 @@ calculate_spline <- function(src) {
       estim.lower[i] <- mean(qnbinom(mu = exp(a), size = theta, p = 0.025))
       estim.upper[i] <- mean(qnbinom(mu = exp(a), size = theta, p = 0.975))
     }
-    estim.median.std <- len.cycle * estim.median / exp(src_2020$logdays)
-    estim.lower.std <- len.cycle * estim.lower / exp(src_2020$logdays)
-    estim.upper.std <- len.cycle * estim.upper / exp(src_2020$logdays)
+    estim.median.std <- len.cycle * estim.median / exp(src_pandemic$logdays)
+    estim.lower.std <- len.cycle * estim.lower / exp(src_pandemic$logdays)
+    estim.upper.std <- len.cycle * estim.upper / exp(src_pandemic$logdays)
 
     for (year_predict in sort(unique(out$YEAR))) {
      for (k in 0:(l_period - 1)) {
       y <- year_predict
-      a <- src_2020$YEAR == y & src_2020$PERIOD == (k + 1)
+      a <- src_pandemic$YEAR == y & src_pandemic$PERIOD == (k + 1)
       while (!any(a) & y >= 2017) {
         y <- y - 1
-        a <- src_2020$YEAR == y & src_2020$PERIOD == (k + 1)
+        a <- src_pandemic$YEAR == y & src_pandemic$PERIOD == (k + 1)
       }
       y <- year_predict
       while (!any(a) & y >= 2017) {
         y <- y - 1
-        a <- src_2020$YEAR == y & src_2020$PERIOD == (k - 1)
+        a <- src_pandemic$YEAR == y & src_pandemic$PERIOD == (k - 1)
       }
       if (!any(a)) {
-        a <- src_2020$YEAR == year_predict & src_2020$PERIOD == k
+        a <- src_pandemic$YEAR == year_predict & src_pandemic$PERIOD == k
       }
       out[l_period * (j - 1) + k + 1, "ESTIMATE"] <- estim.median[a]
       out[l_period * (j - 1) + k + 1, "LOWER_LIMIT"] <- estim.lower[a]
@@ -230,18 +233,18 @@ calculate_spline <- function(src) {
     for (year_predict in sort(unique(out$YEAR))) {
      for (k in 0:(l_period - 1)) {
       y <- year_predict
-      a <- src_2020$YEAR == y & src_2020$PERIOD == (k + 1)
+      a <- src_pandemic$YEAR == y & src_pandemic$PERIOD == (k + 1)
       while (!any(a) & y >= 2017) {
         y <- y - 1
-        a <- src_2020$YEAR == y & src_2020$PERIOD == (k + 1)
+        a <- src_pandemic$YEAR == y & src_pandemic$PERIOD == (k + 1)
       }
       y <- year_predict
       while (!any(a) & y >= 2017) {
         y <- y - 1
-        a <- src_2020$YEAR == y & src_2020$PERIOD == (k - 1)
+        a <- src_pandemic$YEAR == y & src_pandemic$PERIOD == (k - 1)
       }
       if (!any(a)) {
-        a <- src_2020$YEAR == year_predict & src_2020$PERIOD == k
+        a <- src_pandemic$YEAR == year_predict & src_pandemic$PERIOD == k
       }
       out[l_period*n_pat + l_period * (j - 1) + k + 1, "ESTIMATE"] <- ave_deaths[a]
       out[l_period*n_pat + l_period * (j - 1) + k + 1, "LOWER_LIMIT"] <- ave_deaths_lower[a]
