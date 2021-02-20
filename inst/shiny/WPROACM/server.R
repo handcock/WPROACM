@@ -251,10 +251,11 @@ shinyServer(
         a <- as.matrix(ACM_all[len.header:nrow(ACM_all),3:ncol(ACM_all)])[is.data > 24,,drop=FALSE]
         mode(a) <- "numeric"
         a <- round(a)
-        age <- as.data.frame(ACM_all[,1])[seq(len.header,max(len.header,len.header+nrow(a)-1),by=3),1]
+        age <- as.data.frame(ACM_all[,1])[seq(len.header,max(len.header,nrow(ACM_all)),by=3),1]
+        age <- age[age != ""]
         ACM_var <- data.frame(
               REGION=rep(input$chosesheet,length(a)),
-               AGE_GROUP=rep(rep(age,rep(3,length(age))),rep(ncol(a),3*length(age)))[1:length(a)],
+               AGE_GROUP=rep(rep(age,rep(3,length(age)))[is.data > 24],rep(ncol(a),3*length(age))[is.data > 24])[1:length(a)],
                SEX=rep(as.data.frame(ACM_all[len.header:nrow(ACM_all), 2])[is.data > 24,],rep(ncol(a),nrow(a))),
                YEAR=rep(as.numeric(ACM_all[1, 3:ncol(ACM_all)]),nrow(a)),
                PERIOD=rep(as.numeric(ACM_all[ifelse(len.header==6,5,3), 3:ncol(ACM_all)]),nrow(a)),
