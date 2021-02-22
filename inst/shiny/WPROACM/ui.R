@@ -195,7 +195,7 @@ fluidRow(
                  downloadButton('download_templates',"Download template")
              ),
              column(8,
-                    br(), p("Once you have familarized yourself with the template, use this pull-down list below to upload your own data in a WHO standardized Excel sheet or use a built-in example data set"),
+                    br(), p("Once you have familiarized yourself with the template, use this pull-down list below to upload your own data in a WHO standardized Excel sheet or use a built-in example data set"),
                     selectInput('filetype',label='Open a data set',
                                  choices=c(
                                            'Excel spreadsheet of All Cause Mortality data (*.xls or *.xlsx)' = 1,
@@ -474,26 +474,29 @@ tabPanel(title='Help and Resources', value='tab6',
                                           icon = icon("envelope", lib = "font-awesome")),
                              href="mailto:wproncovinfoplan@who.int")),
                          
-                         h5(tags$u('How to Install Locally')),
-                         p("This app can be run entirely on your local machine. Running",
-                           "the app locally is the same as using the web-based version, except",
+                         h5(tags$u('How to Install the app off-line')),
+                         p("This app can be installed to run entirely on your local machine. Running",
+                           "the app locally is the same as using this online version, except",
                            "that no internet connection is necessary and your data does not have to",
                            "be uploaded to an external location.",
-                           "To install this app locally, follow these simple steps."),
+                           "To install this app locally for off-line use, follow these simple steps."),
                          
-                         p("1. Open R (not Rstudio)."),
-                         p("2. In the R console, enter the following command:",
-                           'source("http://www.stat.ucla.edu/~handcock/WPROACM.R")'),
-                         p("3. The app will install itself and close R. Once R is closed",
-                           "go to the Home directory and find the file named",
-                           strong("WPROACM.command .")),
-                         p("4. Double-click on the file, and the app will open within a browser.",
+                         p("1. Open the",strong("RGui")," app (You can search for it by name)."), 
+                         p("Note: This is not the Rstudio app, which should not be used."),
+                         p("2. In the",strong("R Console"), "window, cut-and-paste the following command:"),
+                         p('source("http://www.stat.ucla.edu/~handcock/WPROACM.R")'),
+                         p("and hit Enter."),
+                         p("3. The app will install itself and close RGui. This may take a few minutes. Once R is closed",
+                           "go to your Documents directory and find the file named",
+                           strong("WPROACM"),"."),
+                         p("4. Double-click on the file, and the app will open within your default browser.",
                            "Note that although a web browser is being used to display the app,",
-                           "no information is being sent over the web and indeed",
-                           "the app is operating offline. If the app fails to open the",
+                           "no information is being sent over the internet and indeed",
+                           "the app is operating offline. There may be a delay of a few seconds before the app appears.",
+                           "If the app fails to open the",
                            "first time, simply close the browser and double-click the",
-                           "WPROACM.command file again.")
-                         
+                           strong("WPROACM"), " file again."),
+                         p("4. In the future, when you want to run the app, just double-click on the ",strong("WPROACM")," file and the app will open within your default browser.")
                          ))
          )
 
