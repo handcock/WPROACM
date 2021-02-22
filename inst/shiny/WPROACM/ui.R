@@ -472,7 +472,28 @@ tabPanel(title='Help and Resources', value='tab6',
                                href="mailto:duanm@who.int"),
                            a(actionButton(inputId = "email2", label = "wproncovinfoplan@who.int", 
                                           icon = icon("envelope", lib = "font-awesome")),
-                             href="mailto:wproncovinfoplan@who.int"))
+                             href="mailto:wproncovinfoplan@who.int")),
+                         
+                         h5(tags$u('How to Install Locally')),
+                         p("This app can be run entirely on your local machine. Running",
+                           "the app locally is the same as using the web-based version, except",
+                           "that no internet connection is necessary and your data does not have to",
+                           "be uploaded to an external location.",
+                           "To install this app locally, follow these simple steps."),
+                         
+                         p("1. Open R (not Rstudio)."),
+                         p("2. In the R console, enter the following command:",
+                           'source("http://www.stat.ucla.edu/~handcock/WPROACM.R")'),
+                         p("3. The app will install itself and close R. Once R is closed",
+                           "go to the Home directory and find the file named",
+                           strong("WPROACM.command .")),
+                         p("4. Double-click on the file, and the app will open within a browser.",
+                           "Note that although a web browser is being used to display the app,",
+                           "no information is being sent over the web and indeed",
+                           "the app is operating offline. If the app fails to open the",
+                           "first time, simply close the browser and double-click the",
+                           "WPROACM.command file again.")
+                         
                          ))
          )
 
