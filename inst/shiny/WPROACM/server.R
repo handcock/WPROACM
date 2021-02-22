@@ -265,16 +265,6 @@ shinyServer(
        return(ACM_var)
      })
 
-     output$age <- renderUI({
-       selectizeInput('age_list', label=NULL,
-         choices=output_age() )
-     })
-
-     output$EDage <- renderUI({
-       selectizeInput('age_list', label=NULL,
-         choices=output_age() )
-     })
-
 #     output$genderlabels <- renderUI({
 #      if (is.null(input$rawdatafile)) {
 #        genderlabels <- NULL
@@ -418,7 +408,7 @@ shinyServer(
                                  breaks = 1:12) +
               scale_y_continuous(name = "Monthly Deaths") +
               labs(
-                title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
+                title = paste0("All Cause Mortality for ", input$gender, " ", input$age, " in ", Countryname(), " during the Pandemic"),
                 subtitle = "There are no data on this Sex and Age Group. This is a plot of the first group in the data."
               ) +
               theme_bw()
@@ -433,7 +423,7 @@ shinyServer(
             scale_x_continuous(name = "Week in 2020 through 2021") +
             scale_y_continuous(name = "Weekly Deaths") +
             labs(
-              title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
+              title = paste0("All Cause Mortality for ", input$gender, " ", input$age, " in ", Countryname(), " during the Pandemic"),
               subtitle = "There are no data on this Sex and Age Group. This is a plot of the first group in the data."
             ) +
             theme_bw()
@@ -455,7 +445,7 @@ shinyServer(
                               values=c(recorded="black", expected="indianred")) +
           scale_y_continuous(name = "Deaths") + #, limits = c(0, NA)) +
           labs(
-            title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
+            title = paste0("All Cause Mortality for ", input$gender, " ", input$age, " in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
           ) +
           theme_bw() + 
@@ -482,7 +472,7 @@ shinyServer(
                               values=c(recorded="black", average="cyan2")) +
           scale_y_continuous(name = "Deaths") + #, limits = c(0, NA)) +
           labs(
-            title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
+            title = paste0("All Cause Mortality for ", input$gender, " ", input$age, " in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
           ) +
           theme_bw() + 
@@ -508,7 +498,7 @@ shinyServer(
                               values=c("indianred", "cyan2", recorded="black")) + 
           scale_y_continuous(name = "Deaths") + #, limits = c(0, NA)) +
           labs(
-            title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
+            title = paste0("All Cause Mortality for ", input$gender, " ", input$age, " in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 16
           ) +
           theme_bw() + 
@@ -531,7 +521,7 @@ shinyServer(
           geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
           scale_y_continuous(name = "Deaths") + #, limits = c(0, NA)) +
           labs(
-            title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
+            title = paste0("All Cause Mortality for ", input$gender, " ", input$age, " in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
           ) +
           theme_bw() + 
@@ -590,7 +580,7 @@ shinyServer(
                                breaks = 1:12) +
             scale_y_continuous(name = "Monthly Excess Deaths") +
             labs(
-              title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
+              title = paste0("All Cause Mortality for ", input$EDgender, " ", input$EDage, " in ", Countryname(), " during the Pandemic"),
               subtitle = "There are no data on this Sex and Age Group. This is a plot of the first group in the data."
             ) +
             theme_bw()
@@ -614,7 +604,7 @@ shinyServer(
             scale_x_continuous(name = "Week in 2020 through 2021") +
             scale_y_continuous(name = "Weekly Excess Deaths") +
             labs(
-              title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
+              title = paste0("All Cause Mortality for ", input$EDgender, " ", input$EDage, " in ", Countryname(), " during the Pandemic"),
               subtitle = "There are no data on this Sex and Age Group. This is a plot of the first group in the data."
             ) +
             theme_bw()
@@ -642,7 +632,7 @@ shinyServer(
           geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
           scale_y_continuous(name = "Excess Deaths") +
           labs(
-            title = paste0("Excess Mortality in ", Countryname(), " during the Pandemic"),
+            title = paste0("Excess Mortality for ", input$EDgender, " ", input$EDage, " in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
           ) +
           theme_bw() + 
@@ -675,7 +665,7 @@ shinyServer(
           geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
           scale_y_continuous(name = "Excess Deaths") +
           labs(
-            title = paste0("Excess Mortality in ", Countryname(), " during the Pandemic"),
+            title = paste0("Excess Mortality for ", input$EDgender, " ", input$EDage, " in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
           ) +
           theme_bw() + 
@@ -705,7 +695,7 @@ shinyServer(
           geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
           scale_y_continuous(name = "Excess Deaths") +
           labs(
-            title = paste0("Excess Mortality in ", Countryname(), " during the Pandemic"),
+            title = paste0("Excess Mortality for ", input$EDgender, " ", input$EDage, "  in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
           ) +
           theme_bw() + 
@@ -729,7 +719,7 @@ shinyServer(
           geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
           scale_y_continuous(name = "All Cause Deaths") +
           labs(
-            title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
+            title = paste0("All Cause Mortality for ", input$EDgender, " ", input$EDage, " in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
           ) +
           theme_bw() + 
@@ -890,7 +880,7 @@ shinyServer(
       return(str(acmtable))
     })
 
-    ## Network Descriptives ------------------------------------------------------
+    ## Plotting All and Expected deaths ------------------------------------------------------
 
 
     output$ACMplot <- renderPlot({
@@ -918,7 +908,7 @@ shinyServer(
                                breaks = 1:12) +
             scale_y_continuous(name = "Monthly Deaths") +
             labs(
-              title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
+              title = paste0("All Cause Mortality for ", input$gender, " ", input$age, " in ", Countryname(), " during the Pandemic"),
               subtitle = "There are no data on this Sex and Age Group. This is a plot of the first group in the data."
             ) +
             theme_bw()
@@ -933,7 +923,7 @@ shinyServer(
             scale_x_continuous(name = "Week in 2020 through 2021") +
             scale_y_continuous(name = "Weekly Deaths") +
             labs(
-              title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
+              title = paste0("All Cause Mortality for ", input$gender, " ", input$age, " in ", Countryname(), " during the Pandemic"),
               subtitle = "There are no data on this Sex and Age Group. This is a plot of the first group in the data."
             ) +
             theme_bw()
@@ -954,7 +944,7 @@ shinyServer(
                               values=c(recorded="black", expected="indianred")) +
           scale_y_continuous(name = "Deaths") + #, limits = c(0, NA)) +
           labs(
-            title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
+            title = paste0("All Cause Mortality for ",input$gender, " ", input$age, " in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
           ) +
           theme_bw() +
@@ -981,7 +971,7 @@ shinyServer(
                               values=c(recorded="black", average="cyan2")) +
           scale_y_continuous(name = "Deaths") + #, limits = c(0, NA)) +
           labs(
-            title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
+            title = paste0("All Cause Mortality for ",input$gender, " ", input$age, " in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
           ) +
           theme_bw() +
@@ -1007,7 +997,7 @@ shinyServer(
             values=c("indianred", "cyan2", recorded="black")) + 
           scale_y_continuous(name = "Deaths") + #, limits = c(0, NA)) +
           labs(
-            title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
+            title = paste0("All Cause Mortality for ",input$gender, " ", input$age, " in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 16
           ) +
           theme_bw() + 
@@ -1031,7 +1021,7 @@ shinyServer(
           scale_x_continuous(name = name_PERIOD) +
           scale_y_continuous(name = "Deaths") + #, limits = c(0, NA)) +
           labs(
-            title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
+            title = paste0("All Cause Mortality for ",input$gender, " ", input$age, " in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
           ) +
           theme_bw() +
@@ -1082,7 +1072,7 @@ shinyServer(
                                breaks = 1:12) +
             scale_y_continuous(name = "Monthly Excess Deaths") +
             labs(
-              title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
+              title = paste0("All Cause Mortality for ",input$EDgender, " ", input$EDage, " in ", Countryname(), " during the Pandemic"),
               subtitle = "There are no data on this Sex and Age Group. This is a plot of the first group in the data."
             ) +
             theme_bw()
@@ -1106,7 +1096,7 @@ shinyServer(
             scale_x_continuous(name = "Week in 2020 through 2021") +
             scale_y_continuous(name = "Weekly Excess Deaths") +
             labs(
-              title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
+              title = paste0("All Cause Mortality for ",input$EDgender, " ", input$EDage, " in ", Countryname(), " during the Pandemic"),
               subtitle = "There are no data on this Sex and Age Group. This is a plot of the first group in the data."
             ) +
             theme_bw()
@@ -1133,7 +1123,7 @@ shinyServer(
           geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
           scale_y_continuous(name = "Excess Deaths") +
           labs(
-            title = paste0("Excess Mortality in ", Countryname(), " during the Pandemic"),
+            title = paste0("Excess Mortality for ",input$EDgender, " ", input$EDage, " in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
           ) +
           theme_bw() + 
@@ -1166,7 +1156,7 @@ shinyServer(
           geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
           scale_y_continuous(name = "Excess Deaths") +
           labs(
-            title = paste0("Excess Mortality in ", Countryname(), " during the Pandemic"),
+            title = paste0("Excess Mortality for ",input$EDgender, " ", input$EDage, " in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
           ) +
           theme_bw() + 
@@ -1196,7 +1186,7 @@ shinyServer(
           geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
           scale_y_continuous(name = "Excess Deaths") +
           labs(
-            title = paste0("Excess Mortality in ", Countryname(), " during the Pandemic"),
+            title = paste0("Excess Mortality for ",input$EDgender, " ", input$EDage, " in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
           ) +
           theme_bw() + 
@@ -1220,7 +1210,7 @@ shinyServer(
           geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
           scale_y_continuous(name = "All Cause Deaths") +
           labs(
-            title = paste0("All Cause Mortality in ", Countryname(), " during the Pandemic"),
+            title = paste0("All Cause Mortality for ",input$EDgender, " ", input$EDage, " in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
           ) +
           theme_bw() + 
