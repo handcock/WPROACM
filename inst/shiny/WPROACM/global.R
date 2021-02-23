@@ -100,7 +100,8 @@ attr.info <- function(df, colname, numattrs, breaks) {
 calculate_age <- function(src) { return(sort(unique(src$AGE_GROUP)))}
 
 calculate_spline <- function(src) {
-  src <- src[src$YEAR <= "2020" & src$PERIOD <= 52, ]
+# src <- src[src$YEAR <= "2020" & src$PERIOD <= 52, ]
+  src <- src[src$PERIOD <= 52, ]
   src <- src[order(src$SEX, src$AGE_GROUP, src$YEAR, src$PERIOD), ]
   if(is.null(src$NO_DEATHS)){
     if(is.null(src$DEATHS)){
@@ -117,11 +118,11 @@ calculate_spline <- function(src) {
   if (max(src$PERIOD, na.rm = TRUE) == 12) {
     day <- cumsum(c(0, dom))[src$PERIOD] + 15
     src_PERIOD <- src$PERIOD
-    DATE <- cumsum(c(0, 365, 366, 365, 365, 365))[src$YEAR - 2014] + day
+    DATE <- cumsum(c(0, 365, 366, 365, 365, 365, 366, 365, 365))[src$YEAR - 2014] + day
   } else {
     day <- cumsum(c(0, rep(7,52)))[src$PERIOD] + 3.5
     src_PERIOD <- src$PERIOD
-    DATE <- cumsum(c(0, 365, 366, 365, 365, 365))[src$YEAR - 2014] + day
+    DATE <- cumsum(c(0, 365, 366, 365, 365, 365, 366, 365, 365))[src$YEAR - 2014] + day
   }
 
   out <- src %>% dplyr::filter(YEAR >= "2020")
@@ -132,6 +133,9 @@ calculate_spline <- function(src) {
   out$LOWER_LIMIT <- out$NO_DEATHS
   out$UPPER_LIMIT <- out$NO_DEATHS
   out$EXCESS_DEATHS <- out$NO_DEATHS
+
+  year_predict = sort(unique(out$YEAR))
+  nyear_predict = length(year_predict)
 
   pattern <- unique(paste(out$SEX, out$AGE_GROUP))
   n_pat <- length(pattern)
@@ -175,9 +179,9 @@ calculate_spline <- function(src) {
     ave_deaths <- as.numeric(tapply(temp_src$NO_DEATHS,temp_src$PERIOD,mean,na.rm=TRUE))
     var_deaths <- as.numeric(tapply(temp_src$NO_DEATHS,temp_src$PERIOD,var,na.rm=TRUE))
     num_deaths <- as.numeric(tapply(temp_src$NO_DEATHS,temp_src$PERIOD,length))
-    ave_deaths <- rep(ave_deaths,6)
-    var_deaths <- rep(var_deaths,6)
-    num_deaths <- rep(num_deaths,6)
+    ave_deaths <- rep(ave_deaths,nyear_predict+5)
+    var_deaths <- rep(var_deaths,nyear_predict+5)
+    num_deaths <- rep(num_deaths,nyear_predict+5)
     ave_deaths_lower <- ave_deaths - qnorm(0.975)*sqrt(var_deaths/num_deaths)
     ave_deaths_upper <- ave_deaths + qnorm(0.975)*sqrt(var_deaths/num_deaths)
 
@@ -209,46 +213,46 @@ calculate_spline <- function(src) {
     estim.lower.std <- len.cycle * estim.lower / exp(src_pandemic$logdays)
     estim.upper.std <- len.cycle * estim.upper / exp(src_pandemic$logdays)
 
-    for (year_predict in sort(unique(out$YEAR))) {
+    for (iyear_predict in seq_along(year_predict)) {
      for (k in 0:(l_period - 1)) {
-      y <- year_predict
+      y <- year_predict[iyear_predict]
       a <- src_pandemic$YEAR == y & src_pandemic$PERIOD == (k + 1)
       while (!any(a) & y >= 2017) {
         y <- y - 1
         a <- src_pandemic$YEAR == y & src_pandemic$PERIOD == (k + 1)
       }
-      y <- year_predict
+      y <- year_predict[iyear_predict]
       while (!any(a) & y >= 2017) {
         y <- y - 1
         a <- src_pandemic$YEAR == y & src_pandemic$PERIOD == (k - 1)
       }
       if (!any(a)) {
-        a <- src_pandemic$YEAR == year_predict & src_pandemic$PERIOD == k
+        a <- src_pandemic$YEAR == year_predict[iyear_predict] & src_pandemic$PERIOD == k
       }
-      out[l_period * (j - 1) + k + 1, "ESTIMATE"] <- estim.median[a]
-      out[l_period * (j - 1) + k + 1, "LOWER_LIMIT"] <- estim.lower[a]
-      out[l_period * (j - 1) + k + 1, "UPPER_LIMIT"] <- estim.upper[a]
+      out[(iyear_predict-1)*l_period + nyear_predict*l_period * (j - 1) + k + 1, "ESTIMATE"] <- estim.median[a]
+      out[(iyear_predict-1)*l_period + nyear_predict*l_period * (j - 1) + k + 1, "LOWER_LIMIT"] <- estim.lower[a]
+      out[(iyear_predict-1)*l_period + nyear_predict*l_period * (j - 1) + k + 1, "UPPER_LIMIT"] <- estim.upper[a]
      }
     }
-    for (year_predict in sort(unique(out$YEAR))) {
+    for (iyear_predict in seq_along(year_predict)) {
      for (k in 0:(l_period - 1)) {
-      y <- year_predict
+      y <- year_predict[iyear_predict]
       a <- src_pandemic$YEAR == y & src_pandemic$PERIOD == (k + 1)
       while (!any(a) & y >= 2017) {
         y <- y - 1
         a <- src_pandemic$YEAR == y & src_pandemic$PERIOD == (k + 1)
       }
-      y <- year_predict
+      y <- year_predict[iyear_predict]
       while (!any(a) & y >= 2017) {
         y <- y - 1
         a <- src_pandemic$YEAR == y & src_pandemic$PERIOD == (k - 1)
       }
       if (!any(a)) {
-        a <- src_pandemic$YEAR == year_predict & src_pandemic$PERIOD == k
+        a <- src_pandemic$YEAR == year_predict[iyear_predict] & src_pandemic$PERIOD == k
       }
-      out[l_period*n_pat + l_period * (j - 1) + k + 1, "ESTIMATE"] <- ave_deaths[a]
-      out[l_period*n_pat + l_period * (j - 1) + k + 1, "LOWER_LIMIT"] <- ave_deaths_lower[a]
-      out[l_period*n_pat + l_period * (j - 1) + k + 1, "UPPER_LIMIT"] <- ave_deaths_upper[a]
+      out[nyear_predict*l_period*n_pat + (iyear_predict-1)*l_period + nyear_predict*l_period * (j - 1) + k + 1, "ESTIMATE"] <- ave_deaths[a]
+      out[nyear_predict*l_period*n_pat + (iyear_predict-1)*l_period + nyear_predict*l_period * (j - 1) + k + 1, "LOWER_LIMIT"] <- ave_deaths_lower[a]
+      out[nyear_predict*l_period*n_pat + (iyear_predict-1)*l_period + nyear_predict*l_period * (j - 1) + k + 1, "UPPER_LIMIT"] <- ave_deaths_upper[a]
      }
     }
 
@@ -258,6 +262,7 @@ calculate_spline <- function(src) {
     ), 1), "sec)"))
   }
 
+
   out$WM_IDENTIFIER <- rep(wm_ident)
 
   out[, "EXCESS_DEATHS"] <- out$NO_DEATHS - out$ESTIMATE
@@ -266,7 +271,7 @@ calculate_spline <- function(src) {
 # out <- melt(out, id.vars = c("COUNTRY", "ISO3", "WM_IDENTIFIER", "PERIOD", "SEX", "AGE_GROUP", "AREA", "CAUSE", "DATE_TO_SPECIFY_WEEK", "SE_IDENTIFIER", "LOWER_LIMIT", "UPPER_LIMIT", "EXCESS_DEATHS"))
 
 # names(out)[c(14:15)] <- c("SERIES", "NO_DEATHS")
-  out$SERIES <- factor(rep(c("Cyclical spline", "Historical average"),rep(l_period*n_pat,2)))
+  out$SERIES <- factor(rep(c("Cyclical spline", "Historical average"),rep(nyear_predict*l_period*n_pat,2)))
 
 # l_SERIES <- levels(out$SERIES)
 # names_SERIES <- c("NO_DEATHS", "ESTIMATE")
