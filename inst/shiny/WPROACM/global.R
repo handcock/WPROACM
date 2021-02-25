@@ -9,6 +9,7 @@ require(compiler)
 
 # TODO:dynamically generate input labels
 ACM_all <- NULL
+src <- NULL
 sheets <- NULL
 gender_labels <- c("Total", "Female", "Male")
 age_group_labels <- c("Total", "0-44", "45-64", "65-74", "75-84", "85 and over")
@@ -100,9 +101,11 @@ attr.info <- function(df, colname, numattrs, breaks) {
 calculate_age <- function(src) { return(sort(unique(src$AGE_GROUP)))}
 
 calculate_spline <- function(src) {
-# src <- src[src$YEAR <= "2020" & src$PERIOD <= 52, ]
+
+# src <- src[src$SEX %in% c("Female","Male","Total") & src$AGE_GROUP=="Total",]
+
   src <- src[src$PERIOD <= 52, ]
-  src <- src[order(src$SEX, src$AGE_GROUP, src$YEAR, src$PERIOD), ]
+  src <- src[order(src$REGION, src$SEX, src$AGE_GROUP, src$YEAR, src$PERIOD),]
   if(is.null(src$NO_DEATHS)){
     if(is.null(src$DEATHS)){
       stop("The data should have a column called 'NO_DEATHS', containing the number of all-cause deaths for that period.")
@@ -141,74 +144,86 @@ calculate_spline <- function(src) {
   n_pat <- length(pattern)
 
   for (j in 1:n_pat) {
+    patt_src <- src[paste(src$SEX, src$AGE_GROUP) == pattern[j], ]
+    hist_src <- patt_src[patt_src$YEAR < "2020",]
+    if (sum(hist_src$NO_DEATHS, na.rm = TRUE) == 0) next
     if (l_period > 51) {
-      temp_src <- src[paste(src$SEX, src$AGE_GROUP) == pattern[j], ] %>% dplyr::filter(YEAR < "2020")
-      if (sum(temp_src$NO_DEATHS, na.rm = TRUE) == 0) next
-      src_pandemic <- src[paste(src$SEX, src$AGE_GROUP) == pattern[j], ]
-      aDATE <- DATE[paste(src$SEX, src$AGE_GROUP) == pattern[j]]
+      day <- cumsum(c(0, rep(7,52)))[patt_src$PERIOD] + 3.5
+      aDATE <- cumsum(c(0, 365, 366, 365, 365, 365, 366, 365, 365))[patt_src$YEAR - 2014] + day
+      src_pandemic <- patt_src
       num.cycle <- 52
       len.cycle <- 7
-      loc_DATE <- DATE[paste(src$SEX, src$AGE_GROUP) == pattern[j] & src$YEAR < "2020"]
-      loc_PERIOD <- src_PERIOD[paste(src$SEX, src$AGE_GROUP) == pattern[j] & src$YEAR < "2020"]
-      days <- diff(c(0, loc_DATE))
-      days[1] <- 7
-      temp_src$logdays <- log(days)
+      loc_DATE <- aDATE[patt_src$YEAR < "2020"]
+#     days <- diff(c(0, loc_DATE))
+#     days[1] <- 7
+      hist_src$logdays <- log(7)
       fit <- mgcv::gam(NO_DEATHS ~ offset(logdays) + YEAR + s(PERIOD, bs = "cc", fx = TRUE, k = 9),
         knots = list(PERIOD = c(0, num.cycle)), method = "REML",
-        family = nb(), data = temp_src
+        family = nb(), data = hist_src
       )
+      src_pandemic$logdays <- log(7)
     } else {
-      temp_src <- src[paste(src$SEX, src$AGE_GROUP) == pattern[j], ] %>% dplyr::filter(YEAR < "2020")
-      if (sum(temp_src$NO_DEATHS, na.rm = TRUE) == 0) next
-      src_pandemic <- src[paste(src$SEX, src$AGE_GROUP) == pattern[j], ]
+      day <- cumsum(c(0, dom))[patt_src$PERIOD] + 15
+      DATE <- cumsum(c(0, 365, 366, 365, 365, 365, 366, 365, 365))[patt_src$YEAR - 2014] + day
+      src_pandemic <- patt_src
       aDATE <- DATE[paste(src$SEX, src$AGE_GROUP) == pattern[j]]
       num.cycle <- 12
       len.cycle <- 30
-      loc_DATE <- DATE[paste(src$SEX, src$AGE_GROUP) == pattern[j] & src$YEAR < "2020"]
-      loc_PERIOD <- temp_src$PERIOD
-      days <- rep(dom, 5)
+      loc_DATE <- aDATE[patt_src$YEAR < "2020"]
+      days <- dom[hist_src$PERIOD]
       days[14] <- 29
-      temp_src$logdays <- log(days)
+      hist_src$logdays <- log(days)
       fit <- mgcv::gam(NO_DEATHS ~ offset(logdays) + YEAR + s(PERIOD, bs = "cc", fx = TRUE, k = 5),
         knots = list(PERIOD = c(0, num.cycle)), method = "REML",
-        family = nb(), data = temp_src
+        family = nb(), data = hist_src
       )
+      days <- dom[src_pandemic$PERIOD]
+      days[14] <- 29 # Feb 2016
+      if(length(days) > 61) days[62] <- 29 # Feb 2020
+      src_pandemic$logdays <- log(days)
     }
     t.start <- Sys.time()
 
-    ave_deaths <- as.numeric(tapply(temp_src$NO_DEATHS,temp_src$PERIOD,mean,na.rm=TRUE))
-    var_deaths <- as.numeric(tapply(temp_src$NO_DEATHS,temp_src$PERIOD,var,na.rm=TRUE))
-    num_deaths <- as.numeric(tapply(temp_src$NO_DEATHS,temp_src$PERIOD,length))
+    ave_deaths <- as.numeric(tapply(hist_src$NO_DEATHS,hist_src$PERIOD,mean,na.rm=TRUE))
+    var_deaths <- as.numeric(tapply(hist_src$NO_DEATHS,hist_src$PERIOD,var,na.rm=TRUE))
+    num_deaths <- as.numeric(tapply(hist_src$NO_DEATHS,hist_src$PERIOD,length))
     ave_deaths <- rep(ave_deaths,nyear_predict+5)
     var_deaths <- rep(var_deaths,nyear_predict+5)
     num_deaths <- rep(num_deaths,nyear_predict+5)
-    ave_deaths_lower <- ave_deaths - qnorm(0.975)*sqrt(var_deaths/num_deaths)
-    ave_deaths_upper <- ave_deaths + qnorm(0.975)*sqrt(var_deaths/num_deaths)
+    ave_deaths_lower <- ave_deaths - qnorm(0.975)*sqrt(var_deaths*(1 + 1 / num_deaths))
+    ave_deaths_upper <- ave_deaths + qnorm(0.975)*sqrt(var_deaths*(1 + 1 / num_deaths))
 
     src_pandemic$loc_DATE <- aDATE
-    days <- diff(c(0, aDATE))
-    days[1] <- len.cycle
-    if (l_period > 51) {
-      # Adjust for variable number of days in a leap year
-      #         days <- rep(len.cycle,nrow(src_pandemic))
-      days[days > 3] <- len.cycle
+    if(TRUE){
+      estim <- mgcv::predict.gam(fit, newdata = src_pandemic, se.fit = TRUE)
+      estim.median <- estim$fit
+      estim.lower <- estim$fit # [5*12-1+(1:12)]
+      estim.upper <- estim$fit
+      theta <- fit$family$getTheta(TRUE)
+      set.seed(1)
+      if(FALSE){
+       for (i in 1:length(estim.median)) {
+        a <- rnorm(n = 10000, mean = estim$fit[i], sd = estim$se.fit[i])
+        estim.median[i] <- mean(qnbinom(mu = exp(a), size = theta, p = 0.5))
+        estim.lower[i] <- mean(qnbinom(mu = exp(a), size = theta, p = 0.025))
+        estim.upper[i] <- mean(qnbinom(mu = exp(a), size = theta, p = 0.975))
+       }
+      }else{
+       a <- matrix(rnorm(n = 10000*length(estim$fit), mean = estim$fit, sd = estim$se.fit),ncol=10000)
+       estim.median <- apply(a,1,function(x){mean(qnbinom(mu = exp(x), size = theta, p = 0.5))})
+       estim.lower <- apply(a,1,function(x){mean(qnbinom(mu = exp(x), size = theta, p = 0.025))})
+       estim.upper <- apply(a,1,function(x){mean(qnbinom(mu = exp(x), size = theta, p = 0.975))})
+      }
     }else{
-      days[14] <- 29 # Feb 2016
-      days[62] <- 29 # Feb 2020
+      estim <- mgcv::predict.gam(fit, newdata = src_pandemic, se.fit = TRUE, type = "response")
+      estim.median <- estim$fit
+      estim.lower <- estim$fit - 1.96*estim$se.fit
+      estim.upper <- estim$fit + 1.96*estim$se.fit
     }
-    src_pandemic$logdays <- log(days)
-    estim <- mgcv::predict.gam(fit, newdata = src_pandemic, se.fit = TRUE)
-    estim.median <- estim$fit
-    estim.lower <- estim$fit # [5*12-1+(1:12)]
-    estim.upper <- estim$fit
-    theta <- fit$family$getTheta(TRUE)
-    set.seed(1)
-    for (i in 1:length(estim.median)) {
-      a <- rnorm(n = 10000, mean = estim$fit[i], sd = estim$se.fit[i])
-      estim.median[i] <- mean(qnbinom(mu = exp(a), size = theta, p = 0.5))
-      estim.lower[i] <- mean(qnbinom(mu = exp(a), size = theta, p = 0.025))
-      estim.upper[i] <- mean(qnbinom(mu = exp(a), size = theta, p = 0.975))
-    }
+    estim.median[estim.median < 0] <- 0
+    estim.upper[estim.upper < 0] <- 0
+    estim.lower[estim.lower < 0] <- 0
+
     estim.median.std <- len.cycle * estim.median / exp(src_pandemic$logdays)
     estim.lower.std <- len.cycle * estim.lower / exp(src_pandemic$logdays)
     estim.upper.std <- len.cycle * estim.upper / exp(src_pandemic$logdays)
@@ -259,7 +274,7 @@ calculate_spline <- function(src) {
     message(paste0(out[l_period * (j - 1) + k + 1, "SEX"], " ", out[l_period * (j - 1) + k + 1, "AGE_GROUP"], " finished (", round(difftime(
       Sys.time(),
       t.start
-    ), 1), "sec)"))
+    ), 1), " seconds)"))
   }
 
 
@@ -267,8 +282,6 @@ calculate_spline <- function(src) {
 
   out[, "EXCESS_DEATHS"] <- out$NO_DEATHS - out$ESTIMATE
   out[, "EXPECTED"] <- out$ESTIMATE
-
-# out <- melt(out, id.vars = c("COUNTRY", "ISO3", "WM_IDENTIFIER", "PERIOD", "SEX", "AGE_GROUP", "AREA", "CAUSE", "DATE_TO_SPECIFY_WEEK", "SE_IDENTIFIER", "LOWER_LIMIT", "UPPER_LIMIT", "EXCESS_DEATHS"))
 
 # names(out)[c(14:15)] <- c("SERIES", "NO_DEATHS")
   out$SERIES <- factor(rep(c("Cyclical spline", "Historical average"),rep(nyear_predict*l_period*n_pat,2)))
