@@ -246,19 +246,26 @@ shinyServer(
         }
         max.types <- dim(ACM_all)[1]
         max.times <- dim(ACM_all)[2]
-        is.data <- apply(!is.na(as.matrix(ACM_all[len.header:nrow(ACM_all),3:ncol(ACM_all)])),1,sum)
+        is.data <- apply(!is.na(as.matrix(ACM_all[len.header:nrow(ACM_all),3:ncol(ACM_all)])),1,sum,na.rm=TRUE)
+        is.time <- apply(!is.na(as.matrix(ACM_all[len.header:nrow(ACM_all),3:ncol(ACM_all)])),2,sum,na.rm=TRUE) > 0
         skip <- max(is.data) < 24
-        a <- as.matrix(ACM_all[len.header:nrow(ACM_all),3:ncol(ACM_all)])[is.data > 24,,drop=FALSE]
+        last.data <- which.max(seq_along(is.time)[is.time])
+        year <- max(as.numeric(ACM_all[1,3:last.data]))
+        last.year <- match(year+1, ACM_all[1,])-1
+        if(is.na(last.year)) last.year <- max.times
+        a <- as.matrix(ACM_all[len.header:nrow(ACM_all),3:last.year])[is.data > 24,,drop=FALSE]
         mode(a) <- "numeric"
         a <- round(a)
+#       VIP recode missing as 0 
+        a[is.na(a) & col(a) <= last.data] <- 0
         age <- as.data.frame(ACM_all[,1])[seq(len.header,max(len.header,nrow(ACM_all)),by=3),1]
         age <- age[age != ""]
         ACM_var <- data.frame(
               REGION=rep(input$chosesheet,length(a)),
                AGE_GROUP=rep(rep(age,rep(3,length(age)))[is.data > 24],rep(ncol(a),3*length(age))[is.data > 24])[1:length(a)],
                SEX=rep(as.data.frame(ACM_all[len.header:nrow(ACM_all), 2])[is.data > 24,],rep(ncol(a),nrow(a))),
-               YEAR=rep(as.numeric(ACM_all[1, 3:ncol(ACM_all)]),nrow(a)),
-               PERIOD=rep(as.numeric(ACM_all[ifelse(len.header==6,5,3), 3:ncol(ACM_all)]),nrow(a)),
+               YEAR=rep(as.numeric(ACM_all[1, 3:last.year]),nrow(a)),
+               PERIOD=rep(as.numeric(ACM_all[ifelse(len.header==6,5,3), 3:last.year]),nrow(a)),
                NO_DEATHS=as.vector(t(a))
                                 )
        }
@@ -310,7 +317,11 @@ shinyServer(
       if (!is.data.frame(ACMinit())) {
         return()
       }
-      calculate_spline(ACMinit())
+      src <- ACMinit()
+      src_total <- src[src$SEX %in% c("Female","Male","Total") & src$AGE_GROUP=="Total",] 
+      src_age   <- src[src$SEX %in% c("Female","Male","Total") & src$AGE_GROUP!="Total",] 
+      src <- rbind(calculate_spline(src_total), calculate_spline(src_age))
+      src
     })
 
     output_age <- reactive({
