@@ -320,7 +320,13 @@ shinyServer(
       src <- ACMinit()
       src_total <- src[src$SEX %in% c("Female","Male","Total") & src$AGE_GROUP=="Total",] 
       src_age   <- src[src$SEX %in% c("Female","Male","Total") & src$AGE_GROUP!="Total",] 
-      src <- rbind(calculate_spline(src_total), calculate_spline(src_age))
+      if(nrow(src_age) > 0 & nrow(src_total) > 0){
+        src <- rbind(calculate_spline(src_total), calculate_spline(src_age))
+      }else{if(nrow(src_total) > 0){
+        src <- calculate_spline(src_total)
+      }else{
+        src <- calculate_spline(src_age)
+      }}
       src
     })
 
