@@ -192,7 +192,10 @@ fluidRow(
                  'Australia (empty template)', 'Philippines (empty template)', 'French Polynesia (empty template)',
                  'Generic Monthly template', 'Generic Weekly template',
                  'Australia (filled up to August 2020)', 'Japan (filled up to August 2020)', 'Republic of Korea (filled up to August 2020)', 'New Zealand (filled up to August 2020)', 'Philippines (filled up to August 2020)')),
-                 downloadButton('download_templates',"Download template")
+                 downloadButton('download_templates',"Download template"), br()," ",br(),
+                    p(class="helper", id="Excelhelpweeks", icon("question-circle"),
+                      span("I have weekly data. Where do I enter the number of days in eack week?", style="font-size:0.85em;"),
+                 br(), "Please remember to enter in the Excel file the number of days in each week, especially for weeks 1 and 53. These should be entered for each year (2015, 2016, ...) on row 4 in the column for that week. They are pre-entered as 7.")
              ),
              column(8,
                     br(), p("Once you have familiarized yourself with the template, use this pull-down list below to upload your own data in a WHO standardized Excel sheet or use a built-in example data set"),
