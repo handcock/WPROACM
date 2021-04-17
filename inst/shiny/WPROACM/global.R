@@ -104,7 +104,7 @@ calculate_spline <- function(src) {
 
 # src <- src[src$SEX %in% c("Female","Male","Total") & src$AGE_GROUP=="Total",]
 
-  src <- src[src$PERIOD <= 52, ]
+# src <- src[src$PERIOD <= 52, ]
   src <- src[order(src$REGION, src$SEX, src$AGE_GROUP, src$YEAR, src$PERIOD),]
   if(is.null(src$NO_DEATHS)){
     if(is.null(src$DEATHS)){
@@ -129,7 +129,7 @@ calculate_spline <- function(src) {
   out <- src %>% dplyr::filter(YEAR >= "2020")
   out <- rbind(out,out)
   wm_ident <- ifelse(max(src$PERIOD, na.rm = TRUE) == 12, "Month", "Week")
-  l_period <- ifelse(max(src$PERIOD, na.rm = TRUE) == 12, 12, 52)
+  l_period <- ifelse(max(src$PERIOD, na.rm = TRUE) == 12, 12, 53)
   out$ESTIMATE <- out$NO_DEATHS
   out$LOWER_LIMIT <- out$NO_DEATHS
   out$UPPER_LIMIT <- out$NO_DEATHS
@@ -147,26 +147,24 @@ calculate_spline <- function(src) {
     if (sum(hist_src$NO_DEATHS, na.rm = TRUE) == 0) next
     if (l_period > 51) {
       day <- cumsum(c(0, rep(7,52)))[patt_src$PERIOD] + 3.5
+      day <- patt_src$DAYS
       aDATE <- cumsum(c(0, 365, 366, 365, 365, 365, 366, 365, 365))[patt_src$YEAR - 2014] + day
       src_pandemic <- patt_src
-      num.cycle <- 52
-      len.cycle <- 7
+      src_pandemic$DAYS[src_pandemic$DAYS == 0] <- 7
+      num.cycle <- max(patt_src$PERIOD[patt_src$DAYS > 0])
       loc_DATE <- aDATE[patt_src$YEAR < "2020"]
-#     days <- diff(c(0, loc_DATE))
-#     days[1] <- 7
-      hist_src$logdays <- log(7)
+      hist_src$logdays <- log(hist_src$DAYS)
       fit <- mgcv::gam(NO_DEATHS ~ offset(logdays) + YEAR + s(PERIOD, bs = "cc", fx = TRUE, k = 9),
         knots = list(PERIOD = c(0, num.cycle)), method = "REML",
-        family = nb(), data = hist_src
+        family = nb(), data = hist_src, subset = DAYS > 0
       )
-      src_pandemic$logdays <- log(7)
+      src_pandemic$logdays <- log(src_pandemic$DAYS)
     } else {
       day <- cumsum(c(0, dom))[patt_src$PERIOD] + 15
       DATE <- cumsum(c(0, 365, 366, 365, 365, 365, 366, 365, 365))[patt_src$YEAR - 2014] + day
       src_pandemic <- patt_src
       aDATE <- DATE[paste(src$SEX, src$AGE_GROUP) == pattern[j]]
       num.cycle <- 12
-      len.cycle <- 30
       loc_DATE <- aDATE[patt_src$YEAR < "2020"]
       days <- dom[hist_src$PERIOD]
       days[14] <- 29
@@ -221,11 +219,6 @@ calculate_spline <- function(src) {
     estim.median[estim.median < 0] <- 0
     estim.upper[estim.upper < 0] <- 0
     estim.lower[estim.lower < 0] <- 0
-
-    estim.median.std <- len.cycle * estim.median / exp(src_pandemic$logdays)
-    estim.lower.std <- len.cycle * estim.lower / exp(src_pandemic$logdays)
-    estim.upper.std <- len.cycle * estim.upper / exp(src_pandemic$logdays)
-
 
     for (iyear_predict in seq_along(year_predict)) {
      for (k in 0:(l_period - 1)) {
@@ -377,7 +370,6 @@ calculate_spline_age <- function(src) {
       aDATE <- cumsum(c(0, 365, 366, 365, 365, 365, 366, 365, 365))[patt_src$YEAR - 2014] + day
       src_pandemic <- patt_src
       num.cycle <- 52
-      len.cycle <- 7
 #     loc_DATE <- aDATE[patt_src$YEAR < "2020"]
 #     days <- diff(c(0, loc_DATE))
 #     days[1] <- 7
@@ -393,7 +385,6 @@ calculate_spline_age <- function(src) {
       src_pandemic <- patt_src
       aDATE <- DATE[paste(out$AREA, src$SEX, src$AGE_GROUP) == pattern[j]]
       num.cycle <- 12
-      len.cycle <- 30
 #     loc_DATE <- aDATE[patt_src$YEAR < "2020"]
       days <- dom[hist_src$PERIOD]
       days[14] <- 29
@@ -407,7 +398,7 @@ calculate_spline_age <- function(src) {
 #       knots=list(PERIOD=c(0,len.cycle)), method="REML", family=nb(), data=hist_src,
 #       subset=AGE_GROUP %in% ages & SEX == "Female")
       fit <- mgcv::gam(NO_DEATHS ~ offset(logdays) + YEAR + s(AGE) + s(PERIOD,bs="cc", fx = TRUE, k = 5),
-        knots=list(PERIOD=c(0,len.cycle)), method="REML", family=nb(), data=hist_src,
+        knots=list(PERIOD=c(0,num.cycle)), method="REML", family=nb(), data=hist_src,
         subset=AGE_GROUP %in% ages)
       days <- dom[src_pandemic$PERIOD]
       days[14] <- 29 # Feb 2016
@@ -455,10 +446,6 @@ calculate_spline_age <- function(src) {
     estim.median[estim.median < 0] <- 0
     estim.upper[estim.upper < 0] <- 0
     estim.lower[estim.lower < 0] <- 0
-
-    estim.median.std <- len.cycle * estim.median / exp(src_pandemic$logdays)
-    estim.lower.std <- len.cycle * estim.lower / exp(src_pandemic$logdays)
-    estim.upper.std <- len.cycle * estim.upper / exp(src_pandemic$logdays)
 
     f <- cbind(estim.median,estim.upper,estim.lower)[src_pandemic$YEAR >= "2020",]  
     if(sel==0){

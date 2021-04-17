@@ -261,10 +261,11 @@ shinyServer(
         age <- as.data.frame(ACM_all[,1])[seq(len.header,max(len.header,nrow(ACM_all)),by=3),1]
         age <- age[age != ""]
         ACM_var <- data.frame(
-              REGION=rep(input$chosesheet,length(a)),
+               REGION=rep(input$chosesheet,length(a)),
                AGE_GROUP=rep(rep(age,rep(3,length(age)))[is.data > 24],rep(ncol(a),3*length(age))[is.data > 24])[1:length(a)],
                SEX=rep(as.data.frame(ACM_all[len.header:nrow(ACM_all), 2])[is.data > 24,],rep(ncol(a),nrow(a))),
                YEAR=rep(as.numeric(ACM_all[1, 3:last.year]),nrow(a)),
+               DAYS=rep(as.numeric(ACM_all[3, 3:last.year]),nrow(a)),
                PERIOD=rep(as.numeric(ACM_all[ifelse(len.header==6,5,3), 3:last.year]),nrow(a)),
                NO_DEATHS=as.vector(t(a))
                                 )
@@ -430,7 +431,7 @@ shinyServer(
               ) +
               theme_bw()
         } else {
-          p <- ACM_var[1:52,] %>%
+          p <- ACM_var[1:53,] %>%
             ggplot() +
             geom_line(aes(x = PERIOD, y = NO_DEATHS, colour = "recorded")) +
             geom_ribbon(aes(x = PERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
@@ -456,8 +457,8 @@ shinyServer(
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
         subtitle <- paste0("deaths in ", bquote(2020), " compared to negative binomial regression on 2015-19")
-        x_labels=paste(c(1,13,26,39,1,13,26,39,52))
-        x_breaks=c(1,13,26,39,53,66,79,92,105)
+        x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
+        x_labels=paste(x_breaks-53*trunc(x_breaks/53))
         x_labels <- x_labels[x_breaks <= last_deaths]
         x_breaks <- x_breaks[x_breaks <= last_deaths]
         p <- c_data_sel[1:last_deaths,] %>% 
@@ -490,8 +491,8 @@ shinyServer(
         c_data_sel <- c_data[c_data$SERIES == "Historical average",]
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
-        x_labels=paste(c(1,13,26,39,1,13,26,39,52))
-        x_breaks=c(1,13,26,39,53,66,79,92,105)
+        x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
+        x_labels=paste(x_breaks-53*trunc(x_breaks/53))
         x_labels <- x_labels[x_breaks <= last_deaths]
         x_breaks <- x_breaks[x_breaks <= last_deaths]
         p <- c_data_sel[1:last_deaths,] %>% 
@@ -524,8 +525,8 @@ shinyServer(
         last_deaths <- nrow(c_data)/2- which.max(!is.na(rev(c_data[1:(nrow(c_data)/2),"NO_DEATHS"]))) + 1
         c_data_sel <- c_data[c(1:last_deaths,(nrow(c_data)/2 + (1:last_deaths))),]
         c_data_sel$YEARPERIOD <- rep(1:last_deaths,2)
-        x_labels=paste(c(1,13,26,39,1,13,26,39,52))
-        x_breaks=c(1,13,26,39,53,66,79,92,105)
+        x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
+        x_labels=paste(x_breaks-53*trunc(x_breaks/53))
         x_labels <- x_labels[x_breaks <= last_deaths]
         x_breaks <- x_breaks[x_breaks <= last_deaths]
         p <- c_data_sel %>%
@@ -557,8 +558,8 @@ shinyServer(
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
         subtitle = paste0("deaths in 2020")
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
-        x_labels=paste(c(1,13,26,39,1,13,26,39,52))
-        x_breaks=c(1,13,26,39,53,66,79,92,105)
+        x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
+        x_labels=paste(x_breaks-53*trunc(x_breaks/53))
         x_labels <- x_labels[x_breaks <= last_deaths]
         x_breaks <- x_breaks[x_breaks <= last_deaths]
         p <- c_data_sel[1:last_deaths,] %>% 
@@ -634,14 +635,14 @@ shinyServer(
           #upper <- c_data[c_data$SERIES == "Cyclical spline","UPPER_LIMIT"] - c_data[c_data$SERIES == "Cyclical spline","NO_DEATHS"]
           lower <- ACM_var[ACM_var$SERIES == "Cyclical spline","LOWER_LIMIT"] - ACM_var[ACM_var$SERIES == "Cyclical spline","NO_DEATHS"]
           upper <- ACM_var[ACM_var$SERIES == "Cyclical spline","UPPER_LIMIT"] - ACM_var[ACM_var$SERIES == "Cyclical spline","NO_DEATHS"]
-          p <- ACM_var[1:52,] %>%
+          p <- ACM_var[1:53,] %>%
             ggplot() +
             #geom_line(aes(x = PERIOD, y = EXPECTED), colour = "indianred") +
             #geom_ribbon(aes(x = PERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
             #geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
             geom_col(aes(x = PERIOD, y = EXCESS_DEATHS, colour = "excess_from_expected"),
                      fill = "indianred", alpha= 0.1) +
-            geom_errorbar(aes(x = PERIOD, y = EXCESS_DEATHS, ymin = -1*lower[1:52], ymax = -1*upper[1:52]), 
+            geom_errorbar(aes(x = PERIOD, y = EXCESS_DEATHS, ymin = -1*lower[1:53], ymax = -1*upper[1:53]), 
                           linetype = 1, colour = "indianred") +
             scale_colour_manual(name="",
                                 values=c(excess_from_expected="indianred")) +
@@ -667,8 +668,8 @@ shinyServer(
         subtitle <- paste0("excess deaths in ", bquote(2020), " compared to negative binomial regression on 2015-19")
         lower <- c_data_sel[1:last_deaths,"LOWER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]
         upper <- c_data_sel[1:last_deaths,"UPPER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]
-        x_labels=paste(c(1,13,26,39,1,13,26,39,52))
-        x_breaks=c(1,13,26,39,53,66,79,92,105)
+        x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
+        x_labels=paste(x_breaks-53*trunc(x_breaks/53))
         x_labels <- x_labels[x_breaks <= last_deaths]
         x_breaks <- x_breaks[x_breaks <= last_deaths]
         p <- c_data_sel[1:last_deaths,] %>% 
@@ -707,8 +708,8 @@ shinyServer(
         subtitle <- paste0("excess deaths in ", bquote(2020), " compared to historical average on 2015-19")
         lower <- c_data_sel[1:last_deaths,"LOWER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]
         upper <- c_data_sel[1:last_deaths,"UPPER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]
-        x_labels=paste(c(1,13,26,39,1,13,26,39,52))
-        x_breaks=c(1,13,26,39,53,66,79,92,105)
+        x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
+        x_labels=paste(x_breaks-53*trunc(x_breaks/53))
         x_labels <- x_labels[x_breaks <= last_deaths]
         x_breaks <- x_breaks[x_breaks <= last_deaths]
         p <- c_data_sel[1:last_deaths,] %>%
@@ -745,8 +746,8 @@ shinyServer(
         last_deaths <- nrow(c_data)/2- which.max(!is.na(rev(c_data[1:(nrow(c_data)/2),"NO_DEATHS"]))) + 1
         c_data_sel <- c_data[c(1:last_deaths,(nrow(c_data)/2 + (1:last_deaths))),]
         c_data_sel$YEARPERIOD <- rep(1:last_deaths,2)
-        x_labels=paste(c(1,13,26,39,1,13,26,39,52))
-        x_breaks=c(1,13,26,39,53,66,79,92,105)
+        x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
+        x_labels=paste(x_breaks-53*trunc(x_breaks/53))
         x_labels <- x_labels[x_breaks <= last_deaths]
         x_breaks <- x_breaks[x_breaks <= last_deaths]
         p <- c_data_sel %>%
@@ -782,8 +783,8 @@ shinyServer(
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
         subtitle = paste0("recorded deaths in 2020")
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
-        x_labels=paste(c(1,13,26,39,1,13,26,39,52))
-        x_breaks=c(1,13,26,39,53,66,79,92,105)
+        x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
+        x_labels=paste(x_breaks-53*trunc(x_breaks/53))
         x_labels <- x_labels[x_breaks <= last_deaths]
         x_breaks <- x_breaks[x_breaks <= last_deaths]
         p <- c_data_sel[1:last_deaths,] %>% 
@@ -986,7 +987,7 @@ shinyServer(
             ) +
             theme_bw()
         } else {
-          p <- ACM_var[1:52,] %>%
+          p <- ACM_var[1:53,] %>%
             ggplot() +
             geom_line(aes(x = PERIOD, y = NO_DEATHS, colour = "recorded")) +
             geom_ribbon(aes(x = PERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
@@ -1011,8 +1012,8 @@ shinyServer(
         c_data_sel <- c_data[c_data$SERIES == "Cyclical spline",]
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
-        x_labels=paste(c(1,13,26,39,1,13,26,39,52))
-        x_breaks=c(1,13,26,39,53,66,79,92,105)
+        x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
+        x_labels=paste(x_breaks-53*trunc(x_breaks/53))
         x_labels <- x_labels[x_breaks <= last_deaths]
         x_breaks <- x_breaks[x_breaks <= last_deaths]
         p <- c_data_sel[1:last_deaths,] %>% 
@@ -1045,8 +1046,8 @@ shinyServer(
         c_data_sel <- c_data[c_data$SERIES == "Historical average",]
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
-        x_labels=paste(c(1,13,26,39,1,13,26,39,52))
-        x_breaks=c(1,13,26,39,53,66,79,92,105)
+        x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
+        x_labels=paste(x_breaks-53*trunc(x_breaks/53))
         x_labels <- x_labels[x_breaks <= last_deaths]
         x_breaks <- x_breaks[x_breaks <= last_deaths]
         p <- c_data_sel[1:last_deaths,] %>% 
@@ -1079,8 +1080,8 @@ shinyServer(
         last_deaths <- nrow(c_data)/2- which.max(!is.na(rev(c_data[1:(nrow(c_data)/2),"NO_DEATHS"]))) + 1
         c_data_sel <- c_data[c(1:last_deaths,(nrow(c_data)/2 + (1:last_deaths))),]
         c_data_sel$YEARPERIOD <- rep(1:last_deaths,2)
-        x_labels=paste(c(1,13,26,39,1,13,26,39,52))
-        x_breaks=c(1,13,26,39,53,66,79,92,105)
+        x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
+        x_labels=paste(x_breaks-53*trunc(x_breaks/53))
         x_labels <- x_labels[x_breaks <= last_deaths]
         x_breaks <- x_breaks[x_breaks <= last_deaths]
         p <- c_data_sel %>%
@@ -1112,8 +1113,8 @@ shinyServer(
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
         subtitle = paste0("deaths in 2020")
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
-        x_labels=paste(c(1,13,26,39,1,13,26,39,52))
-        x_breaks=c(1,13,26,39,53,66,79,92,105)
+        x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
+        x_labels=paste(x_breaks-53*trunc(x_breaks/53))
         x_labels <- x_labels[x_breaks <= last_deaths]
         x_breaks <- x_breaks[x_breaks <= last_deaths]
         p <- c_data_sel[1:last_deaths,] %>% 
@@ -1182,14 +1183,14 @@ shinyServer(
           #upper <- c_data[c_data$SERIES == "Cyclical spline","UPPER_LIMIT"] - c_data[c_data$SERIES == "Cyclical spline","NO_DEATHS"]
           lower <- ACM_var[ACM_var$SERIES == "Cyclical spline","LOWER_LIMIT"] - ACM_var[ACM_var$SERIES == "Cyclical spline","NO_DEATHS"]
           upper <- ACM_var[ACM_var$SERIES == "Cyclical spline","UPPER_LIMIT"] - ACM_var[ACM_var$SERIES == "Cyclical spline","NO_DEATHS"]
-          p <- ACM_var[1:52,] %>%
+          p <- ACM_var[1:53,] %>%
             ggplot() +
             #geom_line(aes(x = PERIOD, y = EXPECTED), colour = "indianred") +
             #geom_ribbon(aes(x = PERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
             #geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
             geom_col(aes(x = PERIOD, y = EXCESS_DEATHS, colour = "excess_from_expected"),
                      fill = "indianred", alpha= 0.1) +
-            geom_errorbar(aes(x = PERIOD, y = EXCESS_DEATHS, ymin = -1*lower[1:52], ymax = -1*upper[1:52]), 
+            geom_errorbar(aes(x = PERIOD, y = EXCESS_DEATHS, ymin = -1*lower[1:53], ymax = -1*upper[1:53]), 
                           linetype = 1, colour = "indianred") +
             scale_colour_manual(name="",
                                 values=c(excess_from_expected="indianred")) +
@@ -1214,8 +1215,8 @@ shinyServer(
         subtitle <- paste0("excess deaths in ", bquote(2020), " compared to negative binomial regression on 2015-19")
         lower <- c_data_sel[1:last_deaths,"LOWER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]
         upper <- c_data_sel[1:last_deaths,"UPPER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]
-        x_labels=paste(c(1,13,26,39,1,13,26,39,52))
-        x_breaks=c(1,13,26,39,53,66,79,92,105)
+        x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
+        x_labels=paste(x_breaks-53*trunc(x_breaks/53))
         x_labels <- x_labels[x_breaks <= last_deaths]
         x_breaks <- x_breaks[x_breaks <= last_deaths]
         p <- c_data_sel[1:last_deaths,] %>%
@@ -1254,8 +1255,8 @@ shinyServer(
         subtitle <- paste0("excess deaths in ", bquote(2020), " compared to historical average on 2015-19")
         lower <- c_data_sel[1:last_deaths,"LOWER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]
         upper <- c_data_sel[1:last_deaths,"UPPER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]
-        x_labels=paste(c(1,13,26,39,1,13,26,39,52))
-        x_breaks=c(1,13,26,39,53,66,79,92,105)
+        x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
+        x_labels=paste(x_breaks-53*trunc(x_breaks/53))
         x_labels <- x_labels[x_breaks <= last_deaths]
         x_breaks <- x_breaks[x_breaks <= last_deaths]
         p <- c_data_sel[1:last_deaths,] %>%
@@ -1292,8 +1293,8 @@ shinyServer(
         last_deaths <- nrow(c_data)/2- which.max(!is.na(rev(c_data[1:(nrow(c_data)/2),"NO_DEATHS"]))) + 1
         c_data_sel <- c_data[c(1:last_deaths,(nrow(c_data)/2 + (1:last_deaths))),]
         c_data_sel$YEARPERIOD <- rep(1:last_deaths,2)
-        x_labels=paste(c(1,13,26,39,1,13,26,39,52))
-        x_breaks=c(1,13,26,39,53,66,79,92,105)
+        x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
+        x_labels=paste(x_breaks-53*trunc(x_breaks/53))
         x_labels <- x_labels[x_breaks <= last_deaths]
         x_breaks <- x_breaks[x_breaks <= last_deaths]
         p <- c_data_sel %>%
@@ -1329,8 +1330,8 @@ shinyServer(
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
         subtitle = paste0("recorded deaths in 2020")
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
-        x_labels=paste(c(1,13,26,39,1,13,26,39,52))
-        x_breaks=c(1,13,26,39,53,66,79,92,105)
+        x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
+        x_labels=paste(x_breaks-53*trunc(x_breaks/53))
         x_labels <- x_labels[x_breaks <= last_deaths]
         x_breaks <- x_breaks[x_breaks <= last_deaths]
         p <- c_data_sel[1:last_deaths,] %>% 
