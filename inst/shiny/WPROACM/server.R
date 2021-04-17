@@ -936,9 +936,9 @@ shinyServer(
     })
 
     # data summary panel under data tab
-    output$ACMsum <- renderPrint({
+    output$ACMsum <- renderText({
       if (is.null(ACMinit())) {
-        return(cat("Please load the data using the pull-down menu on the left to\n select an Excel file and then 'Choose a region'."))
+        return(paste0("Please load the data under the 'Upload All Cause Mortality data' tab on the left\n and use the 'Browse' menu to select an Excel file\n and then 'Choose a region' to specify the region (required)."))
       }
       #ACM_var <- ACMinit()
       acmtable <- ACMinit()
