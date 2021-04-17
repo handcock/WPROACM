@@ -5,6 +5,6 @@ account: handcock
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 3471497
-bundleId: 4478464
+bundleId: 4484694
 url: https://handcock.shinyapps.io/wproacm/
-when: 1618544265.05779
+when: 1618692273.13036

@@ -8,21 +8,21 @@ shinyUI(
   navbarPage(
     #theme="mycosmo.css",
     title=NULL,
-    id= 'navbar', windowTitle = 'WPROACM', collapsible=TRUE,
+    id= 'navbar', windowTitle = 'WPRO all-cause-of-mortality and excess death calculator', collapsible=TRUE,
 
 
 
 # Front Page (About) ------------------------------------------------------
 
 
-tabPanel(title=span('WPROACM', id="sWtitle"),
+tabPanel(title=span('WPRO all-cause-of-mortality and excess death calculator', id="sWtitle"),
          value='tab1',
          fluidRow(
           column(2,
-                 actionButton("aboutButton", label = "About WPROACM",
-                              class = "btn active"),
-                 actionButton("citeButton", label = "Citing WPROACM",
-                              class = "btn"),
+                 actionButton("aboutButton", label = "About the calculator",
+                              class = "btn active", width="80%"), br(),
+                 actionButton("citeButton", label = "Citing the calculator",
+                              class = "btn", width="80%"), br(),
                  actionButton('startButton', label='Get Started',
                               class="btn btn-primary")
           ),
@@ -80,7 +80,7 @@ tabPanel(title=span('WPROACM', id="sWtitle"),
                 }'),
                 p(strong("WPROACM")),
                 tags$pre(id='swcitation',"@Manual{beylerian:WPROACM,
-                  title = {\\pkg{WPROACM}: A Graphical User Interface for Analysing Excess Mortality from All Cause Mortality Data},
+                  title = {\\pkg{WPROACM}: A Graphical User Interface for Analyzing Excess Mortality from All Cause Mortality Data},
                   author = {Mark S. Handcock},
                   year = {2021},
                   note = {\\proglang{R}~package version~0.1},
@@ -90,11 +90,11 @@ tabPanel(title=span('WPROACM', id="sWtitle"),
               ),
               tabPanel("Other",
                 p(strong("WPROACM")),
-                tags$pre("Mark S. Handcock (2021). WPROACM: A Graphical User Interface for Analysing Excess Mortality from All Cause Mortality Data. URL http://hpmrg.org"),
+                tags$pre("Mark S. Handcock (2021). WPROACM: A Graphical User Interface for Analyzing Excess Mortality from All Cause Mortality Data. URL http://hpmrg.org"),
                 
                 p(strong("WPROACM")),
                 tags$pre("Mark S. Handcock (2021).
-                WPROACM: A Graphical User Interface for Analysing Excess Mortality from All Cause Mortality Data.")
+                WPROACM: A Graphical User Interface for Analyzing Excess Mortality from All Cause Mortality Data.")
                        )
             ),
             p('If you use WPROACM, please cite it'),
@@ -103,7 +103,7 @@ tabPanel(title=span('WPROACM', id="sWtitle"),
    column(4,
           wellPanel(
               h5(tags$u('Resources')),
-              div(a("WPROACM on GitHub", href="https://github.com/handcock/WPROACM",
+              div(a("The calculator on GitHub", href="https://github.com/handcock/WPROACM",
                     target="_blank")),
               div(a("Shiny: a web application framework for R", href="http://shiny.rstudio.com/",
                     target="_blank"))
@@ -443,8 +443,8 @@ tabPanel(title='Help and Resources', value='tab6',
          sidebarLayout(position = 'right',
                        sidebarPanel(
                          h5(tags$u('Resources')),
-                         div(title = "Wiki page for WPROACM",
-                             a("About WPROACM",
+                         div(title = "Wiki page for the calculator",
+                             a("About WPRO all-cause-of-mortality and excess death calculator",
                                href = "https://github.com/handcock/WPROACM/wiki",
                                target = "_blank")),
                          div(title="WPRO dashboard",
@@ -453,18 +453,18 @@ tabPanel(title='Help and Resources', value='tab6',
                                target = "_blank")
                          ),
                          div(title=paste("Information on the methodology used",
-                                         "in the tool"),
+                                         "in the calculator"),
                              a("About the methodology used in the tool.",
                                href = "https://github.com/handcock/WPROACM/wiki/Methodology-used-in-WPROACM/", target = "_blank")
                          ),
                          br(),
-                         div(a("WPROACM on GitHub", href="https://github.com/handcock/WPROACM",
+                         div(a("WPRO all-cause-of-mortality and excess death calculator on GitHub", href="https://github.com/handcock/WPROACM",
                                target="_blank")),
                          div(a("Shiny: a web application framework for R", href="http://shiny.rstudio.com/",
                                target="_blank"))
                        ),
                        mainPanel(
-                         h5(tags$u('Help with WPROACM')),
+                         h5(tags$u('Help with the WPRO all-cause-of-mortality and excess death calculator')),
                          p("This app is maintained on GitHub. To request new features or report a bug,",
                            "please interact with the",
                            a("repository", href='https://github.com/handcock/WPROACM',
