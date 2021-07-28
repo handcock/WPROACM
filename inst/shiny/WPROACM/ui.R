@@ -105,16 +105,18 @@ tabPanel(title=span('WPRO all-cause-of-mortality and excess death calculator', i
               h5(tags$u('Resources')),
               div(a("The calculator on GitHub", href="https://github.com/handcock/WPROACM",
                     target="_blank")),
+              div(a("WPRO all-cause mortality dashboard", href="https://lynx.wpro.who.int/viz/allcausedeath.asp",
+                    target="_blank")),
               div(a("Shiny: a web application framework for R", href="http://shiny.rstudio.com/",
                     target="_blank"))
-          ),
-          fluidRow(a(img(src = 'WHO-WPRO_Logo_PMS_2925.png', width = 300),
-             href = 'https://www.who.int/westernpacific/', target = '_blank'),
-             style="margin-left:15px;"),
-          br(),
-          fluidRow(a(img(src = 'UCLADepartmentofStatisticsSmall.png', width = 400),
-             href = 'http://statistics.ucla.edu/', target = '_blank'),
-             style="margin-left:15px;")
+          )
+#         fluidRow(a(img(src = 'WHO-WPRO_Logo_PMS_2925.png', width = 300),
+#            href = 'https://www.who.int/westernpacific/', target = '_blank'),
+#            style="margin-left:15px;"),
+#         br(),
+#         fluidRow(a(img(src = 'UCLADepartmentofStatisticsSmall.png', width = 400),
+#            href = 'http://statistics.ucla.edu/', target = '_blank'),
+#            style="margin-left:15px;")
          )
    )
  ),
@@ -363,6 +365,26 @@ actionLink('dataright', icon=icon('arrow-right', class='fa-2x'), label=NULL)
                   plotOutput('EDplot'),
                   downloadButton("EDplotdownload", label = "Download Excess mortality plot as PDF", class = "btn-sm")
                 ) ),
+            ),
+            tabPanel(
+              "P-score of Excess Mortality Plot", br(),
+              wellPanel(
+                fluidRow(
+                  div(id="barplotbox",
+                      "The excess mortality is displayed here using a bar graph.",
+                      "The height of each bar represents the excess death for that month/week.",
+                      "The lines above and below the end of each bar indicate what the height ",
+                      "of the bar would be using the 95% confidence interval upper bound and lower bound, respectively."),
+                  selectInput("EPgender", "Select Sex", gender_labels),
+               #  selectInput("EPage", "Select Age Group", age_group_labels),
+                  textInput("EPage", "Type in the Age Group (choosing from the list below)", age_group_labels),
+                  p(strong("Pull-down list of Age Groups:")),
+                  uiOutput('EPage'),
+                  checkboxInput('EPcheck_avg', '5-year Average'),
+                  checkboxInput('EPcheck_spline', "Negative Binomial Regression"),
+                  plotOutput('EPplot'),
+                  downloadButton("EPplotdownload", label = "Download Excess mortality plot as PDF", class = "btn-sm")
+                ) ),
             )
           )
         ) ),
@@ -447,10 +469,14 @@ tabPanel(title='Help and Resources', value='tab6',
                              a("About WPRO all-cause-of-mortality and excess death calculator",
                                href = "https://github.com/handcock/WPROACM/wiki",
                                target = "_blank")),
-                         div(title="WPRO dashboard",
-                             a("WPRO dashboard",
-                               href = "https://who.maps.arcgis.com/apps/opsdashboard/index.html#/345dfdc82b5c4f6a815f1d54a05d18e", 
-                               target = "_blank")
+          #              div(title="WPRO dashboard",
+          #                  a("WPRO dashboard",
+          #                    href = "https://who.maps.arcgis.com/apps/opsdashboard/index.html#/345dfdc82b5c4f6a815f1d54a05d18e", 
+          #                    target = "_blank")
+                         div(title="WPRO all-cause mortality dashboard",
+                             a("WPRO all-cause mortality dashboard",
+                               href="https://lynx.wpro.who.int/viz/allcausedeath.asp",
+                               target="_blank")
                          ),
                          div(title=paste("Information on the methodology used",
                                          "in the calculator"),

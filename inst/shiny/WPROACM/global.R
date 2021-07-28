@@ -134,6 +134,7 @@ calculate_spline <- function(src) {
   out$LOWER_LIMIT <- out$NO_DEATHS
   out$UPPER_LIMIT <- out$NO_DEATHS
   out$EXCESS_DEATHS <- out$NO_DEATHS
+  out$P_SCORE <- out$NO_DEATHS
 
   year_predict = sort(unique(out$YEAR))
   nyear_predict = length(year_predict)
@@ -279,6 +280,7 @@ calculate_spline <- function(src) {
   out$WM_IDENTIFIER <- rep(wm_ident)
 
   out[, "EXCESS_DEATHS"] <- out$NO_DEATHS - out$ESTIMATE
+  out[, "P_SCORE"] <- 100*(out$NO_DEATHS - out$ESTIMATE) / out$ESTIMATE
   out[, "EXPECTED"] <- out$ESTIMATE
 
 # names(out)[c(14:15)] <- c("SERIES", "NO_DEATHS")
@@ -293,7 +295,7 @@ calculate_spline <- function(src) {
 
   if (any(out$SERIES == "Unknown series, plz check")) message("Unknown series, plz check")
 
-  out <- out[, c("REGION", "WM_IDENTIFIER", "YEAR", "PERIOD", "SEX", "AGE_GROUP", "SERIES", "NO_DEATHS", "EXPECTED", "LOWER_LIMIT", "UPPER_LIMIT", "EXCESS_DEATHS")]
+  out <- out[, c("REGION", "WM_IDENTIFIER", "YEAR", "PERIOD", "SEX", "AGE_GROUP", "SERIES", "NO_DEATHS", "EXPECTED", "LOWER_LIMIT", "UPPER_LIMIT", "EXCESS_DEATHS", "P_SCORE")]
 
   message("Computation of the expected deaths completed successfully.")
 
@@ -341,6 +343,7 @@ calculate_spline_age <- function(src) {
   out$LOWER_LIMIT <- out$NO_DEATHS
   out$UPPER_LIMIT <- out$NO_DEATHS
   out$EXCESS_DEATHS <- out$NO_DEATHS
+  out$P_SCORE <- out$NO_DEATHS
 
   year_predict = sort(unique(out$YEAR))
   nyear_predict = length(year_predict)
@@ -471,6 +474,7 @@ calculate_spline_age <- function(src) {
   out$WM_IDENTIFIER <- rep(wm_ident)
 
   out[, "EXCESS_DEATHS"] <- out$NO_DEATHS - out$ESTIMATE
+  out[, "P_SCORE"] <- 100*(out$NO_DEATHS - out$ESTIMATE) / out$ESTIMATE
   out[, "EXPECTED"] <- out$ESTIMATE
 
 # names(out)[c(14:15)] <- c("SERIES", "NO_DEATHS")
@@ -486,7 +490,7 @@ calculate_spline_age <- function(src) {
 
   if (any(out$SERIES == "Unknown series, plz check")) message("Unknown series, plz check")
 
-  out <- out[, c("REGION", "WM_IDENTIFIER", "YEAR", "PERIOD", "SEX", "AGE_GROUP", "SERIES", "NO_DEATHS", "EXPECTED", "LOWER_LIMIT", "UPPER_LIMIT", "EXCESS_DEATHS")]
+  out <- out[, c("REGION", "WM_IDENTIFIER", "YEAR", "PERIOD", "SEX", "AGE_GROUP", "SERIES", "NO_DEATHS", "EXPECTED", "LOWER_LIMIT", "UPPER_LIMIT", "EXCESS_DEATHS", "P_SCORE")]
 
   message("Computation of the expected deaths completed successfully.")
 

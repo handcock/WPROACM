@@ -172,6 +172,11 @@ shinyServer(
          choices=output_age() )
      })
 
+     output$EPage <- renderUI({
+       selectizeInput('age_list', label=NULL,
+         choices=output_age() )
+     })
+
 #     output$genderlabels <- renderUI({
 #      if (is.null(input$rawdatafile)) {
 #        genderlabels <- NULL
@@ -249,7 +254,7 @@ shinyServer(
         is.data <- apply(!is.na(as.matrix(ACM_all[len.header:nrow(ACM_all),3:ncol(ACM_all)])),1,sum,na.rm=TRUE)
         is.time <- apply(!is.na(as.matrix(ACM_all[len.header:nrow(ACM_all),3:ncol(ACM_all)])),2,sum,na.rm=TRUE) > 0
         skip <- max(is.data) < 24
-        last.data <- which.max(seq_along(is.time)[is.time])
+        last.data <- which.max(seq_along(is.time)[is.time]) + 2
         year <- max(as.numeric(ACM_all[1,3:last.data]))
         last.year <- match(year+1, ACM_all[1,])-1
         if(is.na(last.year)) last.year <- max.times
@@ -257,7 +262,7 @@ shinyServer(
         mode(a) <- "numeric"
         a <- round(a)
 #       VIP recode missing as 0 
-        a[is.na(a) & col(a) <= last.data] <- 0
+        a[is.na(a) & col(a) <= (last.data-2)] <- 0
         age <- as.data.frame(ACM_all[,1])[seq(len.header,max(len.header,nrow(ACM_all)),by=3),1]
         age <- age[age != ""]
         ACM_var <- data.frame(
@@ -813,6 +818,217 @@ shinyServer(
      }
     )
 
+    output$EPplotdownload <- downloadHandler(
+      filename = function() {
+        paste(Countryname(), "_P-score_plot.pdf", sep = "")
+      },
+      content = function(file) {
+        pdf(file = file, height = 10, width = 10)
+      ACM_var <- output_spline() 
+      validate(
+        need(
+          (input$EDage %in% output_age()),
+          "Please enter an Age Group exactly as it appears from the pull-down list."
+        )
+      )
+      c_data <- ACM_var[ACM_var$SEX == input$EPgender & ACM_var$AGE_GROUP == input$EPage,]
+      if(nrow(c_data) < 2) {
+        if (ACM_var$WM_IDENTIFIER[1] == "Month") {
+          lower <- 100*(ACM_var[ACM_var$SERIES == "Cyclical spline","LOWER_LIMIT"] - ACM_var[ACM_var$SERIES == "Cyclical spline","NO_DEATHS"]) / ACM_var[ACM_var$SERIES == "Cyclical spline","EXPECTED"]
+          upper <- 200*(ACM_var[ACM_var$SERIES == "Cyclical spline","UPPER_LIMIT"] - ACM_var[ACM_var$SERIES == "Cyclical spline","NO_DEATHS"]) / ACM_var[ACM_var$SERIES == "Cyclical spline","EXPECTED"]
+          p <- ACM_var[1:12,] %>%
+            ggplot() +
+            geom_col(aes(x = PERIOD, y = P_SCORE, colour = "P_score_from_expected"),
+                     fill = "indianred", alpha= 0.1) +
+            geom_errorbar(aes(x = PERIOD, y = P_SCORE, ymin = -1*lower[1:12], ymax = -1*upper[1:12]), 
+                          linetype = 1, colour = "indianred") +
+            scale_colour_manual(name="",
+                                values=c(P_score_from_expected="indianred")) +
+            geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
+            scale_x_continuous(name = "Month in 2020 through 2021",
+                               labels = c("JAN", "FEB", "MAR", "APR",
+                                          "MAY", "JUN", "JUL", "AUG",
+                                          "SEP", "OCT", "NOV", "DEC"),
+                               breaks = 1:12) +
+            scale_y_continuous(name = "Monthly P-score of Excess Deaths") +
+            labs(
+              title = paste0("All Cause Mortality for ", input$EPgender, " ", input$EPage, " in ", Countryname(), " during the Pandemic"),
+              subtitle = "There are no data on this Sex and Age Group. This is a plot of the first group in the data."
+            ) +
+            theme_bw()
+        } else {
+          lower <- 100*(ACM_var[ACM_var$SERIES == "Cyclical spline","LOWER_LIMIT"] - ACM_var[ACM_var$SERIES == "Cyclical spline","NO_DEATHS"]) / ACM_var[ACM_var$SERIES == "Cyclical spline","EXPECTED"]
+          upper <- 100*(ACM_var[ACM_var$SERIES == "Cyclical spline","UPPER_LIMIT"] - ACM_var[ACM_var$SERIES == "Cyclical spline","NO_DEATHS"]) / ACM_var[ACM_var$SERIES == "Cyclical spline","EXPECTED"]
+          p <- ACM_var[1:53,] %>%
+            ggplot() +
+            geom_col(aes(x = PERIOD, y = P_SCORE, colour = "P_score_from_expected"),
+                     fill = "indianred", alpha= 0.1) +
+            geom_errorbar(aes(x = PERIOD, y = P_SCORE, ymin = -1*lower[1:53], ymax = -1*upper[1:53]), 
+                          linetype = 1, colour = "indianred") +
+            scale_colour_manual(name="",
+                                values=c(P_score_from_expected="indianred")) +
+            geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
+            scale_x_continuous(name = "Week in 2020 through 2021") +
+            scale_y_continuous(name = "Weekly P-score of Excess Deaths") +
+            labs(
+              title = paste0("All Cause Mortality for ", input$EPgender, " ", input$EPage, " in ", Countryname(), " during the Pandemic"),
+              subtitle = "There are no data on this Sex and Age Group. This is a plot of the first group in the data."
+            ) +
+            theme_bw()
+        }
+        p <- p + theme(plot.subtitle=element_text(size=18, hjust=0.5, face="italic", color="darkred"))    
+        print(p)
+        dev.off()
+      }else{
+      name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month in 2020 through 2021", "Week in 2020 through 2021")
+      # Spline Regression
+      if (input$EPcheck_spline & !input$EPcheck_avg) {
+        c_data_sel <- c_data[c_data$SERIES == "Cyclical spline",]
+        c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
+        last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
+        subtitle <- paste0("P-score of excess deaths in ", bquote(2020), " compared to negative binomial regression on 2015-19")
+        lower <- 100*(c_data_sel[1:last_deaths,"LOWER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]) / c_data_sel[1:last_deaths,"EXPECTED"]
+        upper <- 100*(c_data_sel[1:last_deaths,"UPPER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]) / c_data_sel[1:last_deaths,"EXPECTED"]
+        x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
+        x_labels=paste(x_breaks-53*trunc(x_breaks/53))
+        x_labels <- x_labels[x_breaks <= last_deaths]
+        x_breaks <- x_breaks[x_breaks <= last_deaths]
+        p <- c_data_sel[1:last_deaths,] %>% 
+          ggplot() +
+          geom_col(aes(x = YEARPERIOD, y = P_SCORE, colour = "P_score_from_expected"),
+                   fill = "indianred", alpha= 0.1) +
+          geom_errorbar(aes(x = YEARPERIOD, y = P_SCORE, ymin = -1*lower, ymax = -1*upper), 
+                        linetype = 1, colour = "indianred") +
+          scale_colour_manual(name="",
+                              values=c(P_score_from_expected="indianred")) +
+          geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
+          scale_y_continuous(name = "P-score of Excess Deaths") +
+          labs(
+            title = paste0("P-score of Excess Mortality for ", input$EPgender, " ", input$EPage, " in ", Countryname(), " during the Pandemic"),
+            subtitle = subtitle, size = 12
+          ) +
+          theme_bw() + 
+          if(name_PERIOD == "Month in 2020 through 2021"){
+            scale_x_continuous(name = name_PERIOD, 
+                               labels = rep(c("JAN", "FEB", "MAR", "APR",
+                                              "MAY", "JUN", "JUL", "AUG",
+                                              "SEP", "OCT", "NOV", "DEC"),2)[1:last_deaths],
+                               breaks = 1:last_deaths)
+          } else {
+            scale_x_continuous(name = name_PERIOD, breaks=x_breaks,labels=x_labels)
+          }
+      }
+      
+      # historical average
+      if (input$EPcheck_avg & !input$EPcheck_spline) {
+        c_data_sel <- c_data[c_data$SERIES == "Historical average",]
+        c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
+        last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
+        subtitle <- paste0("P-score of excess deaths in ", bquote(2020), " compared to historical average on 2015-19")
+        lower <- 100*(c_data_sel[1:last_deaths,"LOWER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]) / c_data_sel[1:last_deaths,"EXPECTED"]
+        upper <- 100*(c_data_sel[1:last_deaths,"UPPER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]) / c_data_sel[1:last_deaths,"EXPECTED"]
+        x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
+        x_labels=paste(x_breaks-53*trunc(x_breaks/53))
+        x_labels <- x_labels[x_breaks <= last_deaths]
+        x_breaks <- x_breaks[x_breaks <= last_deaths]
+        p <- c_data_sel[1:last_deaths,] %>%
+          ggplot() +
+          geom_col(aes(x = YEARPERIOD, y = P_SCORE, colour = "P_score_from_average"),
+                   fill = "cyan2", alpha= 0.1) +
+          geom_errorbar(aes(x = YEARPERIOD, y = P_SCORE, ymin = -1*lower, ymax = -1*upper), 
+                        linetype = 1, colour = "cyan2") +
+          scale_colour_manual(name="",
+                              values=c(P_score_from_average="cyan2")) +
+          geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
+          scale_y_continuous(name = "P-score of Excess Deaths") +
+          labs(
+            title = paste0("P-score of Excess Mortality for ", input$EPgender, " ", input$EPage, " in ", Countryname(), " during the Pandemic"),
+            subtitle = subtitle, size = 12
+          ) +
+          theme_bw() + 
+          if(name_PERIOD == "Month in 2020 through 2021"){
+            scale_x_continuous(name = name_PERIOD, 
+                               labels = rep(c("JAN", "FEB", "MAR", "APR",
+                                              "MAY", "JUN", "JUL", "AUG",
+                                              "SEP", "OCT", "NOV", "DEC"),3)[1:last_deaths],
+                               breaks = 1:last_deaths)
+          } else {
+            scale_x_continuous(name = name_PERIOD, breaks=x_breaks,labels=x_labels)
+          }
+      }
+      
+      # Both neg binom and hist avg
+      if (input$EPcheck_avg & input$EPcheck_spline) {
+        subtitle <- paste0("P-score of excess deaths in 2020 compared to negative binomial regression and historical average on 2015-19")
+        last_deaths <- nrow(c_data)/2- which.max(!is.na(rev(c_data[1:(nrow(c_data)/2),"NO_DEATHS"]))) + 1
+        c_data_sel <- c_data[c(1:last_deaths,(nrow(c_data)/2 + (1:last_deaths))),]
+        c_data_sel$YEARPERIOD <- rep(1:last_deaths,2)
+        x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
+        x_labels=paste(x_breaks-53*trunc(x_breaks/53))
+        x_labels <- x_labels[x_breaks <= last_deaths]
+        x_breaks <- x_breaks[x_breaks <= last_deaths]
+        p <- c_data_sel %>%
+          ggplot() +
+          geom_col(aes(x = YEARPERIOD, y = P_SCORE, group = SERIES, colour = SERIES),
+                   fill = c(rep("indianred", nrow(c_data_sel)/2 ),
+                            rep("cyan2", nrow(c_data_sel)/2) ), 
+                   position = "dodge", alpha = 0.1) +
+          scale_colour_manual(name= "", values=c("indianred", "cyan2"),
+                              labels = c("P-score of excess from expected", "P-score of excess from average")) + 
+          geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
+          scale_y_continuous(name = "P-score of Excess Deaths") +
+          labs(
+            title = paste0("P-score of Excess Mortality for ", input$EPgender, " ", input$EPage, "  in ", Countryname(), " during the Pandemic"),
+            subtitle = subtitle, size = 12
+          ) +
+          theme_bw() + 
+          if(name_PERIOD == "Month in 2020 through 2021"){
+            scale_x_continuous(name = name_PERIOD, 
+                               labels = rep(c("JAN", "FEB", "MAR", "APR",
+                                              "MAY", "JUN", "JUL", "AUG",
+                                              "SEP", "OCT", "NOV", "DEC"),3)[1:last_deaths],
+                               breaks = 1:last_deaths)
+          } else {
+            scale_x_continuous(name = name_PERIOD, breaks=x_breaks,labels=x_labels)
+          }
+      }
+      
+      #neither box checked, just show actual
+      if (!input$EPcheck_avg & !input$EPcheck_spline){
+        c_data_sel <- c_data[c_data$SERIES == "Cyclical spline",]
+        last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
+        subtitle = paste0("recorded deaths in 2020")
+        c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
+        x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
+        x_labels=paste(x_breaks-53*trunc(x_breaks/53))
+        x_labels <- x_labels[x_breaks <= last_deaths]
+        x_breaks <- x_breaks[x_breaks <= last_deaths]
+        p <- c_data_sel[1:last_deaths,] %>% 
+          ggplot() +
+          geom_line(aes(x = YEARPERIOD, y = NO_DEATHS), colour = "black") +
+          geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
+          scale_y_continuous(name = "All Cause Deaths") +
+          labs(
+            title = paste0("All Cause Mortality for ", input$EPgender, " ", input$EPage, " in ", Countryname(), " during the Pandemic"),
+            subtitle = subtitle, size = 12
+          ) +
+          theme_bw() + 
+          if(name_PERIOD == "Month in 2020 through 2021"){
+            scale_x_continuous(name = name_PERIOD, 
+                               labels = rep(c("JAN", "FEB", "MAR", "APR",
+                                              "MAY", "JUN", "JUL", "AUG",
+                                              "SEP", "OCT", "NOV", "DEC"),3)[1:last_deaths],
+                               breaks = 1:last_deaths)
+          } else {
+            scale_x_continuous(name = name_PERIOD, breaks=x_breaks,labels=x_labels)
+          }
+      }
+        print(p)
+        dev.off()
+      }
+     }
+    )
+
     ## Data Descriptives (Plots) ------------------------------------------------------
 
     # Output Expressions -------------------------------------------------------
@@ -1341,6 +1557,216 @@ shinyServer(
           scale_y_continuous(name = "All Cause Deaths") +
           labs(
             title = paste0("All Cause Mortality for ",input$EDgender, " ", input$EDage, " in ", Countryname(), " during the Pandemic"),
+            subtitle = subtitle, size = 12
+          ) +
+          theme_bw() + 
+          if(name_PERIOD == "Month in 2020 through 2021"){
+            scale_x_continuous(name = name_PERIOD, 
+                               labels = rep(c("JAN", "FEB", "MAR", "APR",
+                                              "MAY", "JUN", "JUL", "AUG",
+                                              "SEP", "OCT", "NOV", "DEC"),3)[1:last_deaths],
+                               breaks = 1:last_deaths)
+          } else {
+            scale_x_continuous(name = name_PERIOD, breaks=x_breaks,labels=x_labels)
+          }
+      }
+      p
+    })
+
+    output$EPplot <- renderPlot({
+      ACM_var <- output_spline() 
+      validate(
+        need(
+          (input$EDage %in% output_age()),
+          "Please enter an Age Group exactly as it appears from the pull-down list."
+        )
+      )
+      c_data <- ACM_var[ACM_var$SEX == input$EPgender & ACM_var$AGE_GROUP == input$EPage,]
+      if(nrow(c_data) < 2) {
+        if (ACM_var$WM_IDENTIFIER[1] == "Month") {
+          lower <- 100*(ACM_var[ACM_var$SERIES == "Cyclical spline","LOWER_LIMIT"] - ACM_var[ACM_var$SERIES == "Cyclical spline","NO_DEATHS"]) / ACM_var[ACM_var$SERIES == "Cyclical spline","EXPECTED"]
+          upper <- 200*(ACM_var[ACM_var$SERIES == "Cyclical spline","UPPER_LIMIT"] - ACM_var[ACM_var$SERIES == "Cyclical spline","NO_DEATHS"]) / ACM_var[ACM_var$SERIES == "Cyclical spline","EXPECTED"]
+          p <- ACM_var[1:12,] %>%
+            ggplot() +
+            geom_col(aes(x = PERIOD, y = P_SCORE, colour = "P_score_from_expected"),
+                     fill = "indianred", alpha= 0.1) +
+            geom_errorbar(aes(x = PERIOD, y = P_SCORE, ymin = -1*lower[1:12], ymax = -1*upper[1:12]), 
+                          linetype = 1, colour = "indianred") +
+            scale_colour_manual(name="",
+                                values=c(P_score_from_expected="indianred")) +
+            geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
+            scale_x_continuous(name = "Month in 2020 through 2021",
+                               labels = c("JAN", "FEB", "MAR", "APR",
+                                          "MAY", "JUN", "JUL", "AUG",
+                                          "SEP", "OCT", "NOV", "DEC"),
+                               breaks = 1:12) +
+            scale_y_continuous(name = "Monthly P-score of Excess Deaths") +
+            labs(
+              title = paste0("All Cause Mortality for ",input$EPgender, " ", input$EPage, " in ", Countryname(), " during the Pandemic"),
+              subtitle = "There are no data on this Sex and Age Group. This is a plot of the first group in the data."
+            ) +
+            theme_bw()
+        } else {
+          lower <- 100*(ACM_var[ACM_var$SERIES == "Cyclical spline","LOWER_LIMIT"] - ACM_var[ACM_var$SERIES == "Cyclical spline","NO_DEATHS"]) / ACM_var[ACM_var$SERIES == "Cyclical spline","EXPECTED"]
+          upper <- 100*(ACM_var[ACM_var$SERIES == "Cyclical spline","UPPER_LIMIT"] - ACM_var[ACM_var$SERIES == "Cyclical spline","NO_DEATHS"]) / ACM_var[ACM_var$SERIES == "Cyclical spline","EXPECTED"]
+          p <- ACM_var[1:53,] %>%
+            ggplot() +
+            #geom_line(aes(x = PERIOD, y = EXPECTED), colour = "indianred") +
+            #geom_ribbon(aes(x = PERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
+            #geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
+            geom_col(aes(x = PERIOD, y = P_SCORE, colour = "P_score_from_expected"),
+                     fill = "indianred", alpha= 0.1) +
+            geom_errorbar(aes(x = PERIOD, y = P_SCORE, ymin = -1*lower[1:53], ymax = -1*upper[1:53]), 
+                          linetype = 1, colour = "indianred") +
+            scale_colour_manual(name="",
+                                values=c(P_score_from_expected="indianred")) +
+            geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
+            scale_x_continuous(name = "Week in 2020 through 2021") +
+            scale_y_continuous(name = "Weekly P-score of Excess Deaths") +
+            labs(
+              title = paste0("All Cause Mortality for ",input$EPgender, " ", input$EPage, " in ", Countryname(), " during the Pandemic"),
+              subtitle = "There are no data on this Sex and Age Group. This is a plot of the first group in the data."
+            ) +
+            theme_bw()
+        }
+        p <- p + theme(plot.subtitle=element_text(size=18, hjust=0.5, face="italic", color="darkred"))    
+        return(p)
+      }
+      name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month in 2020 through 2021", "Week in 2020 through 2021")
+      # Spline Regression
+      if (input$EPcheck_spline & !input$EPcheck_avg) {
+        c_data_sel <- c_data[c_data$SERIES == "Cyclical spline",]
+        c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
+        last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
+        subtitle <- paste0("P-score of excess deaths in ", bquote(2020), " compared to negative binomial regression on 2015-19")
+        lower <- 100*(c_data_sel[1:last_deaths,"LOWER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]) / c_data_sel[1:last_deaths,"EXPECTED"]
+        upper <- 100*(c_data_sel[1:last_deaths,"UPPER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]) / c_data_sel[1:last_deaths,"EXPECTED"]
+        x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
+        x_labels=paste(x_breaks-53*trunc(x_breaks/53))
+        x_labels <- x_labels[x_breaks <= last_deaths]
+        x_breaks <- x_breaks[x_breaks <= last_deaths]
+        p <- c_data_sel[1:last_deaths,] %>%
+          ggplot() +
+          #geom_ribbon(aes(x = PERIOD, y = P_SCORE, ymin = -1*lower, ymax = -1*upper), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
+          #geom_line(aes(x = PERIOD, y = P_SCORE, colour = "P_score_from_expected")) +
+          geom_col(aes(x = YEARPERIOD, y = P_SCORE, colour = "P_score_from_expected"),
+                   fill = "indianred", alpha= 0.1) +
+          geom_errorbar(aes(x = YEARPERIOD, y = P_SCORE, ymin = -1*lower, ymax = -1*upper), 
+                        linetype = 1, colour = "indianred") +
+          scale_colour_manual(name="",
+                              values=c(P_score_from_expected="indianred")) +
+          geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
+          scale_y_continuous(name = "P-score of Excess Deaths") +
+          labs(
+            title = paste0("P-score of Excess Mortality for ",input$EPgender, " ", input$EPage, " in ", Countryname(), " during the Pandemic"),
+            subtitle = subtitle, size = 12
+          ) +
+          theme_bw() + 
+          if(name_PERIOD == "Month in 2020 through 2021"){
+            scale_x_continuous(name = name_PERIOD, 
+                               labels = rep(c("JAN", "FEB", "MAR", "APR",
+                                              "MAY", "JUN", "JUL", "AUG",
+                                              "SEP", "OCT", "NOV", "DEC"),3)[1:last_deaths],
+                               breaks = 1:last_deaths)
+          } else {
+            scale_x_continuous(name = name_PERIOD, breaks=x_breaks,labels=x_labels)
+          }
+      }
+      
+      # historical average
+      if (input$EPcheck_avg & !input$EPcheck_spline) {
+        c_data_sel <- c_data[c_data$SERIES == "Historical average",]
+        c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
+        last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
+        subtitle <- paste0("P-score of excess deaths in ", bquote(2020), " compared to historical average on 2015-19")
+        lower <- 100*(c_data_sel[1:last_deaths,"LOWER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]) / c_data_sel[1:last_deaths,"EXPECTED"]
+        upper <- 100*(c_data_sel[1:last_deaths,"UPPER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]) / c_data_sel[1:last_deaths,"EXPECTED"]
+        x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
+        x_labels=paste(x_breaks-53*trunc(x_breaks/53))
+        x_labels <- x_labels[x_breaks <= last_deaths]
+        x_breaks <- x_breaks[x_breaks <= last_deaths]
+        p <- c_data_sel[1:last_deaths,] %>%
+          ggplot() +
+          #geom_ribbon(aes(x = PERIOD, y = P_SCORE, ymin = -1*lower, ymax = -1*upper), linetype = 2, alpha = 0.1, fill = "cyan2", colour = "cyan2") +
+          #geom_line(aes(x = PERIOD, y = P_SCORE, colour = "P_score_from_average")) +
+          geom_col(aes(x = YEARPERIOD, y = P_SCORE, colour = "P_score_from_average"),
+                   fill = "cyan2", alpha= 0.1) +
+          geom_errorbar(aes(x = YEARPERIOD, y = P_SCORE, ymin = -1*lower, ymax = -1*upper), 
+                        linetype = 1, colour = "cyan2") +
+          scale_colour_manual(name="",
+                              values=c(P_score_from_average="cyan2")) +
+          geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
+          scale_y_continuous(name = "P-score of Excess Deaths") +
+          labs(
+            title = paste0("P-score of Excess Mortality for ",input$EPgender, " ", input$EPage, " in ", Countryname(), " during the Pandemic"),
+            subtitle = subtitle, size = 12
+          ) +
+          theme_bw() + 
+          if(name_PERIOD == "Month in 2020 through 2021"){
+            scale_x_continuous(name = name_PERIOD, 
+                               labels = rep(c("JAN", "FEB", "MAR", "APR",
+                                              "MAY", "JUN", "JUL", "AUG",
+                                              "SEP", "OCT", "NOV", "DEC"),3)[1:last_deaths],
+                               breaks = 1:last_deaths)
+          } else {
+            scale_x_continuous(name = name_PERIOD, breaks=x_breaks,labels=x_labels)
+          }
+      }
+      
+      # Both neg binom and hist avg
+      if (input$EPcheck_avg & input$EPcheck_spline) {
+        subtitle <- paste0("P-score of excess deaths in 2020 compared to negative binomial regression and historical average on 2015-19")
+        last_deaths <- nrow(c_data)/2- which.max(!is.na(rev(c_data[1:(nrow(c_data)/2),"NO_DEATHS"]))) + 1
+        c_data_sel <- c_data[c(1:last_deaths,(nrow(c_data)/2 + (1:last_deaths))),]
+        c_data_sel$YEARPERIOD <- rep(1:last_deaths,2)
+        x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
+        x_labels=paste(x_breaks-53*trunc(x_breaks/53))
+        x_labels <- x_labels[x_breaks <= last_deaths]
+        x_breaks <- x_breaks[x_breaks <= last_deaths]
+        p <- c_data_sel %>%
+          ggplot() +
+          #geom_line(aes(x = PERIOD, y = P_SCORE, group = SERIES, colour = SERIES)) +
+          geom_col(aes(x = YEARPERIOD, y = P_SCORE, group = SERIES, colour = SERIES),
+                       fill = c(rep("indianred", nrow(c_data_sel)/2 ),
+                                rep("cyan2", nrow(c_data_sel)/2) ), 
+                   position = "dodge", alpha = 0.1) +
+          scale_colour_manual(name= "", values=c("indianred", "cyan2"),
+                              labels = c("P-score of excess from expected", "P-score of excess from average")) + 
+          geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
+          scale_y_continuous(name = "P-score of Excess Deaths") +
+          labs(
+            title = paste0("P-score of Excess Mortality for ",input$EPgender, " ", input$EPage, " in ", Countryname(), " during the Pandemic"),
+            subtitle = subtitle, size = 12
+          ) +
+          theme_bw() + 
+          if(name_PERIOD == "Month in 2020 through 2021"){
+            scale_x_continuous(name = name_PERIOD, 
+                               labels = rep(c("JAN", "FEB", "MAR", "APR",
+                                              "MAY", "JUN", "JUL", "AUG",
+                                              "SEP", "OCT", "NOV", "DEC"),3)[1:last_deaths],
+                               breaks = 1:last_deaths)
+          } else {
+            scale_x_continuous(name = name_PERIOD, breaks=x_breaks,labels=x_labels)
+          }
+      }
+      
+      #neither box checked, just show actual
+      if (!input$EPcheck_avg & !input$EPcheck_spline){
+        c_data_sel <- c_data[c_data$SERIES == "Cyclical spline",]
+        last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
+        subtitle = paste0("recorded deaths in 2020")
+        c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
+        x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
+        x_labels=paste(x_breaks-53*trunc(x_breaks/53))
+        x_labels <- x_labels[x_breaks <= last_deaths]
+        x_breaks <- x_breaks[x_breaks <= last_deaths]
+        p <- c_data_sel[1:last_deaths,] %>% 
+          ggplot() +
+          geom_line(aes(x = YEARPERIOD, y = NO_DEATHS), colour = "black") +
+          geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
+          scale_y_continuous(name = "All Cause Deaths") +
+          labs(
+            title = paste0("All Cause Mortality for ",input$EPgender, " ", input$EPage, " in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
           ) +
           theme_bw() + 
