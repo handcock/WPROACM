@@ -162,19 +162,24 @@ shinyServer(
            choices=c("Choose a region" = '', sheets ))
      })
 
+   # output$age <- renderUI({
+   #   selectizeInput('age_list', label=NULL,
+   #     choices=output_age() )
+   # })
+
      output$age <- renderUI({
-       selectizeInput('age_list', label=NULL,
-         choices=output_age() )
+       oage <- output_age()
+       selectInput('age', 'Select Age Group', oage )
      })
 
      output$EDage <- renderUI({
-       selectizeInput('age_list', label=NULL,
-         choices=output_age() )
+       oage <- output_age()
+       selectInput('EDage', 'Select Age Group', oage )
      })
 
      output$EPage <- renderUI({
-       selectizeInput('age_list', label=NULL,
-         choices=output_age() )
+       oage <- output_age()
+       selectInput('EPage', 'Select Age Group', oage )
      })
 
 #     output$genderlabels <- renderUI({
