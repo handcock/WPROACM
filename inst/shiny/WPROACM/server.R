@@ -332,6 +332,8 @@ shinyServer(
       src <- ACMinit()
       src_total <- src[src$SEX %in% c("Female","Male","Total") & src$AGE_GROUP=="Total",] 
       src_age   <- src[src$SEX %in% c("Female","Male","Total") & src$AGE_GROUP!="Total",] 
+      if(all(is.na(src_total))) src_total <- matrix(0,nrow=0,ncol=0)
+      if(all(is.na(src_age))) src_age <- matrix(0,nrow=0,ncol=0)
       if(nrow(src_age) > 0 & nrow(src_total) > 0){
         src <- rbind(calculate_spline(src_total), calculate_spline(src_age))
       }else{if(nrow(src_total) > 0){
@@ -422,7 +424,7 @@ shinyServer(
         )
         c_data <- ACM_var[ACM_var$SEX == input$gender & ACM_var$AGE_GROUP == input$age,]
         caption <- ""
-        if(attr(ACM_var,"num_deaths") < 60){
+        if(attr(ACM_var,"num_deaths") < 4.5){
           caption <- paste0("WARNING: The model is based on less than 5 years of historical data (",
             attr(ACM_var,"num_deaths"), " months). The statistical uncertainty may be high.")
         }
@@ -634,7 +636,7 @@ shinyServer(
       )
       c_data <- ACM_var[ACM_var$SEX == input$EDgender & ACM_var$AGE_GROUP == input$EDage,]
       caption <- ""
-      if(attr(ACM_var,"num_deaths") < 60){
+      if(attr(ACM_var,"num_deaths") < 4.5){
         caption <- paste0("WARNING: The model is based on less than 5 years of historical data (",
           attr(ACM_var,"num_deaths"), " months). The statistical uncertainty may be high.")
       }
@@ -881,7 +883,7 @@ shinyServer(
       )
       c_data <- ACM_var[ACM_var$SEX == input$EPgender & ACM_var$AGE_GROUP == input$EPage,]
       caption <- ""
-      if(attr(ACM_var,"num_deaths") < 60){
+      if(attr(ACM_var,"num_deaths") < 4.5){
         caption <- paste0("WARNING: The model is based on less than 5 years of historical data (",
           attr(ACM_var,"num_deaths"), " months). The statistical uncertainty may be high.")
       }
@@ -1253,7 +1255,7 @@ from 2015-19")
       )
       c_data <- ACM_var[ACM_var$SEX == input$gender & ACM_var$AGE_GROUP == input$age,]
       caption <- ""
-      if(attr(ACM_var,"num_deaths") < 60){
+      if(attr(ACM_var,"num_deaths") < 4.5){
         caption <- paste0("WARNING: The model is based on less than 5 years of historical data (",
           attr(ACM_var,"num_deaths"), " months). The statistical uncertainty may be high.")
       }
@@ -1457,7 +1459,7 @@ from 2015-19")
       )
       c_data <- ACM_var[ACM_var$SEX == input$EDgender & ACM_var$AGE_GROUP == input$EDage,]
       caption <- ""
-      if(attr(ACM_var,"num_deaths") < 60){
+      if(attr(ACM_var,"num_deaths") < 4.5){
         caption <- paste0("WARNING: The model is based on less than 5 years of historical data (",
           attr(ACM_var,"num_deaths"), " months). The statistical uncertainty may be high.")
       }
@@ -1695,7 +1697,7 @@ from 2015-19")
       )
       c_data <- ACM_var[ACM_var$SEX == input$EPgender & ACM_var$AGE_GROUP == input$EPage,]
       caption <- ""
-      if(attr(ACM_var,"num_deaths") < 60){
+      if(attr(ACM_var,"num_deaths") < 4.5){
         caption <- paste0("WARNING: The model is based on less than 5 years of historical data (",
           attr(ACM_var,"num_deaths"), " months). The statistical uncertainty may be high.")
       }

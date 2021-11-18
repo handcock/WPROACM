@@ -299,7 +299,7 @@ calculate_spline <- function(src) {
 
   message("Computation of the expected deaths completed successfully.")
 
-  attr(out, "num_deaths") <- sum(!is.na(hist_src$NO_DEATHS))
+  attr(out, "num_deaths") <- sum(!is.na(hist_src$NO_DEATHS)) / l_period
 
   return(out)
 }
@@ -496,7 +496,7 @@ calculate_spline_age <- function(src) {
 
   message("Computation of the expected deaths completed successfully.")
 
-  attr(out, "num_deaths") <- sum(!is.na(hist_src$NO_DEATHS))
+  attr(out, "num_deaths") <- sum(!is.na(hist_src$NO_DEATHS)) / l_period
   return(out)
 }
 
