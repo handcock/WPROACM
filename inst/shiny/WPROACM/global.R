@@ -183,7 +183,7 @@ calculate_spline <- function(src) {
 
     ave_deaths <- as.numeric(tapply(hist_src$NO_DEATHS,hist_src$PERIOD,mean,na.rm=TRUE))
     var_deaths <- as.numeric(tapply(hist_src$NO_DEATHS,hist_src$PERIOD,var,na.rm=TRUE))
-    num_deaths <- as.numeric(tapply(hist_src$NO_DEATHS,hist_src$PERIOD,length))
+    num_deaths <- as.numeric(tapply(hist_src$NO_DEATHS,hist_src$PERIOD,function(x){sum(!is.na(x))}))
     ave_deaths <- rep(ave_deaths,nyear_predict+5)
     var_deaths <- rep(var_deaths,nyear_predict+5)
     num_deaths <- rep(num_deaths,nyear_predict+5)
@@ -299,6 +299,8 @@ calculate_spline <- function(src) {
 
   message("Computation of the expected deaths completed successfully.")
 
+  attr(out, "num_deaths") <- sum(!is.na(hist_src$NO_DEATHS))
+
   return(out)
 }
 
@@ -412,7 +414,7 @@ calculate_spline_age <- function(src) {
 
     ave_deaths <- as.numeric(tapply(hist_src$NO_DEATHS,hist_src$PERIOD,mean,na.rm=TRUE))
     var_deaths <- as.numeric(tapply(hist_src$NO_DEATHS,hist_src$PERIOD,var,na.rm=TRUE))
-    num_deaths <- as.numeric(tapply(hist_src$NO_DEATHS,hist_src$PERIOD,length))
+    num_deaths <- as.numeric(tapply(hist_src$NO_DEATHS,hist_src$PERIOD,function(x){sum(!is.na(x))}))
     ave_deaths <- rep(ave_deaths,nyear_predict+5)
     var_deaths <- rep(var_deaths,nyear_predict+5)
     num_deaths <- rep(num_deaths,nyear_predict+5)
@@ -494,6 +496,7 @@ calculate_spline_age <- function(src) {
 
   message("Computation of the expected deaths completed successfully.")
 
+  attr(out, "num_deaths") <- sum(!is.na(hist_src$NO_DEATHS))
   return(out)
 }
 

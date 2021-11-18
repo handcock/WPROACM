@@ -387,7 +387,7 @@ actionLink('dataright', icon=icon('arrow-right', class='fa-2x'), label=NULL)
                   checkboxInput('EPcheck_spline', "Negative Binomial Regression"),
                   plotOutput('EPplot'),
                   downloadButton("EPplotdownload", label = "Download Excess mortality plot as PDF", class = "btn-sm")
-                ) ),
+                ) )
             )
           )
         ) ),

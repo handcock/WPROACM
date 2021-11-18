@@ -115,7 +115,7 @@ shinyServer(
             len.header <- 5
           }
           is.data <- apply(!is.na(as.matrix(ACM_all[len.header:nrow(ACM_all),3:ncol(ACM_all)])),1,sum)
-          skip <- max(is.data) < 24
+          skip <- max(is.data) < 12
           if(!skip){
             sheets <- c(sheets, ACM_sheets[i])
           }
@@ -150,7 +150,7 @@ shinyServer(
                len.header <- 5
               }
               is.data <- apply(!is.na(as.matrix(ACM_all[len.header:nrow(ACM_all),3:ncol(ACM_all)])),1,sum)
-              skip <- max(is.data) < 24
+              skip <- max(is.data) < 12
               if(!skip){
                sheets <- c(sheets, ACM_sheets[i])
               }
@@ -202,12 +202,12 @@ shinyServer(
 #          max.types <- dim(ACM_all)[1]
 #          max.times <- dim(ACM_all)[2]
 #          is.data <- apply(!is.na(as.matrix(ACM_all[5:nrow(ACM_all),3:ncol(ACM_all)])),1,sum)
-#          skip <- max(is.data) < 24
-#          a <- as.matrix(ACM_all[5:nrow(ACM_all),3:ncol(ACM_all)])[is.data > 24,]
+#          skip <- max(is.data) < 12
+#          a <- as.matrix(ACM_all[5:nrow(ACM_all),3:ncol(ACM_all)])[is.data > 12,]
 #          mode(a) <- "numeric"
 #          a <- round(a)
 #          age <- as.data.frame(ACM_all[,1])[seq(5,nrow(a)+2,by=3),1]
-#          sex <- as.data.frame(ACM_all[5:nrow(ACM_all), 2])[is.data > 24,]
+#          sex <- as.data.frame(ACM_all[5:nrow(ACM_all), 2])[is.data > 12,]
 #          genderlabels <- sort(unique(age))
 #       }
 #       selectizeInput('gender', label=NULL,
@@ -258,22 +258,23 @@ shinyServer(
         max.times <- dim(ACM_all)[2]
         is.data <- apply(!is.na(as.matrix(ACM_all[len.header:nrow(ACM_all),3:ncol(ACM_all)])),1,sum,na.rm=TRUE)
         is.time <- apply(!is.na(as.matrix(ACM_all[len.header:nrow(ACM_all),3:ncol(ACM_all)])),2,sum,na.rm=TRUE) > 0
-        skip <- max(is.data) < 24
-        last.data <- which.max(seq_along(is.time)[is.time]) + 2
+        skip <- max(is.data) < 12
+      # last.data <- which.max(seq_along(is.time)[is.time]) + 2
+        last.data <- which.max(cumsum(is.time))+3
         year <- max(as.numeric(ACM_all[1,3:last.data]))
         last.year <- match(year+1, ACM_all[1,])-1
         if(is.na(last.year)) last.year <- max.times
-        a <- as.matrix(ACM_all[len.header:nrow(ACM_all),3:last.year])[is.data > 24,,drop=FALSE]
+        a <- as.matrix(ACM_all[len.header:nrow(ACM_all),3:last.year])[is.data > 12,,drop=FALSE]
         mode(a) <- "numeric"
         a <- round(a)
 #       VIP recode missing as 0 
-        a[is.na(a) & col(a) <= (last.data-2)] <- 0
+      # a[is.na(a) & col(a) <= (last.data-2)] <- 0
         age <- as.data.frame(ACM_all[,1])[seq(len.header,max(len.header,nrow(ACM_all)),by=3),1]
         age <- age[age != ""]
         ACM_var <- data.frame(
                REGION=rep(input$chosesheet,length(a)),
-               AGE_GROUP=rep(rep(age,rep(3,length(age)))[is.data > 24],rep(ncol(a),3*length(age))[is.data > 24])[1:length(a)],
-               SEX=rep(as.data.frame(ACM_all[len.header:nrow(ACM_all), 2])[is.data > 24,],rep(ncol(a),nrow(a))),
+               AGE_GROUP=rep(rep(age,rep(3,length(age)))[is.data > 12],rep(ncol(a),3*length(age))[is.data > 12])[1:length(a)],
+               SEX=rep(as.data.frame(ACM_all[len.header:nrow(ACM_all), 2])[is.data > 12,],rep(ncol(a),nrow(a))),
                YEAR=rep(as.numeric(ACM_all[1, 3:last.year]),nrow(a)),
                DAYS=rep(as.numeric(ACM_all[3, 3:last.year]),nrow(a)),
                PERIOD=rep(as.numeric(ACM_all[ifelse(len.header==6,5,3), 3:last.year]),nrow(a)),
@@ -303,12 +304,12 @@ shinyServer(
 #          max.types <- dim(ACM_all)[1]
 #          max.times <- dim(ACM_all)[2]
 #          is.data <- apply(!is.na(as.matrix(ACM_all[5:nrow(ACM_all),3:ncol(ACM_all)])),1,sum)
-#          skip <- max(is.data) < 24
-#          a <- as.matrix(ACM_all[5:nrow(ACM_all),3:ncol(ACM_all)])[is.data > 24,]
+#          skip <- max(is.data) < 12
+#          a <- as.matrix(ACM_all[5:nrow(ACM_all),3:ncol(ACM_all)])[is.data > 12,]
 #          mode(a) <- "numeric"
 #          a <- round(a)
 #          age <- as.data.frame(ACM_all[,1])[seq(5,nrow(a)+2,by=3),1]
-#          sex <- as.data.frame(ACM_all[5:nrow(ACM_all), 2])[is.data > 24,]
+#          sex <- as.data.frame(ACM_all[5:nrow(ACM_all), 2])[is.data > 12,]
 #          genderlabels <- sort(unique(age))
 #       }
 #       selectizeInput('gender', label=NULL,
@@ -416,10 +417,15 @@ shinyServer(
         validate(
           need(
              (input$age %in% output_age()),
-            "Please enter an Age Group exactly as it appears from the pull-down list."
+            "Please select an Age Group from the above pull-down list."
           )
         )
         c_data <- ACM_var[ACM_var$SEX == input$gender & ACM_var$AGE_GROUP == input$age,]
+        caption <- ""
+        if(attr(ACM_var,"num_deaths") < 60){
+          caption <- paste0("WARNING: The model is based on less than 5 years of historical data (",
+            attr(ACM_var,"num_deaths"), " months). The statistical uncertainty may be high.")
+        }
         if(nrow(c_data) < 2) {
           if (ACM_var$WM_IDENTIFIER[1] == "Month") {
             p <- ACM_var[1:12,] %>%
@@ -466,7 +472,7 @@ shinyServer(
         c_data_sel <- c_data[c_data$SERIES == "Cyclical spline",]
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
-        subtitle <- paste0("deaths in ", bquote(2020), " compared to negative binomial regression on 2015-19")
+        subtitle <- paste0("deaths from ", bquote(2020), " compared to negative binomial regression on available data from available data from 2015-19")
         x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
         x_labels=paste(x_breaks-53*trunc(x_breaks/53))
         x_labels <- x_labels[x_breaks <= last_deaths]
@@ -481,9 +487,13 @@ shinyServer(
           scale_y_continuous(name = "Deaths") + #, limits = c(0, NA)) +
           labs(
             title = paste0("All Cause Mortality for ", input$gender, " ", input$age, " in ", Countryname(), " during the Pandemic"),
-            subtitle = subtitle, size = 12
+            subtitle = subtitle, size = 12, caption=caption
           ) +
-          theme_bw() + 
+          theme(
+            plot.title = element_text(color = "black", size = 14, face = "bold"),
+            plot.subtitle = element_text(color = "blue"),
+            plot.caption = element_text(color = "red", face = "italic", size=12) 
+               ) +
           if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
@@ -497,7 +507,7 @@ shinyServer(
       
       # historical average
       if (input$check_avg & !input$check_spline) {
-        subtitle <- paste0("deaths in ", bquote(2020), " compared to historical average on 2015-19")
+        subtitle <- paste0("deaths from ", bquote(2020), " compared to historical average on available data from 2015-19")
         c_data_sel <- c_data[c_data$SERIES == "Historical average",]
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
@@ -515,9 +525,13 @@ shinyServer(
           scale_y_continuous(name = "Deaths") + #, limits = c(0, NA)) +
           labs(
             title = paste0("All Cause Mortality for ", input$gender, " ", input$age, " in ", Countryname(), " during the Pandemic"),
-            subtitle = subtitle, size = 12
+            subtitle = subtitle, size = 12, caption=caption
           ) +
-          theme_bw() + 
+          theme(
+            plot.title = element_text(color = "black", size = 14, face = "bold"),
+            plot.subtitle = element_text(color = "blue"),
+            plot.caption = element_text(color = "red", face = "italic", size=12) 
+          ) +
           if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
@@ -531,7 +545,7 @@ shinyServer(
       
       # Both neg binom and hist avg
       if (input$check_avg & input$check_spline) {
-        subtitle <- paste0("deaths in 2020 compared to negative binomial regression and historical average on 2015-19")
+        subtitle <- paste0("deaths from 2020 compared to negative binomial regression and historical average on available data from 2015-19")
         last_deaths <- nrow(c_data)/2- which.max(!is.na(rev(c_data[1:(nrow(c_data)/2),"NO_DEATHS"]))) + 1
         c_data_sel <- c_data[c(1:last_deaths,(nrow(c_data)/2 + (1:last_deaths))),]
         c_data_sel$YEARPERIOD <- rep(1:last_deaths,2)
@@ -548,9 +562,13 @@ shinyServer(
           scale_y_continuous(name = "Deaths") + #, limits = c(0, NA)) +
           labs(
             title = paste0("All Cause Mortality for ", input$gender, " ", input$age, " in ", Countryname(), " during the Pandemic"),
-            subtitle = subtitle, size = 16
+            subtitle = subtitle, size = 16, caption=caption
           ) +
-          theme_bw() + 
+          theme(
+            plot.title = element_text(color = "black", size = 14, face = "bold"),
+            plot.subtitle = element_text(color = "blue"),
+            plot.caption = element_text(color = "red", face = "italic", size=12) 
+          ) +
           if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
@@ -566,7 +584,7 @@ shinyServer(
       if (!input$check_avg & !input$check_spline){
         c_data_sel <- c_data[c_data$SERIES == "Cyclical spline",]
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
-        subtitle = paste0("deaths in 2020")
+        subtitle = paste0("deaths from 2020")
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
         x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
         x_labels=paste(x_breaks-53*trunc(x_breaks/53))
@@ -580,7 +598,11 @@ shinyServer(
             title = paste0("All Cause Mortality for ", input$gender, " ", input$age, " in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
           ) +
-          theme_bw() + 
+          theme(
+            plot.title = element_text(color = "black", size = 14, face = "bold"),
+            plot.subtitle = element_text(color = "blue"),
+            plot.caption = element_text(color = "red", face = "italic", size=12) 
+          ) +
           if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
@@ -607,10 +629,15 @@ shinyServer(
       validate(
         need(
           (input$EDage %in% output_age()),
-          "Please enter an Age Group exactly as it appears from the pull-down list."
+          "Please select an Age Group from the above pull-down list."
         )
       )
       c_data <- ACM_var[ACM_var$SEX == input$EDgender & ACM_var$AGE_GROUP == input$EDage,]
+      caption <- ""
+      if(attr(ACM_var,"num_deaths") < 60){
+        caption <- paste0("WARNING: The model is based on less than 5 years of historical data (",
+          attr(ACM_var,"num_deaths"), " months). The statistical uncertainty may be high.")
+      }
       if(nrow(c_data) < 2) {
         if (ACM_var$WM_IDENTIFIER[1] == "Month") {
           #lower <- c_data[c_data$SERIES == "Cyclical spline","LOWER_LIMIT"] - c_data[c_data$SERIES == "Cyclical spline","NO_DEATHS"]
@@ -675,7 +702,7 @@ shinyServer(
         c_data_sel <- c_data[c_data$SERIES == "Cyclical spline",]
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
-        subtitle <- paste0("excess deaths in ", bquote(2020), " compared to negative binomial regression on 2015-19")
+        subtitle <- paste0("excess deaths from ", bquote(2020), " compared to negative binomial regression on available data from 2015-19")
         lower <- c_data_sel[1:last_deaths,"LOWER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]
         upper <- c_data_sel[1:last_deaths,"UPPER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]
         x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
@@ -696,9 +723,13 @@ shinyServer(
           scale_y_continuous(name = "Excess Deaths") +
           labs(
             title = paste0("Excess Mortality for ", input$EDgender, " ", input$EDage, " in ", Countryname(), " during the Pandemic"),
-            subtitle = subtitle, size = 12
+            subtitle = subtitle, size = 12, caption=caption
           ) +
-          theme_bw() + 
+          theme(
+            plot.title = element_text(color = "black", size = 14, face = "bold"),
+            plot.subtitle = element_text(color = "blue"),
+            plot.caption = element_text(color = "red", face = "italic", size=12) 
+          ) +
           if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
@@ -715,7 +746,7 @@ shinyServer(
         c_data_sel <- c_data[c_data$SERIES == "Historical average",]
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
-        subtitle <- paste0("excess deaths in ", bquote(2020), " compared to historical average on 2015-19")
+        subtitle <- paste0("excess deaths from ", bquote(2020), " compared to historical average on available data from 2015-19")
         lower <- c_data_sel[1:last_deaths,"LOWER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]
         upper <- c_data_sel[1:last_deaths,"UPPER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]
         x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
@@ -736,9 +767,13 @@ shinyServer(
           scale_y_continuous(name = "Excess Deaths") +
           labs(
             title = paste0("Excess Mortality for ", input$EDgender, " ", input$EDage, " in ", Countryname(), " during the Pandemic"),
-            subtitle = subtitle, size = 12
+            subtitle = subtitle, size = 12, caption=caption
           ) +
-          theme_bw() + 
+          theme(
+            plot.title = element_text(color = "black", size = 14, face = "bold"),
+            plot.subtitle = element_text(color = "blue"),
+            plot.caption = element_text(color = "red", face = "italic", size=12) 
+          ) +
           if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
@@ -752,7 +787,7 @@ shinyServer(
       
       # Both neg binom and hist avg
       if (input$EDcheck_avg & input$EDcheck_spline) {
-        subtitle <- paste0("excess deaths in 2020 compared to negative binomial regression and historical average on 2015-19")
+        subtitle <- paste0("excess deaths from 2020 compared to negative binomial regression and historical average on available data from 2015-19")
         last_deaths <- nrow(c_data)/2- which.max(!is.na(rev(c_data[1:(nrow(c_data)/2),"NO_DEATHS"]))) + 1
         c_data_sel <- c_data[c(1:last_deaths,(nrow(c_data)/2 + (1:last_deaths))),]
         c_data_sel$YEARPERIOD <- rep(1:last_deaths,2)
@@ -773,9 +808,13 @@ shinyServer(
           scale_y_continuous(name = "Excess Deaths") +
           labs(
             title = paste0("Excess Mortality for ", input$EDgender, " ", input$EDage, "  in ", Countryname(), " during the Pandemic"),
-            subtitle = subtitle, size = 12
+            subtitle = subtitle, size = 12, caption=caption
           ) +
-          theme_bw() + 
+          theme(
+            plot.title = element_text(color = "black", size = 14, face = "bold"),
+            plot.subtitle = element_text(color = "blue"),
+            plot.caption = element_text(color = "red", face = "italic", size=12) 
+          ) +
           if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
@@ -791,7 +830,7 @@ shinyServer(
       if (!input$EDcheck_avg & !input$EDcheck_spline){
         c_data_sel <- c_data[c_data$SERIES == "Cyclical spline",]
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
-        subtitle = paste0("recorded deaths in 2020")
+        subtitle = paste0("recorded deaths from 2020")
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
         x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
         x_labels=paste(x_breaks-53*trunc(x_breaks/53))
@@ -806,7 +845,11 @@ shinyServer(
             title = paste0("All Cause Mortality for ", input$EDgender, " ", input$EDage, " in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
           ) +
-          theme_bw() + 
+          theme(
+            plot.title = element_text(color = "black", size = 14, face = "bold"),
+            plot.subtitle = element_text(color = "blue"),
+            plot.caption = element_text(color = "red", face = "italic", size=12) 
+          ) +
           if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
@@ -833,10 +876,15 @@ shinyServer(
       validate(
         need(
           (input$EDage %in% output_age()),
-          "Please enter an Age Group exactly as it appears from the pull-down list."
+          "Please select an Age Group from the above pull-down list."
         )
       )
       c_data <- ACM_var[ACM_var$SEX == input$EPgender & ACM_var$AGE_GROUP == input$EPage,]
+      caption <- ""
+      if(attr(ACM_var,"num_deaths") < 60){
+        caption <- paste0("WARNING: The model is based on less than 5 years of historical data (",
+          attr(ACM_var,"num_deaths"), " months). The statistical uncertainty may be high.")
+      }
       if(nrow(c_data) < 2) {
         if (ACM_var$WM_IDENTIFIER[1] == "Month") {
           lower <- 100*(ACM_var[ACM_var$SERIES == "Cyclical spline","LOWER_LIMIT"] - ACM_var[ACM_var$SERIES == "Cyclical spline","NO_DEATHS"]) / ACM_var[ACM_var$SERIES == "Cyclical spline","EXPECTED"]
@@ -891,7 +939,7 @@ shinyServer(
         c_data_sel <- c_data[c_data$SERIES == "Cyclical spline",]
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
-        subtitle <- paste0("P-score of excess deaths in ", bquote(2020), " compared to negative binomial regression on 2015-19")
+        subtitle <- paste0("P-score of excess deaths from ", bquote(2020), " compared to negative binomial regression on available data from 2015-19")
         lower <- 100*(c_data_sel[1:last_deaths,"LOWER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]) / c_data_sel[1:last_deaths,"EXPECTED"]
         upper <- 100*(c_data_sel[1:last_deaths,"UPPER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]) / c_data_sel[1:last_deaths,"EXPECTED"]
         x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
@@ -910,9 +958,13 @@ shinyServer(
           scale_y_continuous(name = "P-score of Excess Deaths") +
           labs(
             title = paste0("P-score of Excess Mortality for ", input$EPgender, " ", input$EPage, " in ", Countryname(), " during the Pandemic"),
-            subtitle = subtitle, size = 12
+            subtitle = subtitle, size = 12, caption=caption
           ) +
-          theme_bw() + 
+          theme(
+            plot.title = element_text(color = "black", size = 14, face = "bold"),
+            plot.subtitle = element_text(color = "blue"),
+            plot.caption = element_text(color = "red", face = "italic", size=12) 
+          ) +
           if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
@@ -929,7 +981,7 @@ shinyServer(
         c_data_sel <- c_data[c_data$SERIES == "Historical average",]
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
-        subtitle <- paste0("P-score of excess deaths in ", bquote(2020), " compared to historical average on 2015-19")
+        subtitle <- paste0("P-score of excess deaths from ", bquote(2020), " compared to historical average on available data from 2015-19")
         lower <- 100*(c_data_sel[1:last_deaths,"LOWER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]) / c_data_sel[1:last_deaths,"EXPECTED"]
         upper <- 100*(c_data_sel[1:last_deaths,"UPPER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]) / c_data_sel[1:last_deaths,"EXPECTED"]
         x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
@@ -948,9 +1000,13 @@ shinyServer(
           scale_y_continuous(name = "P-score of Excess Deaths") +
           labs(
             title = paste0("P-score of Excess Mortality for ", input$EPgender, " ", input$EPage, " in ", Countryname(), " during the Pandemic"),
-            subtitle = subtitle, size = 12
+            subtitle = subtitle, size = 12, caption=caption
           ) +
-          theme_bw() + 
+          theme(
+            plot.title = element_text(color = "black", size = 14, face = "bold"),
+            plot.subtitle = element_text(color = "blue"),
+            plot.caption = element_text(color = "red", face = "italic", size=12) 
+          ) +
           if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
@@ -964,7 +1020,8 @@ shinyServer(
       
       # Both neg binom and hist avg
       if (input$EPcheck_avg & input$EPcheck_spline) {
-        subtitle <- paste0("P-score of excess deaths in 2020 compared to negative binomial regression and historical average on 2015-19")
+        subtitle <- paste0("P-score of excess deaths from 2020 compared to negative binomial regression and historical average on available data
+from 2015-19")
         last_deaths <- nrow(c_data)/2- which.max(!is.na(rev(c_data[1:(nrow(c_data)/2),"NO_DEATHS"]))) + 1
         c_data_sel <- c_data[c(1:last_deaths,(nrow(c_data)/2 + (1:last_deaths))),]
         c_data_sel$YEARPERIOD <- rep(1:last_deaths,2)
@@ -984,9 +1041,13 @@ shinyServer(
           scale_y_continuous(name = "P-score of Excess Deaths") +
           labs(
             title = paste0("P-score of Excess Mortality for ", input$EPgender, " ", input$EPage, "  in ", Countryname(), " during the Pandemic"),
-            subtitle = subtitle, size = 12
+            subtitle = subtitle, size = 12, caption=caption
           ) +
-          theme_bw() + 
+          theme(
+            plot.title = element_text(color = "black", size = 14, face = "bold"),
+            plot.subtitle = element_text(color = "blue"),
+            plot.caption = element_text(color = "red", face = "italic", size=12) 
+          ) +
           if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
@@ -1002,7 +1063,7 @@ shinyServer(
       if (!input$EPcheck_avg & !input$EPcheck_spline){
         c_data_sel <- c_data[c_data$SERIES == "Cyclical spline",]
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
-        subtitle = paste0("recorded deaths in 2020")
+        subtitle = paste0("recorded deaths from 2020")
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
         x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
         x_labels=paste(x_breaks-53*trunc(x_breaks/53))
@@ -1017,7 +1078,11 @@ shinyServer(
             title = paste0("All Cause Mortality for ", input$EPgender, " ", input$EPage, " in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
           ) +
-          theme_bw() + 
+          theme(
+            plot.title = element_text(color = "black", size = 14, face = "bold"),
+            plot.subtitle = element_text(color = "blue"),
+            plot.caption = element_text(color = "red", face = "italic", size=12) 
+          ) +
           if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
@@ -1183,10 +1248,15 @@ shinyServer(
       validate(
         need(
            (input$age %in% output_age()),
-          "Please enter an Age Group exactly as it appears from the pull-down list."
+          "Please select an Age Group from the above pull-down list."
         )
       )
       c_data <- ACM_var[ACM_var$SEX == input$gender & ACM_var$AGE_GROUP == input$age,]
+      caption <- ""
+      if(attr(ACM_var,"num_deaths") < 60){
+        caption <- paste0("WARNING: The model is based on less than 5 years of historical data (",
+          attr(ACM_var,"num_deaths"), " months). The statistical uncertainty may be high.")
+      }
       if(nrow(c_data) < 2) {
         if (ACM_var$WM_IDENTIFIER[1] == "Month") {
           p <- ACM_var[1:12,] %>%
@@ -1229,7 +1299,7 @@ shinyServer(
       name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month in 2020 through 2021", "Week in 2020 through 2021")
       # Spline Regression
       if (input$check_spline & !input$check_avg) {
-        subtitle <- paste0("deaths in ", bquote(2020), " compared to negative binomial regression on 2015-19")
+        subtitle <- paste0("deaths from ", bquote(2020), " compared to negative binomial regression on available data from 2015-19")
         c_data_sel <- c_data[c_data$SERIES == "Cyclical spline",]
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
@@ -1247,9 +1317,13 @@ shinyServer(
           scale_y_continuous(name = "Deaths") + #, limits = c(0, NA)) +
           labs(
             title = paste0("All Cause Mortality for ",input$gender, " ", input$age, " in ", Countryname(), " during the Pandemic"),
-            subtitle = subtitle, size = 12
+            subtitle = subtitle, size = 12, caption=caption
           ) +
-          theme_bw() +
+          theme(
+            plot.title = element_text(color = "black", size = 14, face = "bold"),
+            plot.subtitle = element_text(color = "blue"),
+            plot.caption = element_text(color = "red", face = "italic", size=12) 
+               ) +
             if(name_PERIOD == "Month in 2020 through 2021"){
               scale_x_continuous(name = name_PERIOD, 
                                  labels = rep(c("JAN", "FEB", "MAR", "APR",
@@ -1263,7 +1337,7 @@ shinyServer(
       
       # historical average
       if (input$check_avg & !input$check_spline) {
-        subtitle <- paste0("deaths in ", bquote(2020), " compared to historical average on 2015-19")
+        subtitle <- paste0("deaths from ", bquote(2020), " compared to historical average on available data from 2015-19")
         c_data_sel <- c_data[c_data$SERIES == "Historical average",]
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
@@ -1281,9 +1355,13 @@ shinyServer(
           scale_y_continuous(name = "Deaths") + #, limits = c(0, NA)) +
           labs(
             title = paste0("All Cause Mortality for ",input$gender, " ", input$age, " in ", Countryname(), " during the Pandemic"),
-            subtitle = subtitle, size = 12
+            subtitle = subtitle, size = 12, caption=caption
           ) +
-          theme_bw() +
+          theme(
+            plot.title = element_text(color = "black", size = 14, face = "bold"),
+            plot.subtitle = element_text(color = "blue"),
+            plot.caption = element_text(color = "red", face = "italic", size=12) 
+          ) +
           if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
@@ -1297,7 +1375,7 @@ shinyServer(
       
       # Both neg binom and hist avg
       if (input$check_avg & input$check_spline) {
-        subtitle <- paste0("deaths in 2020 compared to negative binomial regression and historical average on 2015-19")
+        subtitle <- paste0("deaths from 2020 compared to negative binomial regression and historical average on available data from 2015-19")
         last_deaths <- nrow(c_data)/2- which.max(!is.na(rev(c_data[1:(nrow(c_data)/2),"NO_DEATHS"]))) + 1
         c_data_sel <- c_data[c(1:last_deaths,(nrow(c_data)/2 + (1:last_deaths))),]
         c_data_sel$YEARPERIOD <- rep(1:last_deaths,2)
@@ -1310,13 +1388,17 @@ shinyServer(
           geom_line(aes(x = YEARPERIOD, y = NO_DEATHS, colour = "recorded")) +
           geom_line(aes(x = YEARPERIOD, y = EXPECTED, group = SERIES, colour = SERIES)) +
           scale_colour_manual(name="", labels = c("expected", "average", "recorded"),
-            values=c("indianred", "cyan2", recorded="black")) + 
+            values=c("indianred", "cyan2", "black")) + 
           scale_y_continuous(name = "Deaths") + #, limits = c(0, NA)) +
           labs(
             title = paste0("All Cause Mortality for ",input$gender, " ", input$age, " in ", Countryname(), " during the Pandemic"),
-            subtitle = subtitle, size = 16
+            subtitle = subtitle, size = 16, caption=caption
           ) +
-          theme_bw() + 
+          theme(
+            plot.title = element_text(color = "black", size = 14, face = "bold"),
+            plot.subtitle = element_text(color = "blue"),
+            plot.caption = element_text(color = "red", face = "italic", size=12) 
+               ) +
           if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
@@ -1332,7 +1414,7 @@ shinyServer(
       if (!input$check_avg & !input$check_spline){
         c_data_sel <- c_data[c_data$SERIES == "Cyclical spline",]
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
-        subtitle = paste0("deaths in 2020")
+        subtitle = paste0("recorded deaths from 2020")
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
         x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
         x_labels=paste(x_breaks-53*trunc(x_breaks/53))
@@ -1347,7 +1429,11 @@ shinyServer(
             title = paste0("All Cause Mortality for ",input$gender, " ", input$age, " in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
           ) +
-          theme_bw() +
+          theme(
+            plot.title = element_text(color = "black", size = 14, face = "bold"),
+            plot.subtitle = element_text(color = "blue"),
+            plot.caption = element_text(color = "red", face = "italic", size=12) 
+          ) +
           if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
@@ -1366,10 +1452,15 @@ shinyServer(
       validate(
         need(
           (input$EDage %in% output_age()),
-          "Please enter an Age Group exactly as it appears from the pull-down list."
+          "Please select an Age Group from the above pull-down list."
         )
       )
       c_data <- ACM_var[ACM_var$SEX == input$EDgender & ACM_var$AGE_GROUP == input$EDage,]
+      caption <- ""
+      if(attr(ACM_var,"num_deaths") < 60){
+        caption <- paste0("WARNING: The model is based on less than 5 years of historical data (",
+          attr(ACM_var,"num_deaths"), " months). The statistical uncertainty may be high.")
+      }
       if(nrow(c_data) < 2) {
         if (ACM_var$WM_IDENTIFIER[1] == "Month") {
           #lower <- c_data[c_data$SERIES == "Cyclical spline","LOWER_LIMIT"] - c_data[c_data$SERIES == "Cyclical spline","NO_DEATHS"]
@@ -1433,7 +1524,7 @@ shinyServer(
         c_data_sel <- c_data[c_data$SERIES == "Cyclical spline",]
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
-        subtitle <- paste0("excess deaths in ", bquote(2020), " compared to negative binomial regression on 2015-19")
+        subtitle <- paste0("excess deaths from ", bquote(2020), " compared to negative binomial regression on available data from 2015-19")
         lower <- c_data_sel[1:last_deaths,"LOWER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]
         upper <- c_data_sel[1:last_deaths,"UPPER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]
         x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
@@ -1454,9 +1545,13 @@ shinyServer(
           scale_y_continuous(name = "Excess Deaths") +
           labs(
             title = paste0("Excess Mortality for ",input$EDgender, " ", input$EDage, " in ", Countryname(), " during the Pandemic"),
-            subtitle = subtitle, size = 12
+            subtitle = subtitle, size = 12, caption=caption
           ) +
-          theme_bw() + 
+          theme(
+            plot.title = element_text(color = "black", size = 14, face = "bold"),
+            plot.subtitle = element_text(color = "blue"),
+            plot.caption = element_text(color = "red", face = "italic", size=12) 
+          ) +
           if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
@@ -1473,7 +1568,7 @@ shinyServer(
         c_data_sel <- c_data[c_data$SERIES == "Historical average",]
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
-        subtitle <- paste0("excess deaths in ", bquote(2020), " compared to historical average on 2015-19")
+        subtitle <- paste0("excess deaths from ", bquote(2020), " compared to historical average on available data from 2015-19")
         lower <- c_data_sel[1:last_deaths,"LOWER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]
         upper <- c_data_sel[1:last_deaths,"UPPER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]
         x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
@@ -1494,9 +1589,13 @@ shinyServer(
           scale_y_continuous(name = "Excess Deaths") +
           labs(
             title = paste0("Excess Mortality for ",input$EDgender, " ", input$EDage, " in ", Countryname(), " during the Pandemic"),
-            subtitle = subtitle, size = 12
+            subtitle = subtitle, size = 12, caption=caption
           ) +
-          theme_bw() + 
+          theme(
+            plot.title = element_text(color = "black", size = 14, face = "bold"),
+            plot.subtitle = element_text(color = "blue"),
+            plot.caption = element_text(color = "red", face = "italic", size=12) 
+          ) +
           if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
@@ -1510,7 +1609,7 @@ shinyServer(
       
       # Both neg binom and hist avg
       if (input$EDcheck_avg & input$EDcheck_spline) {
-        subtitle <- paste0("excess deaths in 2020 compared to negative binomial regression and historical average on 2015-19")
+        subtitle <- paste0("excess deaths from 2020 compared to negative binomial regression and historical average on available data from 2015-19")
         last_deaths <- nrow(c_data)/2- which.max(!is.na(rev(c_data[1:(nrow(c_data)/2),"NO_DEATHS"]))) + 1
         c_data_sel <- c_data[c(1:last_deaths,(nrow(c_data)/2 + (1:last_deaths))),]
         c_data_sel$YEARPERIOD <- rep(1:last_deaths,2)
@@ -1531,9 +1630,13 @@ shinyServer(
           scale_y_continuous(name = "Excess Deaths") +
           labs(
             title = paste0("Excess Mortality for ",input$EDgender, " ", input$EDage, " in ", Countryname(), " during the Pandemic"),
-            subtitle = subtitle, size = 12
+            subtitle = subtitle, size = 12, caption=caption
           ) +
-          theme_bw() + 
+          theme(
+            plot.title = element_text(color = "black", size = 14, face = "bold"),
+            plot.subtitle = element_text(color = "blue"),
+            plot.caption = element_text(color = "red", face = "italic", size=12) 
+          ) +
           if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
@@ -1549,7 +1652,7 @@ shinyServer(
       if (!input$EDcheck_avg & !input$EDcheck_spline){
         c_data_sel <- c_data[c_data$SERIES == "Cyclical spline",]
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
-        subtitle = paste0("recorded deaths in 2020")
+        subtitle = paste0("recorded deaths from 2020")
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
         x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
         x_labels=paste(x_breaks-53*trunc(x_breaks/53))
@@ -1564,7 +1667,11 @@ shinyServer(
             title = paste0("All Cause Mortality for ",input$EDgender, " ", input$EDage, " in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
           ) +
-          theme_bw() + 
+          theme(
+            plot.title = element_text(color = "black", size = 14, face = "bold"),
+            plot.subtitle = element_text(color = "blue"),
+            plot.caption = element_text(color = "red", face = "italic", size=12) 
+          ) +
           if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
@@ -1582,11 +1689,16 @@ shinyServer(
       ACM_var <- output_spline() 
       validate(
         need(
-          (input$EDage %in% output_age()),
-          "Please enter an Age Group exactly as it appears from the pull-down list."
+          (input$EPage %in% output_age()),
+          "Please select an Age Group from the above pull-down list."
         )
       )
       c_data <- ACM_var[ACM_var$SEX == input$EPgender & ACM_var$AGE_GROUP == input$EPage,]
+      caption <- ""
+      if(attr(ACM_var,"num_deaths") < 60){
+        caption <- paste0("WARNING: The model is based on less than 5 years of historical data (",
+          attr(ACM_var,"num_deaths"), " months). The statistical uncertainty may be high.")
+      }
       if(nrow(c_data) < 2) {
         if (ACM_var$WM_IDENTIFIER[1] == "Month") {
           lower <- 100*(ACM_var[ACM_var$SERIES == "Cyclical spline","LOWER_LIMIT"] - ACM_var[ACM_var$SERIES == "Cyclical spline","NO_DEATHS"]) / ACM_var[ACM_var$SERIES == "Cyclical spline","EXPECTED"]
@@ -1643,7 +1755,7 @@ shinyServer(
         c_data_sel <- c_data[c_data$SERIES == "Cyclical spline",]
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
-        subtitle <- paste0("P-score of excess deaths in ", bquote(2020), " compared to negative binomial regression on 2015-19")
+        subtitle <- paste0("P-score of excess deaths from ", bquote(2020), " compared to negative binomial regression on available data from 2015-19")
         lower <- 100*(c_data_sel[1:last_deaths,"LOWER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]) / c_data_sel[1:last_deaths,"EXPECTED"]
         upper <- 100*(c_data_sel[1:last_deaths,"UPPER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]) / c_data_sel[1:last_deaths,"EXPECTED"]
         x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
@@ -1664,9 +1776,13 @@ shinyServer(
           scale_y_continuous(name = "P-score of Excess Deaths") +
           labs(
             title = paste0("P-score of Excess Mortality for ",input$EPgender, " ", input$EPage, " in ", Countryname(), " during the Pandemic"),
-            subtitle = subtitle, size = 12
+            subtitle = subtitle, size = 12, caption=caption
           ) +
-          theme_bw() + 
+          theme(
+            plot.title = element_text(color = "black", size = 14, face = "bold"),
+            plot.subtitle = element_text(color = "blue"),
+            plot.caption = element_text(color = "red", face = "italic", size=12) 
+          ) +
           if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
@@ -1683,7 +1799,7 @@ shinyServer(
         c_data_sel <- c_data[c_data$SERIES == "Historical average",]
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
-        subtitle <- paste0("P-score of excess deaths in ", bquote(2020), " compared to historical average on 2015-19")
+        subtitle <- paste0("P-score of excess deaths from ", bquote(2020), " compared to historical average on available data from 2015-19")
         lower <- 100*(c_data_sel[1:last_deaths,"LOWER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]) / c_data_sel[1:last_deaths,"EXPECTED"]
         upper <- 100*(c_data_sel[1:last_deaths,"UPPER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]) / c_data_sel[1:last_deaths,"EXPECTED"]
         x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
@@ -1704,9 +1820,13 @@ shinyServer(
           scale_y_continuous(name = "P-score of Excess Deaths") +
           labs(
             title = paste0("P-score of Excess Mortality for ",input$EPgender, " ", input$EPage, " in ", Countryname(), " during the Pandemic"),
-            subtitle = subtitle, size = 12
+            subtitle = subtitle, size = 12, caption=caption
           ) +
-          theme_bw() + 
+          theme(
+            plot.title = element_text(color = "black", size = 14, face = "bold"),
+            plot.subtitle = element_text(color = "blue"),
+            plot.caption = element_text(color = "red", face = "italic", size=12) 
+          ) +
           if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
@@ -1720,7 +1840,8 @@ shinyServer(
       
       # Both neg binom and hist avg
       if (input$EPcheck_avg & input$EPcheck_spline) {
-        subtitle <- paste0("P-score of excess deaths in 2020 compared to negative binomial regression and historical average on 2015-19")
+        subtitle <- paste0("P-score of excess deaths from 2020 compared to negative binomial regression and historical average on available data
+from 2015-19")
         last_deaths <- nrow(c_data)/2- which.max(!is.na(rev(c_data[1:(nrow(c_data)/2),"NO_DEATHS"]))) + 1
         c_data_sel <- c_data[c(1:last_deaths,(nrow(c_data)/2 + (1:last_deaths))),]
         c_data_sel$YEARPERIOD <- rep(1:last_deaths,2)
@@ -1741,9 +1862,13 @@ shinyServer(
           scale_y_continuous(name = "P-score of Excess Deaths") +
           labs(
             title = paste0("P-score of Excess Mortality for ",input$EPgender, " ", input$EPage, " in ", Countryname(), " during the Pandemic"),
-            subtitle = subtitle, size = 12
+            subtitle = subtitle, size = 12, caption=caption
           ) +
-          theme_bw() + 
+          theme(
+            plot.title = element_text(color = "black", size = 14, face = "bold"),
+            plot.subtitle = element_text(color = "blue"),
+            plot.caption = element_text(color = "red", face = "italic", size=12) 
+          ) +
           if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
@@ -1759,7 +1884,7 @@ shinyServer(
       if (!input$EPcheck_avg & !input$EPcheck_spline){
         c_data_sel <- c_data[c_data$SERIES == "Cyclical spline",]
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
-        subtitle = paste0("recorded deaths in 2020")
+        subtitle = paste0("recorded deaths from 2020")
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
         x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
         x_labels=paste(x_breaks-53*trunc(x_breaks/53))
@@ -1774,7 +1899,11 @@ shinyServer(
             title = paste0("All Cause Mortality for ",input$EPgender, " ", input$EPage, " in ", Countryname(), " during the Pandemic"),
             subtitle = subtitle, size = 12
           ) +
-          theme_bw() + 
+          theme(
+            plot.title = element_text(color = "black", size = 14, face = "bold"),
+            plot.subtitle = element_text(color = "blue"),
+            plot.caption = element_text(color = "red", face = "italic", size=12) 
+          ) +
           if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
