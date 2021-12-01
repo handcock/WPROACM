@@ -1,7 +1,7 @@
 Package: WPROACM
 Type: Package
 Title: A Graphical User Interface for Analysing Excess Mortality from All Cause Mortality Data
-Version: 0.1
+Version: 1.0
 Date: 2021-01-29
 Authors@R: c(
   person("Mark S.", "Handcock", role=c("aut","cre"), email="handcock@stat.ucla.edu"),
