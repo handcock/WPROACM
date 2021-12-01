@@ -456,11 +456,11 @@ tabPanel(title='Methods', value='tab5',
             
             HTML("<br/>"),
 
-            # p("Below is a detailed description of the methods in statistical language.",
-            #   "It is in PDF format and can be saved for separate study."),
+            p("Below is a detailed description of the methods in statistical language.",
+              "It is in PDF format and can be saved for separate study."),
           ),
-         # tags$iframe(style="height:600px; width:100%; scrolling=yes", 
-         #           src="ACMnotes_210204.pdf")
+           tags$iframe(style="height:600px; width:100%; scrolling=yes", 
+                     src="WPROACM_Methodology_210407.pdf")
          )
          ),
 
