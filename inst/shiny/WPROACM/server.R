@@ -426,7 +426,7 @@ shinyServer(
         caption <- ""
         if(attr(ACM_var,"num_deaths") < 4.5){
           caption <- paste0("WARNING: The model is based on less than 5 years of historical data (",
-            attr(ACM_var,"num_deaths"), " months). The statistical uncertainty may be high.")
+            round(attr(ACM_var,"num_deaths"),1), " years). The statistical uncertainty may be high.")
         }
         if(nrow(c_data) < 2) {
           if (ACM_var$WM_IDENTIFIER[1] == "Month") {
@@ -474,7 +474,7 @@ shinyServer(
         c_data_sel <- c_data[c_data$SERIES == "Cyclical spline",]
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
-        subtitle <- paste0("deaths from ", bquote(2020), " compared to negative binomial regression on available data from available data from 2015-19")
+        subtitle <- paste0("deaths from ", bquote(2020), " compared to negative binomial regression on available data from 2015-19")
         x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
         x_labels=paste(x_breaks-53*trunc(x_breaks/53))
         x_labels <- x_labels[x_breaks <= last_deaths]
@@ -494,7 +494,7 @@ shinyServer(
           theme(
             plot.title = element_text(color = "black", size = 14, face = "bold"),
             plot.subtitle = element_text(color = "blue"),
-            plot.caption = element_text(color = "red", face = "italic", size=12) 
+            plot.caption = element_text(color = "red", face = "italic", size=9) 
                ) +
           if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
@@ -532,7 +532,7 @@ shinyServer(
           theme(
             plot.title = element_text(color = "black", size = 14, face = "bold"),
             plot.subtitle = element_text(color = "blue"),
-            plot.caption = element_text(color = "red", face = "italic", size=12) 
+            plot.caption = element_text(color = "red", face = "italic", size=9) 
           ) +
           if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
@@ -560,7 +560,7 @@ shinyServer(
           geom_line(aes(x = YEARPERIOD, y = NO_DEATHS, colour = "recorded")) +
           geom_line(aes(x = YEARPERIOD, y = EXPECTED, group = SERIES, colour = SERIES)) +
           scale_colour_manual(name="", labels = c("expected", "average", "recorded"),
-                              values=c("indianred", "cyan2", recorded="black")) + 
+                              values=c("indianred", "cyan2", "black")) + 
           scale_y_continuous(name = "Deaths") + #, limits = c(0, NA)) +
           labs(
             title = paste0("All Cause Mortality for ", input$gender, " ", input$age, " in ", Countryname(), " during the Pandemic"),
@@ -569,7 +569,7 @@ shinyServer(
           theme(
             plot.title = element_text(color = "black", size = 14, face = "bold"),
             plot.subtitle = element_text(color = "blue"),
-            plot.caption = element_text(color = "red", face = "italic", size=12) 
+            plot.caption = element_text(color = "red", face = "italic", size=9) 
           ) +
           if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
@@ -586,7 +586,7 @@ shinyServer(
       if (!input$check_avg & !input$check_spline){
         c_data_sel <- c_data[c_data$SERIES == "Cyclical spline",]
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
-        subtitle = paste0("deaths from 2020")
+        subtitle = paste0("recorded deaths from 2020")
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
         x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
         x_labels=paste(x_breaks-53*trunc(x_breaks/53))
@@ -595,6 +595,7 @@ shinyServer(
         p <- c_data_sel[1:last_deaths,] %>% 
           ggplot() +
           geom_line(aes(x = YEARPERIOD, y = NO_DEATHS), colour = "black") +
+          scale_x_continuous(name = name_PERIOD) +
           scale_y_continuous(name = "Deaths") + #, limits = c(0, NA)) +
           labs(
             title = paste0("All Cause Mortality for ", input$gender, " ", input$age, " in ", Countryname(), " during the Pandemic"),
@@ -603,13 +604,13 @@ shinyServer(
           theme(
             plot.title = element_text(color = "black", size = 14, face = "bold"),
             plot.subtitle = element_text(color = "blue"),
-            plot.caption = element_text(color = "red", face = "italic", size=12) 
+            plot.caption = element_text(color = "red", face = "italic", size=9) 
           ) +
           if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
-                                              "SEP", "OCT", "NOV", "DEC"),2)[1:last_deaths],
+                                              "SEP", "OCT", "NOV", "DEC"),3)[1:last_deaths],
                                breaks = 1:last_deaths)
           } else {
             scale_x_continuous(name = name_PERIOD, breaks=x_breaks,labels=x_labels)
@@ -638,7 +639,7 @@ shinyServer(
       caption <- ""
       if(attr(ACM_var,"num_deaths") < 4.5){
         caption <- paste0("WARNING: The model is based on less than 5 years of historical data (",
-          attr(ACM_var,"num_deaths"), " months). The statistical uncertainty may be high.")
+          round(attr(ACM_var,"num_deaths"),1), " years). The statistical uncertainty may be high.")
       }
       if(nrow(c_data) < 2) {
         if (ACM_var$WM_IDENTIFIER[1] == "Month") {
@@ -730,13 +731,13 @@ shinyServer(
           theme(
             plot.title = element_text(color = "black", size = 14, face = "bold"),
             plot.subtitle = element_text(color = "blue"),
-            plot.caption = element_text(color = "red", face = "italic", size=12) 
+            plot.caption = element_text(color = "red", face = "italic", size=9) 
           ) +
           if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
-                                              "SEP", "OCT", "NOV", "DEC"),2)[1:last_deaths],
+                                              "SEP", "OCT", "NOV", "DEC"),3)[1:last_deaths],
                                breaks = 1:last_deaths)
           } else {
             scale_x_continuous(name = name_PERIOD, breaks=x_breaks,labels=x_labels)
@@ -774,7 +775,7 @@ shinyServer(
           theme(
             plot.title = element_text(color = "black", size = 14, face = "bold"),
             plot.subtitle = element_text(color = "blue"),
-            plot.caption = element_text(color = "red", face = "italic", size=12) 
+            plot.caption = element_text(color = "red", face = "italic", size=9) 
           ) +
           if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
@@ -815,7 +816,7 @@ shinyServer(
           theme(
             plot.title = element_text(color = "black", size = 14, face = "bold"),
             plot.subtitle = element_text(color = "blue"),
-            plot.caption = element_text(color = "red", face = "italic", size=12) 
+            plot.caption = element_text(color = "red", face = "italic", size=9) 
           ) +
           if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
@@ -850,7 +851,7 @@ shinyServer(
           theme(
             plot.title = element_text(color = "black", size = 14, face = "bold"),
             plot.subtitle = element_text(color = "blue"),
-            plot.caption = element_text(color = "red", face = "italic", size=12) 
+            plot.caption = element_text(color = "red", face = "italic", size=9) 
           ) +
           if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
@@ -877,7 +878,7 @@ shinyServer(
       ACM_var <- output_spline() 
       validate(
         need(
-          (input$EDage %in% output_age()),
+          (input$EPage %in% output_age()),
           "Please select an Age Group from the above pull-down list."
         )
       )
@@ -885,7 +886,7 @@ shinyServer(
       caption <- ""
       if(attr(ACM_var,"num_deaths") < 4.5){
         caption <- paste0("WARNING: The model is based on less than 5 years of historical data (",
-          attr(ACM_var,"num_deaths"), " months). The statistical uncertainty may be high.")
+          round(attr(ACM_var,"num_deaths"),1), " years). The statistical uncertainty may be high.")
       }
       if(nrow(c_data) < 2) {
         if (ACM_var$WM_IDENTIFIER[1] == "Month") {
@@ -965,13 +966,13 @@ shinyServer(
           theme(
             plot.title = element_text(color = "black", size = 14, face = "bold"),
             plot.subtitle = element_text(color = "blue"),
-            plot.caption = element_text(color = "red", face = "italic", size=12) 
+            plot.caption = element_text(color = "red", face = "italic", size=9) 
           ) +
           if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
-                                              "SEP", "OCT", "NOV", "DEC"),2)[1:last_deaths],
+                                              "SEP", "OCT", "NOV", "DEC"),3)[1:last_deaths],
                                breaks = 1:last_deaths)
           } else {
             scale_x_continuous(name = name_PERIOD, breaks=x_breaks,labels=x_labels)
@@ -1007,7 +1008,7 @@ shinyServer(
           theme(
             plot.title = element_text(color = "black", size = 14, face = "bold"),
             plot.subtitle = element_text(color = "blue"),
-            plot.caption = element_text(color = "red", face = "italic", size=12) 
+            plot.caption = element_text(color = "red", face = "italic", size=9) 
           ) +
           if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
@@ -1048,7 +1049,7 @@ from 2015-19")
           theme(
             plot.title = element_text(color = "black", size = 14, face = "bold"),
             plot.subtitle = element_text(color = "blue"),
-            plot.caption = element_text(color = "red", face = "italic", size=12) 
+            plot.caption = element_text(color = "red", face = "italic", size=9) 
           ) +
           if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
@@ -1083,7 +1084,7 @@ from 2015-19")
           theme(
             plot.title = element_text(color = "black", size = 14, face = "bold"),
             plot.subtitle = element_text(color = "blue"),
-            plot.caption = element_text(color = "red", face = "italic", size=12) 
+            plot.caption = element_text(color = "red", face = "italic", size=9) 
           ) +
           if(name_PERIOD == "Month in 2020 through 2021"){
             scale_x_continuous(name = name_PERIOD, 
@@ -1257,7 +1258,7 @@ from 2015-19")
       caption <- ""
       if(attr(ACM_var,"num_deaths") < 4.5){
         caption <- paste0("WARNING: The model is based on less than 5 years of historical data (",
-          attr(ACM_var,"num_deaths"), " months). The statistical uncertainty may be high.")
+          round(attr(ACM_var,"num_deaths"),1), " years). The statistical uncertainty may be high.")
       }
       if(nrow(c_data) < 2) {
         if (ACM_var$WM_IDENTIFIER[1] == "Month") {
@@ -1461,7 +1462,7 @@ from 2015-19")
       caption <- ""
       if(attr(ACM_var,"num_deaths") < 4.5){
         caption <- paste0("WARNING: The model is based on less than 5 years of historical data (",
-          attr(ACM_var,"num_deaths"), " months). The statistical uncertainty may be high.")
+          round(attr(ACM_var,"num_deaths"),1), " years). The statistical uncertainty may be high.")
       }
       if(nrow(c_data) < 2) {
         if (ACM_var$WM_IDENTIFIER[1] == "Month") {
@@ -1699,7 +1700,7 @@ from 2015-19")
       caption <- ""
       if(attr(ACM_var,"num_deaths") < 4.5){
         caption <- paste0("WARNING: The model is based on less than 5 years of historical data (",
-          attr(ACM_var,"num_deaths"), " months). The statistical uncertainty may be high.")
+          round(attr(ACM_var,"num_deaths"),1), " years). The statistical uncertainty may be high.")
       }
       if(nrow(c_data) < 2) {
         if (ACM_var$WM_IDENTIFIER[1] == "Month") {
