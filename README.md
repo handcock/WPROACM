@@ -1,4 +1,4 @@
-World Health Organization (WHO) WPRO all cause of mortality and excess death calculator.
+World Health Organization (WHO) WPRO all cause of mortality and excess death calculator
 ==========
 
 Welcome to the All Cause of mortality and Excess Death Monitoring calculator!
