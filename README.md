@@ -15,7 +15,7 @@ The app can be run in two ways:
 
 * Online, through the [WHO WPRO shinyapps.io server](https://worldhealthorg.shinyapps.io/WPRO-all-cause-of-mortality-and-excess-death-calculator/). 
 
-* Offline by first installing it on your local machine using the WPROACM R package. First instal `R` (if you have not already). Then open `R` and type in the `R` Console:
+* Offline by first installing it on your local machine using the WPROACM R package. First install `R` (if you have not already). Then open `R` and type in the `R` Console:
 
 ```r
 source("http://www.stat.ucla.edu/~handcock/WPROACM.R")`
