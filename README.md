@@ -1,4 +1,4 @@
-<img src="inst/shiny/WPROACM/www/WHO-WPRO_Logo_PMS_2925.png" width = 200 alt="WHO WPRO Logo"/>[<img src="inst/shiny/WPROACM/www/WHO-WPRO_Logo_PMS_2925.png" align="right" width=200 alt="UCLA STAT Logo"/>](https://www.stat.ucla.edu)
+<img src="inst/shiny/WPROACM/www/WHO-WPRO_Logo_PMS_2925.png" width = 200 alt="WHO WPRO Logo"/>[<img src="inst/shiny/WPROACM/www/UCLADepartmentofStatisticsSmall.png" align="right" width=200 alt="UCLA STAT Logo"/>](https://www.stat.ucla.edu)
 
 World Health Organization (WHO) WPRO all cause of mortality and excess death calculator
 ==========
