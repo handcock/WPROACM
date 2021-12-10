@@ -21,7 +21,7 @@ The app can be run in two ways:
 source("http://www.stat.ucla.edu/~handcock/WPROACM.R")`
 ```
 
-then `R` should install the app and close. There will then be an app call "WPROACM" in your "Documents" folder. If you double-click on that, it will run the calculator in the browser (no R/Rstudio involved).
+then `R` should install the app and close. There will then be an app called "WPROACM" in your "Documents" folder. If you double-click on that, it will run the calculator in the browser (no R/Rstudio involved).
 
 * Alternatively, you can install it on your local machine using the WPROACM R package. First install it for `R`:
 ```r
