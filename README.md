@@ -1,4 +1,4 @@
-<img src="man/figures/bflogo.png" width = 120 alt="bayesbackcast Logo"/>[<img src="https://raw.githubusercontent.com/stan-dev/logos/master/logo_tm.png" align="right" width=120 alt="Stan Logo"/>](https://mc-stan.org)
+<img src="inst/shiny/WPROACM/www/WHO-WPRO_Logo_PMS_2925.png/figures/bflogo.png" width = 120 alt="WHO WPRO Logo"/>[<img src="inst/shiny/WPROACM/www/WHO-WPRO_Logo_PMS_2925.png" align="right" width=120 alt="UCLA STAT Logo"/>](https://www.stat.ucla.edu)
 
 World Health Organization (WHO) WPRO all cause of mortality and excess death calculator
 ==========
