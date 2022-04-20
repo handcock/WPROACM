@@ -414,7 +414,7 @@ shinyServer(
         paste(Countryname(), "_plot.pdf", sep = "")
       },
       content = function(file) {
-        pdf(file = file, height = 10, width = 10)
+        pdf(file = file, height = 8, width = 20)
         ACM_var <- output_spline() 
         validate(
           need(
@@ -432,12 +432,13 @@ shinyServer(
           if (ACM_var$WM_IDENTIFIER[1] == "Month") {
             p <- ACM_var[1:12,] %>%
               ggplot() +
-              geom_line(aes(x = PERIOD, y = NO_DEATHS, colour = "recorded")) +
+              theme_grey(base_size = 24) +
+              geom_line(aes(x = PERIOD, y = NO_DEATHS, colour = "Recorded")) +
               geom_ribbon(aes(x = PERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
-              geom_line(aes(x = PERIOD, y = EXPECTED, colour = "expected")) +
+              geom_line(aes(x = PERIOD, y = EXPECTED, colour = "Expected")) +
               scale_colour_manual(name="",
-                                  values=c(recorded="black", expected="indianred")) +
-              scale_x_continuous(name = "Month in 2020 through 2021",
+                                  values=c(Recorded="black", Expected="indianred")) +
+              scale_x_continuous(name = "Month (2020)",
                                  labels = c("JAN", "FEB", "MAR", "APR",
                                             "MAY", "JUN", "JUL", "AUG",
                                             "SEP", "OCT", "NOV", "DEC"),
@@ -451,12 +452,13 @@ shinyServer(
         } else {
           p <- ACM_var[1:53,] %>%
             ggplot() +
-            geom_line(aes(x = PERIOD, y = NO_DEATHS, colour = "recorded")) +
+            theme_grey(base_size = 24) +
+            geom_line(aes(x = PERIOD, y = NO_DEATHS, colour = "Recorded")) +
             geom_ribbon(aes(x = PERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
-            geom_line(aes(x = PERIOD, y = EXPECTED, colour = "expected")) +
+            geom_line(aes(x = PERIOD, y = EXPECTED, colour = "Expected")) +
             scale_colour_manual(name="",
-                                values=c(recorded="black", expected="indianred")) +
-            scale_x_continuous(name = "Week in 2020 through 2021") +
+                                values=c(Recorded="black", Expected="indianred")) +
+            scale_x_continuous(name = "Week (2020)") +
             scale_y_continuous(name = "Weekly Deaths") +
             labs(
               title = paste0("All Cause Mortality for ", input$gender, " ", input$age, " in ", Countryname(), " during the Pandemic"),
@@ -468,7 +470,7 @@ shinyServer(
         print(p)
         dev.off()
       }else{
-      name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month in 2020 through 2021", "Week in 2020 through 2021")
+      name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month (2020)", "Week (2020)")
       # Spline Regression
       if (input$check_spline & !input$check_avg) {
         c_data_sel <- c_data[c_data$SERIES == "Cyclical spline",]
@@ -481,23 +483,24 @@ shinyServer(
         x_breaks <- x_breaks[x_breaks <= last_deaths]
         p <- c_data_sel[1:last_deaths,] %>% 
           ggplot() +
-          geom_line(aes(x = YEARPERIOD, y = NO_DEATHS, colour = "recorded")) +
+          theme_grey(base_size = 24) +
+          geom_line(aes(x = YEARPERIOD, y = NO_DEATHS, colour = "Recorded")) +
           geom_ribbon(aes(x = YEARPERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
-          geom_line(aes(x = YEARPERIOD, y = EXPECTED, colour = "expected")) +
+          geom_line(aes(x = YEARPERIOD, y = EXPECTED, colour = "Expected")) +
           scale_colour_manual(name="",
-                              values=c(recorded="black", expected="indianred")) +
+                              values=c(Recorded="black", Expected="indianred")) +
           scale_y_continuous(name = "Deaths") + #, limits = c(0, NA)) +
           labs(
             title = paste0("All Cause Mortality for ", input$gender, " ", input$age, " in ", Countryname(), " during the Pandemic"),
-            subtitle = subtitle, size = 12, caption=caption
+            subtitle = subtitle, caption=caption
           ) +
           theme(
             plot.title = element_text(color = "black", size = 14, face = "bold"),
             plot.subtitle = element_text(color = "blue"),
-            plot.caption = element_text(color = "red", face = "italic", size=9) 
+            plot.caption = element_text(color = "red", face = "italic") 
                ) +
-          if(name_PERIOD == "Month in 2020 through 2021"){
-            scale_x_continuous(name = name_PERIOD, 
+          if(name_PERIOD == "Month (2020)"){
+            scale_x_continuous(name = name_PERIOD,
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
                                               "SEP", "OCT", "NOV", "DEC"),3)[1:last_deaths],
@@ -519,11 +522,12 @@ shinyServer(
         x_breaks <- x_breaks[x_breaks <= last_deaths]
         p <- c_data_sel[1:last_deaths,] %>% 
           ggplot() +
-          geom_line(aes(x = YEARPERIOD, y = EXPECTED, colour = "average")) +
+          theme_grey(base_size = 24) +
+          geom_line(aes(x = YEARPERIOD, y = EXPECTED, colour = "Average")) +
           geom_ribbon(aes(x = YEARPERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "cyan2", colour = "cyan2") +
-          geom_line(aes(x = YEARPERIOD, y = NO_DEATHS, colour = "recorded")) +
+          geom_line(aes(x = YEARPERIOD, y = NO_DEATHS, colour = "Recorded")) +
           scale_colour_manual(name="",
-                              values=c(recorded="black", average="cyan2")) +
+                              values=c(Recorded="black", Average="cyan2")) +
           scale_y_continuous(name = "Deaths") + #, limits = c(0, NA)) +
           labs(
             title = paste0("All Cause Mortality for ", input$gender, " ", input$age, " in ", Countryname(), " during the Pandemic"),
@@ -534,7 +538,7 @@ shinyServer(
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=9) 
           ) +
-          if(name_PERIOD == "Month in 2020 through 2021"){
+          if(name_PERIOD == "Month (2020)"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
@@ -557,9 +561,10 @@ shinyServer(
         x_breaks <- x_breaks[x_breaks <= last_deaths]
         p <- c_data_sel %>%
           ggplot() +
-          geom_line(aes(x = YEARPERIOD, y = NO_DEATHS, colour = "recorded")) +
+          theme_grey(base_size = 24) +
+          geom_line(aes(x = YEARPERIOD, y = NO_DEATHS, colour = "Recorded")) +
           geom_line(aes(x = YEARPERIOD, y = EXPECTED, group = SERIES, colour = SERIES)) +
-          scale_colour_manual(name="", labels = c("expected", "average", "recorded"),
+          scale_colour_manual(name="", labels = c("Expected", "Average", "Recorded"),
                               values=c("indianred", "cyan2", "black")) + 
           scale_y_continuous(name = "Deaths") + #, limits = c(0, NA)) +
           labs(
@@ -571,7 +576,7 @@ shinyServer(
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=9) 
           ) +
-          if(name_PERIOD == "Month in 2020 through 2021"){
+          if(name_PERIOD == "Month (2020)"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
@@ -586,7 +591,7 @@ shinyServer(
       if (!input$check_avg & !input$check_spline){
         c_data_sel <- c_data[c_data$SERIES == "Cyclical spline",]
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
-        subtitle = paste0("recorded deaths from 2020")
+        subtitle = paste0("Recorded deaths from 2020")
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
         x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
         x_labels=paste(x_breaks-53*trunc(x_breaks/53))
@@ -594,6 +599,7 @@ shinyServer(
         x_breaks <- x_breaks[x_breaks <= last_deaths]
         p <- c_data_sel[1:last_deaths,] %>% 
           ggplot() +
+          theme_grey(base_size = 24) +
           geom_line(aes(x = YEARPERIOD, y = NO_DEATHS), colour = "black") +
           scale_x_continuous(name = name_PERIOD) +
           scale_y_continuous(name = "Deaths") + #, limits = c(0, NA)) +
@@ -606,7 +612,7 @@ shinyServer(
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=9) 
           ) +
-          if(name_PERIOD == "Month in 2020 through 2021"){
+          if(name_PERIOD == "Month (2020)"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
@@ -649,6 +655,7 @@ shinyServer(
           upper <- ACM_var[ACM_var$SERIES == "Cyclical spline","UPPER_LIMIT"] - ACM_var[ACM_var$SERIES == "Cyclical spline","NO_DEATHS"]
           p <- ACM_var[1:12,] %>%
             ggplot() +
+            theme_grey(base_size = 24) +
             #geom_line(aes(x = PERIOD, y = EXPECTED), colour = "indianred") +
             #geom_ribbon(aes(x = PERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
             #geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
@@ -659,7 +666,7 @@ shinyServer(
             scale_colour_manual(name="",
                                 values=c(excess_from_expected="indianred")) +
             geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
-            scale_x_continuous(name = "Month in 2020 through 2021",
+            scale_x_continuous(name = "Month (2020)",
                                labels = c("JAN", "FEB", "MAR", "APR",
                                           "MAY", "JUN", "JUL", "AUG",
                                           "SEP", "OCT", "NOV", "DEC"),
@@ -677,6 +684,7 @@ shinyServer(
           upper <- ACM_var[ACM_var$SERIES == "Cyclical spline","UPPER_LIMIT"] - ACM_var[ACM_var$SERIES == "Cyclical spline","NO_DEATHS"]
           p <- ACM_var[1:53,] %>%
             ggplot() +
+            theme_grey(base_size = 24) +
             #geom_line(aes(x = PERIOD, y = EXPECTED), colour = "indianred") +
             #geom_ribbon(aes(x = PERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
             #geom_line(aes(x = PERIOD, y = NO_DEATHS), colour = "black") +
@@ -687,7 +695,7 @@ shinyServer(
             scale_colour_manual(name="",
                                 values=c(excess_from_expected="indianred")) +
             geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
-            scale_x_continuous(name = "Week in 2020 through 2021") +
+            scale_x_continuous(name = "Week (2020)") +
             scale_y_continuous(name = "Weekly Excess Deaths") +
             labs(
               title = paste0("All Cause Mortality for ", input$EDgender, " ", input$EDage, " in ", Countryname(), " during the Pandemic"),
@@ -699,7 +707,7 @@ shinyServer(
         print(p)
         dev.off()
       }else{
-      name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month in 2020 through 2021", "Week in 2020 through 2021")
+      name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month (2020)", "Week (2020)")
       # Spline Regression
       if (input$EDcheck_spline & !input$EDcheck_avg) {
         c_data_sel <- c_data[c_data$SERIES == "Cyclical spline",]
@@ -714,6 +722,7 @@ shinyServer(
         x_breaks <- x_breaks[x_breaks <= last_deaths]
         p <- c_data_sel[1:last_deaths,] %>% 
           ggplot() +
+          theme_grey(base_size = 24) +
           #geom_ribbon(aes(x = PERIOD, y = EXCESS_DEATHS, ymin = -1*lower, ymax = -1*upper), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
           #geom_line(aes(x = PERIOD, y = EXCESS_DEATHS, colour = "excess_from_expected")) +
           geom_col(aes(x = YEARPERIOD, y = EXCESS_DEATHS, colour = "excess_from_expected"),
@@ -733,7 +742,7 @@ shinyServer(
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=9) 
           ) +
-          if(name_PERIOD == "Month in 2020 through 2021"){
+          if(name_PERIOD == "Month (2020)"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
@@ -758,6 +767,7 @@ shinyServer(
         x_breaks <- x_breaks[x_breaks <= last_deaths]
         p <- c_data_sel[1:last_deaths,] %>%
           ggplot() +
+          theme_grey(base_size = 24) +
           #geom_ribbon(aes(x = PERIOD, y = EXCESS_DEATHS, ymin = -1*lower, ymax = -1*upper), linetype = 2, alpha = 0.1, fill = "cyan2", colour = "cyan2") +
           #geom_line(aes(x = PERIOD, y = EXCESS_DEATHS, colour = "excess_from_average")) +
           geom_col(aes(x = YEARPERIOD, y = EXCESS_DEATHS, colour = "excess_from_average"),
@@ -777,7 +787,7 @@ shinyServer(
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=9) 
           ) +
-          if(name_PERIOD == "Month in 2020 through 2021"){
+          if(name_PERIOD == "Month (2020)"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
@@ -800,6 +810,7 @@ shinyServer(
         x_breaks <- x_breaks[x_breaks <= last_deaths]
         p <- c_data_sel %>%
           ggplot() +
+          theme_grey(base_size = 24) +
           #geom_line(aes(x = PERIOD, y = EXCESS_DEATHS, group = SERIES, colour = SERIES)) +
           geom_col(aes(x = YEARPERIOD, y = EXCESS_DEATHS, group = SERIES, colour = SERIES),
                    fill = c(rep("indianred", nrow(c_data_sel)/2 ),
@@ -818,7 +829,7 @@ shinyServer(
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=9) 
           ) +
-          if(name_PERIOD == "Month in 2020 through 2021"){
+          if(name_PERIOD == "Month (2020)"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
@@ -833,7 +844,7 @@ shinyServer(
       if (!input$EDcheck_avg & !input$EDcheck_spline){
         c_data_sel <- c_data[c_data$SERIES == "Cyclical spline",]
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
-        subtitle = paste0("recorded deaths from 2020")
+        subtitle = paste0("Recorded deaths from 2020")
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
         x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
         x_labels=paste(x_breaks-53*trunc(x_breaks/53))
@@ -841,6 +852,7 @@ shinyServer(
         x_breaks <- x_breaks[x_breaks <= last_deaths]
         p <- c_data_sel[1:last_deaths,] %>% 
           ggplot() +
+          theme_grey(base_size = 24) +
           geom_line(aes(x = YEARPERIOD, y = NO_DEATHS), colour = "black") +
           geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
           scale_y_continuous(name = "All Cause Deaths") +
@@ -853,7 +865,7 @@ shinyServer(
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=9) 
           ) +
-          if(name_PERIOD == "Month in 2020 through 2021"){
+          if(name_PERIOD == "Month (2020)"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
@@ -894,6 +906,7 @@ shinyServer(
           upper <- 200*(ACM_var[ACM_var$SERIES == "Cyclical spline","UPPER_LIMIT"] - ACM_var[ACM_var$SERIES == "Cyclical spline","NO_DEATHS"]) / ACM_var[ACM_var$SERIES == "Cyclical spline","EXPECTED"]
           p <- ACM_var[1:12,] %>%
             ggplot() +
+            theme_grey(base_size = 24) +
             geom_col(aes(x = PERIOD, y = P_SCORE, colour = "P_score_from_expected"),
                      fill = "indianred", alpha= 0.1) +
             geom_errorbar(aes(x = PERIOD, y = P_SCORE, ymin = -1*lower[1:12], ymax = -1*upper[1:12]), 
@@ -901,7 +914,7 @@ shinyServer(
             scale_colour_manual(name="",
                                 values=c(P_score_from_expected="indianred")) +
             geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
-            scale_x_continuous(name = "Month in 2020 through 2021",
+            scale_x_continuous(name = "Month (2020)",
                                labels = c("JAN", "FEB", "MAR", "APR",
                                           "MAY", "JUN", "JUL", "AUG",
                                           "SEP", "OCT", "NOV", "DEC"),
@@ -917,6 +930,7 @@ shinyServer(
           upper <- 100*(ACM_var[ACM_var$SERIES == "Cyclical spline","UPPER_LIMIT"] - ACM_var[ACM_var$SERIES == "Cyclical spline","NO_DEATHS"]) / ACM_var[ACM_var$SERIES == "Cyclical spline","EXPECTED"]
           p <- ACM_var[1:53,] %>%
             ggplot() +
+            theme_grey(base_size = 24) +
             geom_col(aes(x = PERIOD, y = P_SCORE, colour = "P_score_from_expected"),
                      fill = "indianred", alpha= 0.1) +
             geom_errorbar(aes(x = PERIOD, y = P_SCORE, ymin = -1*lower[1:53], ymax = -1*upper[1:53]), 
@@ -924,7 +938,7 @@ shinyServer(
             scale_colour_manual(name="",
                                 values=c(P_score_from_expected="indianred")) +
             geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
-            scale_x_continuous(name = "Week in 2020 through 2021") +
+            scale_x_continuous(name = "Week (2020)") +
             scale_y_continuous(name = "Weekly P-score of Excess Deaths") +
             labs(
               title = paste0("All Cause Mortality for ", input$EPgender, " ", input$EPage, " in ", Countryname(), " during the Pandemic"),
@@ -936,7 +950,7 @@ shinyServer(
         print(p)
         dev.off()
       }else{
-      name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month in 2020 through 2021", "Week in 2020 through 2021")
+      name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month (2020)", "Week (2020)")
       # Spline Regression
       if (input$EPcheck_spline & !input$EPcheck_avg) {
         c_data_sel <- c_data[c_data$SERIES == "Cyclical spline",]
@@ -951,6 +965,7 @@ shinyServer(
         x_breaks <- x_breaks[x_breaks <= last_deaths]
         p <- c_data_sel[1:last_deaths,] %>% 
           ggplot() +
+          theme_grey(base_size = 24) +
           geom_col(aes(x = YEARPERIOD, y = P_SCORE, colour = "P_score_from_expected"),
                    fill = "indianred", alpha= 0.1) +
           geom_errorbar(aes(x = YEARPERIOD, y = P_SCORE, ymin = -1*lower, ymax = -1*upper), 
@@ -968,7 +983,7 @@ shinyServer(
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=9) 
           ) +
-          if(name_PERIOD == "Month in 2020 through 2021"){
+          if(name_PERIOD == "Month (2020)"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
@@ -993,6 +1008,7 @@ shinyServer(
         x_breaks <- x_breaks[x_breaks <= last_deaths]
         p <- c_data_sel[1:last_deaths,] %>%
           ggplot() +
+          theme_grey(base_size = 24) +
           geom_col(aes(x = YEARPERIOD, y = P_SCORE, colour = "P_score_from_average"),
                    fill = "cyan2", alpha= 0.1) +
           geom_errorbar(aes(x = YEARPERIOD, y = P_SCORE, ymin = -1*lower, ymax = -1*upper), 
@@ -1010,7 +1026,7 @@ shinyServer(
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=9) 
           ) +
-          if(name_PERIOD == "Month in 2020 through 2021"){
+          if(name_PERIOD == "Month (2020)"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
@@ -1034,6 +1050,7 @@ from 2015-19")
         x_breaks <- x_breaks[x_breaks <= last_deaths]
         p <- c_data_sel %>%
           ggplot() +
+          theme_grey(base_size = 24) +
           geom_col(aes(x = YEARPERIOD, y = P_SCORE, group = SERIES, colour = SERIES),
                    fill = c(rep("indianred", nrow(c_data_sel)/2 ),
                             rep("cyan2", nrow(c_data_sel)/2) ), 
@@ -1051,7 +1068,7 @@ from 2015-19")
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=9) 
           ) +
-          if(name_PERIOD == "Month in 2020 through 2021"){
+          if(name_PERIOD == "Month (2020)"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
@@ -1066,7 +1083,7 @@ from 2015-19")
       if (!input$EPcheck_avg & !input$EPcheck_spline){
         c_data_sel <- c_data[c_data$SERIES == "Cyclical spline",]
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
-        subtitle = paste0("recorded deaths from 2020")
+        subtitle = paste0("Recorded deaths from 2020")
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
         x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
         x_labels=paste(x_breaks-53*trunc(x_breaks/53))
@@ -1074,6 +1091,7 @@ from 2015-19")
         x_breaks <- x_breaks[x_breaks <= last_deaths]
         p <- c_data_sel[1:last_deaths,] %>% 
           ggplot() +
+          theme_grey(base_size = 24) +
           geom_line(aes(x = YEARPERIOD, y = NO_DEATHS), colour = "black") +
           geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
           scale_y_continuous(name = "All Cause Deaths") +
@@ -1086,7 +1104,7 @@ from 2015-19")
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=9) 
           ) +
-          if(name_PERIOD == "Month in 2020 through 2021"){
+          if(name_PERIOD == "Month (2020)"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
@@ -1264,12 +1282,12 @@ from 2015-19")
         if (ACM_var$WM_IDENTIFIER[1] == "Month") {
           p <- ACM_var[1:12,] %>%
             ggplot() +
-            geom_line(aes(x = PERIOD, y = NO_DEATHS, colour = "recorded")) +
+            geom_line(aes(x = PERIOD, y = NO_DEATHS, colour = "Recorded")) +
             geom_ribbon(aes(x = PERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
-            geom_line(aes(x = PERIOD, y = EXPECTED, colour = "expected")) +
+            geom_line(aes(x = PERIOD, y = EXPECTED, colour = "Expected")) +
             scale_colour_manual(name="",
-                                values=c(recorded="black", expected="indianred")) +
-            scale_x_continuous(name = "Month in 2020 through 2021",
+                                values=c(Recorded="black", Expected="indianred")) +
+            scale_x_continuous(name = "Month (2020)",
                                labels = c("JAN", "FEB", "MAR", "APR",
                                           "MAY", "JUN", "JUL", "AUG",
                                           "SEP", "OCT", "NOV", "DEC"),
@@ -1283,12 +1301,12 @@ from 2015-19")
         } else {
           p <- ACM_var[1:53,] %>%
             ggplot() +
-            geom_line(aes(x = PERIOD, y = NO_DEATHS, colour = "recorded")) +
+            geom_line(aes(x = PERIOD, y = NO_DEATHS, colour = "Recorded")) +
             geom_ribbon(aes(x = PERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
-            geom_line(aes(x = PERIOD, y = EXPECTED, colour = "expected")) +
+            geom_line(aes(x = PERIOD, y = EXPECTED, colour = "Expected")) +
             scale_colour_manual(name="",
-                                values=c(recorded="black", expected="indianred")) +
-            scale_x_continuous(name = "Week in 2020 through 2021") +
+                                values=c(Recorded="black", Expected="indianred")) +
+            scale_x_continuous(name = "Week (2020)") +
             scale_y_continuous(name = "Weekly Deaths") +
             labs(
               title = paste0("All Cause Mortality for ", input$gender, " ", input$age, " in ", Countryname(), " during the Pandemic"),
@@ -1299,7 +1317,7 @@ from 2015-19")
         p <- p + theme(plot.subtitle=element_text(size=18, hjust=0.5, face="italic", color="darkred"))    
         return(p)
       }
-      name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month in 2020 through 2021", "Week in 2020 through 2021")
+      name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month (2020)", "Week (2020)")
       # Spline Regression
       if (input$check_spline & !input$check_avg) {
         subtitle <- paste0("deaths from ", bquote(2020), " compared to negative binomial regression on available data from 2015-19")
@@ -1312,11 +1330,11 @@ from 2015-19")
         x_breaks <- x_breaks[x_breaks <= last_deaths]
         p <- c_data_sel[1:last_deaths,] %>% 
           ggplot() +
-          geom_line(aes(x = YEARPERIOD, y = NO_DEATHS, colour = "recorded")) +
+          geom_line(aes(x = YEARPERIOD, y = NO_DEATHS, colour = "Recorded")) +
           geom_ribbon(aes(x = YEARPERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "indianred", colour = "indianred") +
-          geom_line(aes(x = YEARPERIOD, y = EXPECTED, colour = "expected")) +
+          geom_line(aes(x = YEARPERIOD, y = EXPECTED, colour = "Expected")) +
           scale_colour_manual(name="",
-                              values=c(recorded="black", expected="indianred")) +
+                              values=c(Recorded="black", Expected="indianred")) +
           scale_y_continuous(name = "Deaths") + #, limits = c(0, NA)) +
           labs(
             title = paste0("All Cause Mortality for ",input$gender, " ", input$age, " in ", Countryname(), " during the Pandemic"),
@@ -1327,7 +1345,7 @@ from 2015-19")
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=12) 
                ) +
-            if(name_PERIOD == "Month in 2020 through 2021"){
+            if(name_PERIOD == "Month (2020)"){
               scale_x_continuous(name = name_PERIOD, 
                                  labels = rep(c("JAN", "FEB", "MAR", "APR",
                                                 "MAY", "JUN", "JUL", "AUG",
@@ -1350,11 +1368,11 @@ from 2015-19")
         x_breaks <- x_breaks[x_breaks <= last_deaths]
         p <- c_data_sel[1:last_deaths,] %>% 
           ggplot() +
-          geom_line(aes(x = YEARPERIOD, y = EXPECTED, colour = "average")) +
+          geom_line(aes(x = YEARPERIOD, y = EXPECTED, colour = "Average")) +
           geom_ribbon(aes(x = YEARPERIOD, y = EXPECTED, ymin = LOWER_LIMIT, ymax = UPPER_LIMIT), linetype = 2, alpha = 0.1, fill = "cyan2", colour = "cyan2") +
-          geom_line(aes(x = YEARPERIOD, y = NO_DEATHS, colour = "recorded")) +
+          geom_line(aes(x = YEARPERIOD, y = NO_DEATHS, colour = "Recorded")) +
           scale_colour_manual(name="",
-                              values=c(recorded="black", average="cyan2")) +
+                              values=c(Recorded="black", Average="cyan2")) +
           scale_y_continuous(name = "Deaths") + #, limits = c(0, NA)) +
           labs(
             title = paste0("All Cause Mortality for ",input$gender, " ", input$age, " in ", Countryname(), " during the Pandemic"),
@@ -1365,7 +1383,7 @@ from 2015-19")
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=12) 
           ) +
-          if(name_PERIOD == "Month in 2020 through 2021"){
+          if(name_PERIOD == "Month (2020)"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
@@ -1388,9 +1406,9 @@ from 2015-19")
         x_breaks <- x_breaks[x_breaks <= last_deaths]
         p <- c_data_sel %>%
           ggplot() +
-          geom_line(aes(x = YEARPERIOD, y = NO_DEATHS, colour = "recorded")) +
+          geom_line(aes(x = YEARPERIOD, y = NO_DEATHS, colour = "Recorded")) +
           geom_line(aes(x = YEARPERIOD, y = EXPECTED, group = SERIES, colour = SERIES)) +
-          scale_colour_manual(name="", labels = c("expected", "average", "recorded"),
+          scale_colour_manual(name="", labels = c("Expected", "Average", "Recorded"),
             values=c("indianred", "cyan2", "black")) + 
           scale_y_continuous(name = "Deaths") + #, limits = c(0, NA)) +
           labs(
@@ -1402,7 +1420,7 @@ from 2015-19")
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=12) 
                ) +
-          if(name_PERIOD == "Month in 2020 through 2021"){
+          if(name_PERIOD == "Month (2020)"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
@@ -1417,7 +1435,7 @@ from 2015-19")
       if (!input$check_avg & !input$check_spline){
         c_data_sel <- c_data[c_data$SERIES == "Cyclical spline",]
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
-        subtitle = paste0("recorded deaths from 2020")
+        subtitle = paste0("Recorded deaths from 2020")
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
         x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
         x_labels=paste(x_breaks-53*trunc(x_breaks/53))
@@ -1437,7 +1455,7 @@ from 2015-19")
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=12) 
           ) +
-          if(name_PERIOD == "Month in 2020 through 2021"){
+          if(name_PERIOD == "Month (2020)"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
@@ -1482,7 +1500,7 @@ from 2015-19")
             scale_colour_manual(name="",
                                 values=c(excess_from_expected="indianred")) +
             geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
-            scale_x_continuous(name = "Month in 2020 through 2021",
+            scale_x_continuous(name = "Month (2020)",
                                labels = c("JAN", "FEB", "MAR", "APR",
                                           "MAY", "JUN", "JUL", "AUG",
                                           "SEP", "OCT", "NOV", "DEC"),
@@ -1510,7 +1528,7 @@ from 2015-19")
             scale_colour_manual(name="",
                                 values=c(excess_from_expected="indianred")) +
             geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
-            scale_x_continuous(name = "Week in 2020 through 2021") +
+            scale_x_continuous(name = "Week (2020)") +
             scale_y_continuous(name = "Weekly Excess Deaths") +
             labs(
               title = paste0("All Cause Mortality for ",input$EDgender, " ", input$EDage, " in ", Countryname(), " during the Pandemic"),
@@ -1521,7 +1539,7 @@ from 2015-19")
         p <- p + theme(plot.subtitle=element_text(size=18, hjust=0.5, face="italic", color="darkred"))    
         return(p)
       }
-      name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month in 2020 through 2021", "Week in 2020 through 2021")
+      name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month (2020)", "Week (2020)")
       # Spline Regression
       if (input$EDcheck_spline & !input$EDcheck_avg) {
         c_data_sel <- c_data[c_data$SERIES == "Cyclical spline",]
@@ -1555,7 +1573,7 @@ from 2015-19")
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=12) 
           ) +
-          if(name_PERIOD == "Month in 2020 through 2021"){
+          if(name_PERIOD == "Month (2020)"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
@@ -1599,7 +1617,7 @@ from 2015-19")
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=12) 
           ) +
-          if(name_PERIOD == "Month in 2020 through 2021"){
+          if(name_PERIOD == "Month (2020)"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
@@ -1640,7 +1658,7 @@ from 2015-19")
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=12) 
           ) +
-          if(name_PERIOD == "Month in 2020 through 2021"){
+          if(name_PERIOD == "Month (2020)"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
@@ -1655,7 +1673,7 @@ from 2015-19")
       if (!input$EDcheck_avg & !input$EDcheck_spline){
         c_data_sel <- c_data[c_data$SERIES == "Cyclical spline",]
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
-        subtitle = paste0("recorded deaths from 2020")
+        subtitle = paste0("Recorded deaths from 2020")
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
         x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
         x_labels=paste(x_breaks-53*trunc(x_breaks/53))
@@ -1675,7 +1693,7 @@ from 2015-19")
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=12) 
           ) +
-          if(name_PERIOD == "Month in 2020 through 2021"){
+          if(name_PERIOD == "Month (2020)"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
@@ -1715,7 +1733,7 @@ from 2015-19")
             scale_colour_manual(name="",
                                 values=c(P_score_from_expected="indianred")) +
             geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
-            scale_x_continuous(name = "Month in 2020 through 2021",
+            scale_x_continuous(name = "Month (2020)",
                                labels = c("JAN", "FEB", "MAR", "APR",
                                           "MAY", "JUN", "JUL", "AUG",
                                           "SEP", "OCT", "NOV", "DEC"),
@@ -1741,7 +1759,7 @@ from 2015-19")
             scale_colour_manual(name="",
                                 values=c(P_score_from_expected="indianred")) +
             geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
-            scale_x_continuous(name = "Week in 2020 through 2021") +
+            scale_x_continuous(name = "Week (2020)") +
             scale_y_continuous(name = "Weekly P-score of Excess Deaths") +
             labs(
               title = paste0("All Cause Mortality for ",input$EPgender, " ", input$EPage, " in ", Countryname(), " during the Pandemic"),
@@ -1752,7 +1770,7 @@ from 2015-19")
         p <- p + theme(plot.subtitle=element_text(size=18, hjust=0.5, face="italic", color="darkred"))    
         return(p)
       }
-      name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month in 2020 through 2021", "Week in 2020 through 2021")
+      name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month (2020)", "Week (2020)")
       # Spline Regression
       if (input$EPcheck_spline & !input$EPcheck_avg) {
         c_data_sel <- c_data[c_data$SERIES == "Cyclical spline",]
@@ -1786,7 +1804,7 @@ from 2015-19")
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=12) 
           ) +
-          if(name_PERIOD == "Month in 2020 through 2021"){
+          if(name_PERIOD == "Month (2020)"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
@@ -1830,7 +1848,7 @@ from 2015-19")
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=12) 
           ) +
-          if(name_PERIOD == "Month in 2020 through 2021"){
+          if(name_PERIOD == "Month (2020)"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
@@ -1872,7 +1890,7 @@ from 2015-19")
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=12) 
           ) +
-          if(name_PERIOD == "Month in 2020 through 2021"){
+          if(name_PERIOD == "Month (2020)"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
@@ -1887,7 +1905,7 @@ from 2015-19")
       if (!input$EPcheck_avg & !input$EPcheck_spline){
         c_data_sel <- c_data[c_data$SERIES == "Cyclical spline",]
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
-        subtitle = paste0("recorded deaths from 2020")
+        subtitle = paste0("Recorded deaths from 2020")
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
         x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
         x_labels=paste(x_breaks-53*trunc(x_breaks/53))
@@ -1907,7 +1925,7 @@ from 2015-19")
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=12) 
           ) +
-          if(name_PERIOD == "Month in 2020 through 2021"){
+          if(name_PERIOD == "Month (2020)"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
