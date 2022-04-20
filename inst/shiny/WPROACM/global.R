@@ -282,6 +282,8 @@ calculate_spline <- function(src) {
   out[, "EXCESS_DEATHS"] <- out$NO_DEATHS - out$ESTIMATE
   out[, "P_SCORE"] <- 100*(out$NO_DEATHS - out$ESTIMATE) / out$ESTIMATE
   out[, "EXPECTED"] <- out$ESTIMATE
+  out[, "EXCESS_UPPER"] <- out$NO_DEATHS - out$LOWER_LIMIT
+  out[, "EXCESS_LOWER"] <- out$NO_DEATHS - out$UPPER_LIMIT
 
 # names(out)[c(14:15)] <- c("SERIES", "NO_DEATHS")
   out$SERIES <- factor(rep(c("Cyclical spline", "Historical average"),rep(nyear_predict*l_period*n_pat,2)))
@@ -295,7 +297,7 @@ calculate_spline <- function(src) {
 
   if (any(out$SERIES == "Unknown series, plz check")) message("Unknown series, plz check")
 
-  out <- out[, c("REGION", "WM_IDENTIFIER", "YEAR", "PERIOD", "SEX", "AGE_GROUP", "SERIES", "NO_DEATHS", "EXPECTED", "LOWER_LIMIT", "UPPER_LIMIT", "EXCESS_DEATHS", "P_SCORE")]
+  out <- out[, c("REGION", "WM_IDENTIFIER", "YEAR", "PERIOD", "SEX", "AGE_GROUP", "SERIES", "NO_DEATHS", "EXPECTED", "LOWER_LIMIT", "UPPER_LIMIT", "EXCESS_DEATHS", "P_SCORE", "EXCESS_LOWER", "EXCESS_UPPER")]
 
   message("Computation of the expected deaths completed successfully.")
 
