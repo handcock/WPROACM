@@ -116,14 +116,21 @@ calculate_spline <- function(src) {
     src$NO_DEATHS <- as.numeric(src$NO_DEATHS)
   }
 
+  minyear <- min(src$YEAR, na.rm=TRUE)-1
   dom <- c(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
   moy <- c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
   if (max(src$PERIOD, na.rm = TRUE) == 12) {
     day <- cumsum(c(0, dom))[src$PERIOD] + 15
-    DATE <- cumsum(c(0, 365, 366, 365, 365, 365, 366, 365, 365))[src$YEAR - 2014] + day
+   #DATE <- cumsum(c(0, 365, 366, 365, 365, 365, 366, 365, 365))[src$YEAR - minyear] + day
+    DATE <- min(src$YEAR, na.rm=TRUE):max(src$YEAR, na.rm=TRUE)
+    DATE <- c(366, 365, 365, 365)[round(DATE-4*trunc((DATE+0.5) / 4))+1]
+    DATE <- cumsum(c(0, DATE))[src$YEAR - minyear] + day
   } else {
     day <- cumsum(c(0, rep(7,52)))[src$PERIOD] + 3.5
-    DATE <- cumsum(c(0, 365, 366, 365, 365, 365, 366, 365, 365))[src$YEAR - 2014] + day
+   #DATE <- cumsum(c(0, 365, 366, 365, 365, 365, 366, 365, 365))[src$YEAR - minyear] + day
+    DATE <- min(src$YEAR, na.rm=TRUE):max(src$YEAR, na.rm=TRUE)
+    DATE <- c(366, 365, 365, 365)[round(DATE-4*trunc((DATE+0.5) / 4))+1]
+    DATE <- cumsum(c(0, DATE))[src$YEAR - minyear] + day
   }
 
   out <- src %>% dplyr::filter(YEAR >= "2020")
@@ -149,7 +156,10 @@ calculate_spline <- function(src) {
     if (l_period > 51) {
       day <- cumsum(c(0, rep(7,52)))[patt_src$PERIOD] + 3.5
       day <- patt_src$DAYS
-      aDATE <- cumsum(c(0, 365, 366, 365, 365, 365, 366, 365, 365))[patt_src$YEAR - 2014] + day
+     #aDATE <- cumsum(c(0, 365, 366, 365, 365, 365, 366, 365, 365))[patt_src$YEAR - minyear] + day
+      aDATE <- min(patt_src$YEAR, na.rm=TRUE):max(patt_src$YEAR, na.rm=TRUE)
+      aDATE <- c(366, 365, 365, 365)[round(aDATE-4*trunc((aDATE+0.5) / 4))+1]
+      aDATE <- cumsum(c(0, aDATE))[patt_src$YEAR - minyear] + day
       src_pandemic <- patt_src
       src_pandemic$DAYS[src_pandemic$DAYS == 0] <- 7
       num.cycle <- max(patt_src$PERIOD[patt_src$DAYS > 0])
@@ -162,7 +172,10 @@ calculate_spline <- function(src) {
       src_pandemic$logdays <- log(src_pandemic$DAYS)
     } else {
       day <- cumsum(c(0, dom))[patt_src$PERIOD] + 15
-      DATE <- cumsum(c(0, 365, 366, 365, 365, 365, 366, 365, 365))[patt_src$YEAR - 2014] + day
+     #DATE <- cumsum(c(0, 365, 366, 365, 365, 365, 366, 365, 365))[patt_src$YEAR - minyear] + day
+      DATE <- min(patt_src$YEAR, na.rm=TRUE):max(patt_src$YEAR, na.rm=TRUE)
+      DATE <- c(366, 365, 365, 365)[round(DATE-4*trunc((DATE+0.5) / 4))+1]
+      DATE <- cumsum(c(0, DATE))[patt_src$YEAR - minyear] + day
       src_pandemic <- patt_src
       aDATE <- DATE[paste(src$SEX, src$AGE_GROUP) == pattern[j]]
       num.cycle <- 12
@@ -184,9 +197,12 @@ calculate_spline <- function(src) {
     ave_deaths <- as.numeric(tapply(hist_src$NO_DEATHS,hist_src$PERIOD,mean,na.rm=TRUE))
     var_deaths <- as.numeric(tapply(hist_src$NO_DEATHS,hist_src$PERIOD,var,na.rm=TRUE))
     num_deaths <- as.numeric(tapply(hist_src$NO_DEATHS,hist_src$PERIOD,function(x){sum(!is.na(x))}))
-    ave_deaths <- rep(ave_deaths,nyear_predict+5)
-    var_deaths <- rep(var_deaths,nyear_predict+5)
-    num_deaths <- rep(num_deaths,nyear_predict+5)
+    if(length(num_deaths) >= 53 & num_deaths[53] < 3) var_deaths[53] <- var_deaths[52]
+    if(num_deaths[1] < 3) var_deaths[1] <- var_deaths[2]
+
+    ave_deaths <- rep(ave_deaths,nyear_predict+50)[1:nrow(src_pandemic)]
+    var_deaths <- rep(var_deaths,nyear_predict+50)[1:nrow(src_pandemic)]
+    num_deaths <- rep(num_deaths,nyear_predict+50)[1:nrow(src_pandemic)]
     ave_deaths_lower <- ave_deaths - qnorm(0.975)*sqrt(var_deaths*(1 + 1 / num_deaths))
     ave_deaths_upper <- ave_deaths + qnorm(0.975)*sqrt(var_deaths*(1 + 1 / num_deaths))
 
@@ -329,14 +345,21 @@ calculate_spline_age <- function(src) {
     src$NO_DEATHS <- as.numeric(src$NO_DEATHS)
   }
 
+  minyear <- min(src$YEAR, na.rm=TRUE)-1
   dom <- c(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
   moy <- c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
   if (max(src$PERIOD, na.rm = TRUE) == 12) {
     day <- cumsum(c(0, dom))[src$PERIOD] + 15
-    DATE <- cumsum(c(0, 365, 366, 365, 365, 365, 366, 365, 365))[src$YEAR - 2014] + day
+   #DATE <- cumsum(c(0, 365, 366, 365, 365, 365, 366, 365, 365))[src$YEAR - minyear] + day
+    DATE <- min(src$YEAR, na.rm=TRUE):max(src$YEAR, na.rm=TRUE)
+    DATE <- c(366, 365, 365, 365)[round(DATE-4*trunc((DATE+0.5) / 4))+1]
+    DATE <- cumsum(c(0, DATE))[src$YEAR - minyear] + day
   } else {
     day <- cumsum(c(0, rep(7,52)))[src$PERIOD] + 3.5
-    DATE <- cumsum(c(0, 365, 366, 365, 365, 365, 366, 365, 365))[src$YEAR - 2014] + day
+   #DATE <- cumsum(c(0, 365, 366, 365, 365, 365, 366, 365, 365))[src$YEAR - minyear] + day
+    DATE <- min(src$YEAR, na.rm=TRUE):max(src$YEAR, na.rm=TRUE)
+    DATE <- c(366, 365, 365, 365)[round(DATE-4*trunc((DATE+0.5) / 4))+1]
+    DATE <- cumsum(c(0, DATE))[src$YEAR - minyear] + day
   }
 
   out <- src %>% dplyr::filter(YEAR >= "2020")
@@ -374,7 +397,10 @@ calculate_spline_age <- function(src) {
     if (sum(hist_src$NO_DEATHS, na.rm = TRUE) == 0) next
     if (l_period > 51) {
       day <- cumsum(c(0, rep(7,52)))[patt_src$PERIOD] + 3.5
-      aDATE <- cumsum(c(0, 365, 366, 365, 365, 365, 366, 365, 365))[patt_src$YEAR - 2014] + day
+     #aDATE <- cumsum(c(0, 365, 366, 365, 365, 365, 366, 365, 365))[patt_src$YEAR - minyear] + day
+      aDATE <- min(patt_src$YEAR, na.rm=TRUE):max(patt_src$YEAR, na.rm=TRUE)
+      aDATE <- c(366, 365, 365, 365)[round(aDATE-4*trunc((aDATE+0.5) / 4))+1]
+      aDATE <- cumsum(c(0, aDATE))[patt_src$YEAR - minyear] + day
       src_pandemic <- patt_src
       num.cycle <- 52
 #     loc_DATE <- aDATE[patt_src$YEAR < "2020"]
@@ -388,7 +414,10 @@ calculate_spline_age <- function(src) {
       src_pandemic$logdays <- log(7)
     } else {
       day <- cumsum(c(0, dom))[patt_src$PERIOD] + 15
-      DATE <- cumsum(c(0, 365, 366, 365, 365, 365, 366, 365, 365))[patt_src$YEAR - 2014] + day
+     #DATE <- cumsum(c(0, 365, 366, 365, 365, 365, 366, 365, 365))[patt_src$YEAR - minyear] + day
+      DATE <- min(patt_src$YEAR, na.rm=TRUE):max(patt_src$YEAR, na.rm=TRUE)
+      DATE <- c(366, 365, 365, 365)[round(DATE-4*trunc((DATE+0.5) / 4))+1]
+      DATE <- cumsum(c(0, DATE))[patt_src$YEAR - minyear] + day
       src_pandemic <- patt_src
       aDATE <- DATE[paste(out$AREA, src$SEX, src$AGE_GROUP) == pattern[j]]
       num.cycle <- 12
@@ -417,9 +446,12 @@ calculate_spline_age <- function(src) {
     ave_deaths <- as.numeric(tapply(hist_src$NO_DEATHS,hist_src$PERIOD,mean,na.rm=TRUE))
     var_deaths <- as.numeric(tapply(hist_src$NO_DEATHS,hist_src$PERIOD,var,na.rm=TRUE))
     num_deaths <- as.numeric(tapply(hist_src$NO_DEATHS,hist_src$PERIOD,function(x){sum(!is.na(x))}))
-    ave_deaths <- rep(ave_deaths,nyear_predict+5)
-    var_deaths <- rep(var_deaths,nyear_predict+5)
-    num_deaths <- rep(num_deaths,nyear_predict+5)
+    if(length(num_deaths) >= 53 & num_deaths[53] < 3) var_deaths[53] <- var_deaths[52]
+    if(num_deaths[1] < 3) var_deaths[1] <- var_deaths[2]
+
+    ave_deaths <- rep(ave_deaths,nyear_predict+50)[1:nrow(src_pandemic)]
+    var_deaths <- rep(var_deaths,nyear_predict+50)[1:nrow(src_pandemic)]
+    num_deaths <- rep(num_deaths,nyear_predict+50)[1:nrow(src_pandemic)]
     ave_deaths_lower <- ave_deaths - qnorm(0.975)*sqrt(var_deaths*(1 + 1 / num_deaths))
     ave_deaths_upper <- ave_deaths + qnorm(0.975)*sqrt(var_deaths*(1 + 1 / num_deaths))
 

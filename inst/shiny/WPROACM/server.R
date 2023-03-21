@@ -438,7 +438,7 @@ shinyServer(
               geom_line(aes(x = PERIOD, y = EXPECTED, colour = "Expected")) +
               scale_colour_manual(name="",
                                   values=c(Recorded="black", Expected="indianred")) +
-              scale_x_continuous(name = "Month (2020)",
+              scale_x_continuous(name = "Month (2020-present)",
                                  labels = c("JAN", "FEB", "MAR", "APR",
                                             "MAY", "JUN", "JUL", "AUG",
                                             "SEP", "OCT", "NOV", "DEC"),
@@ -458,7 +458,7 @@ shinyServer(
             geom_line(aes(x = PERIOD, y = EXPECTED, colour = "Expected")) +
             scale_colour_manual(name="",
                                 values=c(Recorded="black", Expected="indianred")) +
-            scale_x_continuous(name = "Week (2020)") +
+            scale_x_continuous(name = "Week (2020-present)") +
             scale_y_continuous(name = "Weekly Deaths") +
             labs(
               title = paste0("All Cause Mortality for ", input$gender, " ", input$age, " in ", Countryname(), " during the Pandemic"),
@@ -470,13 +470,13 @@ shinyServer(
         print(p)
         dev.off()
       }else{
-      name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month (2020)", "Week (2020)")
+      name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month (2020-present)", "Week (2020-present)")
       # Spline Regression
       if (input$check_spline & !input$check_avg) {
         c_data_sel <- c_data[c_data$SERIES == "Cyclical spline",]
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
-        subtitle <- paste0("deaths from ", bquote(2020), " compared to negative binomial regression on available data from 2015-19")
+        subtitle <- paste0("deaths from ", bquote(2020), " compared to negative binomial regression on available data from the prior period")
         x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
         x_labels=paste(x_breaks-53*trunc(x_breaks/53))
         x_labels <- x_labels[x_breaks <= last_deaths]
@@ -499,7 +499,7 @@ shinyServer(
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic") 
                ) +
-          if(name_PERIOD == "Month (2020)"){
+          if(name_PERIOD == "Month (2020-present)"){
             scale_x_continuous(name = name_PERIOD,
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
@@ -512,7 +512,7 @@ shinyServer(
       
       # historical average
       if (input$check_avg & !input$check_spline) {
-        subtitle <- paste0("deaths from ", bquote(2020), " compared to historical average on available data from 2015-19")
+        subtitle <- paste0("deaths from ", bquote(2020), " compared to historical average on available data from the prior period")
         c_data_sel <- c_data[c_data$SERIES == "Historical average",]
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
@@ -538,7 +538,7 @@ shinyServer(
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=9) 
           ) +
-          if(name_PERIOD == "Month (2020)"){
+          if(name_PERIOD == "Month (2020-present)"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
@@ -551,7 +551,7 @@ shinyServer(
       
       # Both neg binom and hist avg
       if (input$check_avg & input$check_spline) {
-        subtitle <- paste0("deaths from 2020 compared to negative binomial regression and historical average on available data from 2015-19")
+        subtitle <- paste0("deaths from 2020 compared to negative binomial regression and historical average on available data from the prior period")
         last_deaths <- nrow(c_data)/2- which.max(!is.na(rev(c_data[1:(nrow(c_data)/2),"NO_DEATHS"]))) + 1
         c_data_sel <- c_data[c(1:last_deaths,(nrow(c_data)/2 + (1:last_deaths))),]
         c_data_sel$YEARPERIOD <- rep(1:last_deaths,2)
@@ -576,7 +576,7 @@ shinyServer(
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=9) 
           ) +
-          if(name_PERIOD == "Month (2020)"){
+          if(name_PERIOD == "Month (2020-present)"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
@@ -612,7 +612,7 @@ shinyServer(
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=9) 
           ) +
-          if(name_PERIOD == "Month (2020)"){
+          if(name_PERIOD == "Month (2020-present)"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
@@ -666,7 +666,7 @@ shinyServer(
             scale_colour_manual(name="",
                                 values=c(excess_from_expected="indianred")) +
             geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
-            scale_x_continuous(name = "Month (2020)",
+            scale_x_continuous(name = "Month (2020-present)",
                                labels = c("JAN", "FEB", "MAR", "APR",
                                           "MAY", "JUN", "JUL", "AUG",
                                           "SEP", "OCT", "NOV", "DEC"),
@@ -695,7 +695,7 @@ shinyServer(
             scale_colour_manual(name="",
                                 values=c(excess_from_expected="indianred")) +
             geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
-            scale_x_continuous(name = "Week (2020)") +
+            scale_x_continuous(name = "Week (2020-present)") +
             scale_y_continuous(name = "Weekly Excess Deaths") +
             labs(
               title = paste0("All Cause Mortality for ", input$EDgender, " ", input$EDage, " in ", Countryname(), " during the Pandemic"),
@@ -707,13 +707,13 @@ shinyServer(
         print(p)
         dev.off()
       }else{
-      name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month (2020)", "Week (2020)")
+      name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month (2020-present)", "Week (2020-present)")
       # Spline Regression
       if (input$EDcheck_spline & !input$EDcheck_avg) {
         c_data_sel <- c_data[c_data$SERIES == "Cyclical spline",]
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
-        subtitle <- paste0("excess deaths from ", bquote(2020), " compared to negative binomial regression on available data from 2015-19")
+        subtitle <- paste0("excess deaths from ", bquote(2020), " compared to negative binomial regression on available data from the prior period")
         lower <- c_data_sel[1:last_deaths,"LOWER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]
         upper <- c_data_sel[1:last_deaths,"UPPER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]
         x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
@@ -742,7 +742,7 @@ shinyServer(
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=9) 
           ) +
-          if(name_PERIOD == "Month (2020)"){
+          if(name_PERIOD == "Month (2020-present)"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
@@ -758,7 +758,7 @@ shinyServer(
         c_data_sel <- c_data[c_data$SERIES == "Historical average",]
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
-        subtitle <- paste0("excess deaths from ", bquote(2020), " compared to historical average on available data from 2015-19")
+        subtitle <- paste0("excess deaths from ", bquote(2020), " compared to historical average on available data from the prior period")
         lower <- c_data_sel[1:last_deaths,"LOWER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]
         upper <- c_data_sel[1:last_deaths,"UPPER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]
         x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
@@ -787,7 +787,7 @@ shinyServer(
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=9) 
           ) +
-          if(name_PERIOD == "Month (2020)"){
+          if(name_PERIOD == "Month (2020-present)"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
@@ -800,7 +800,7 @@ shinyServer(
       
       # Both neg binom and hist avg
       if (input$EDcheck_avg & input$EDcheck_spline) {
-        subtitle <- paste0("excess deaths from 2020 compared to negative binomial regression and historical average on available data from 2015-19")
+        subtitle <- paste0("excess deaths from 2020 compared to negative binomial regression and historical average on available data from the prior period")
         last_deaths <- nrow(c_data)/2- which.max(!is.na(rev(c_data[1:(nrow(c_data)/2),"NO_DEATHS"]))) + 1
         c_data_sel <- c_data[c(1:last_deaths,(nrow(c_data)/2 + (1:last_deaths))),]
         c_data_sel$YEARPERIOD <- rep(1:last_deaths,2)
@@ -829,7 +829,7 @@ shinyServer(
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=9) 
           ) +
-          if(name_PERIOD == "Month (2020)"){
+          if(name_PERIOD == "Month (2020-present)"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
@@ -865,7 +865,7 @@ shinyServer(
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=9) 
           ) +
-          if(name_PERIOD == "Month (2020)"){
+          if(name_PERIOD == "Month (2020-present)"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
@@ -914,7 +914,7 @@ shinyServer(
             scale_colour_manual(name="",
                                 values=c(P_score_from_expected="indianred")) +
             geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
-            scale_x_continuous(name = "Month (2020)",
+            scale_x_continuous(name = "Month (2020-present)",
                                labels = c("JAN", "FEB", "MAR", "APR",
                                           "MAY", "JUN", "JUL", "AUG",
                                           "SEP", "OCT", "NOV", "DEC"),
@@ -938,7 +938,7 @@ shinyServer(
             scale_colour_manual(name="",
                                 values=c(P_score_from_expected="indianred")) +
             geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
-            scale_x_continuous(name = "Week (2020)") +
+            scale_x_continuous(name = "Week (2020-present)") +
             scale_y_continuous(name = "Weekly P-score of Excess Deaths") +
             labs(
               title = paste0("All Cause Mortality for ", input$EPgender, " ", input$EPage, " in ", Countryname(), " during the Pandemic"),
@@ -950,13 +950,13 @@ shinyServer(
         print(p)
         dev.off()
       }else{
-      name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month (2020)", "Week (2020)")
+      name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month (2020-present)", "Week (2020-present)")
       # Spline Regression
       if (input$EPcheck_spline & !input$EPcheck_avg) {
         c_data_sel <- c_data[c_data$SERIES == "Cyclical spline",]
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
-        subtitle <- paste0("P-score of excess deaths from ", bquote(2020), " compared to negative binomial regression on available data from 2015-19")
+        subtitle <- paste0("P-score of excess deaths from ", bquote(2020), " compared to negative binomial regression on available data from the prior period")
         lower <- 100*(c_data_sel[1:last_deaths,"LOWER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]) / c_data_sel[1:last_deaths,"EXPECTED"]
         upper <- 100*(c_data_sel[1:last_deaths,"UPPER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]) / c_data_sel[1:last_deaths,"EXPECTED"]
         x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
@@ -983,7 +983,7 @@ shinyServer(
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=9) 
           ) +
-          if(name_PERIOD == "Month (2020)"){
+          if(name_PERIOD == "Month (2020-present)"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
@@ -999,7 +999,7 @@ shinyServer(
         c_data_sel <- c_data[c_data$SERIES == "Historical average",]
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
-        subtitle <- paste0("P-score of excess deaths from ", bquote(2020), " compared to historical average on available data from 2015-19")
+        subtitle <- paste0("P-score of excess deaths from ", bquote(2020), " compared to historical average on available data from the prior period")
         lower <- 100*(c_data_sel[1:last_deaths,"LOWER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]) / c_data_sel[1:last_deaths,"EXPECTED"]
         upper <- 100*(c_data_sel[1:last_deaths,"UPPER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]) / c_data_sel[1:last_deaths,"EXPECTED"]
         x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
@@ -1026,7 +1026,7 @@ shinyServer(
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=9) 
           ) +
-          if(name_PERIOD == "Month (2020)"){
+          if(name_PERIOD == "Month (2020-present)"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
@@ -1039,8 +1039,7 @@ shinyServer(
       
       # Both neg binom and hist avg
       if (input$EPcheck_avg & input$EPcheck_spline) {
-        subtitle <- paste0("P-score of excess deaths from 2020 compared to negative binomial regression and historical average on available data
-from 2015-19")
+        subtitle <- paste0("P-score of excess deaths from 2020 compared to negative binomial regression and historical average on available data from the prior period")
         last_deaths <- nrow(c_data)/2- which.max(!is.na(rev(c_data[1:(nrow(c_data)/2),"NO_DEATHS"]))) + 1
         c_data_sel <- c_data[c(1:last_deaths,(nrow(c_data)/2 + (1:last_deaths))),]
         c_data_sel$YEARPERIOD <- rep(1:last_deaths,2)
@@ -1068,7 +1067,7 @@ from 2015-19")
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=9) 
           ) +
-          if(name_PERIOD == "Month (2020)"){
+          if(name_PERIOD == "Month (2020-present)"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
@@ -1104,7 +1103,7 @@ from 2015-19")
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=9) 
           ) +
-          if(name_PERIOD == "Month (2020)"){
+          if(name_PERIOD == "Month (2020-present)"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
@@ -1287,7 +1286,7 @@ from 2015-19")
             geom_line(aes(x = PERIOD, y = EXPECTED, colour = "Expected")) +
             scale_colour_manual(name="",
                                 values=c(Recorded="black", Expected="indianred")) +
-            scale_x_continuous(name = "Month (2020)",
+            scale_x_continuous(name = "Month (2020-present)",
                                labels = c("JAN", "FEB", "MAR", "APR",
                                           "MAY", "JUN", "JUL", "AUG",
                                           "SEP", "OCT", "NOV", "DEC"),
@@ -1306,7 +1305,7 @@ from 2015-19")
             geom_line(aes(x = PERIOD, y = EXPECTED, colour = "Expected")) +
             scale_colour_manual(name="",
                                 values=c(Recorded="black", Expected="indianred")) +
-            scale_x_continuous(name = "Week (2020)") +
+            scale_x_continuous(name = "Week (2020-present)") +
             scale_y_continuous(name = "Weekly Deaths") +
             labs(
               title = paste0("All Cause Mortality for ", input$gender, " ", input$age, " in ", Countryname(), " during the Pandemic"),
@@ -1317,10 +1316,10 @@ from 2015-19")
         p <- p + theme(plot.subtitle=element_text(size=18, hjust=0.5, face="italic", color="darkred"))    
         return(p)
       }
-      name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month (2020)", "Week (2020)")
+      name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month (2020-present)", "Week (2020-present)")
       # Spline Regression
       if (input$check_spline & !input$check_avg) {
-        subtitle <- paste0("deaths from ", bquote(2020), " compared to negative binomial regression on available data from 2015-19")
+        subtitle <- paste0("deaths from ", bquote(2020), " compared to negative binomial regression on available data from the prior period")
         c_data_sel <- c_data[c_data$SERIES == "Cyclical spline",]
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
@@ -1345,7 +1344,7 @@ from 2015-19")
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=12) 
                ) +
-            if(name_PERIOD == "Month (2020)"){
+            if(name_PERIOD == "Month (2020-present)"){
               scale_x_continuous(name = name_PERIOD, 
                                  labels = rep(c("JAN", "FEB", "MAR", "APR",
                                                 "MAY", "JUN", "JUL", "AUG",
@@ -1358,7 +1357,7 @@ from 2015-19")
       
       # historical average
       if (input$check_avg & !input$check_spline) {
-        subtitle <- paste0("deaths from ", bquote(2020), " compared to historical average on available data from 2015-19")
+        subtitle <- paste0("deaths from ", bquote(2020), " compared to historical average on available data from the prior period")
         c_data_sel <- c_data[c_data$SERIES == "Historical average",]
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
@@ -1383,7 +1382,7 @@ from 2015-19")
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=12) 
           ) +
-          if(name_PERIOD == "Month (2020)"){
+          if(name_PERIOD == "Month (2020-present)"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
@@ -1396,7 +1395,7 @@ from 2015-19")
       
       # Both neg binom and hist avg
       if (input$check_avg & input$check_spline) {
-        subtitle <- paste0("deaths from 2020 compared to negative binomial regression and historical average on available data from 2015-19")
+        subtitle <- paste0("deaths from 2020 compared to negative binomial regression and historical average on available data from the prior period")
         last_deaths <- nrow(c_data)/2- which.max(!is.na(rev(c_data[1:(nrow(c_data)/2),"NO_DEATHS"]))) + 1
         c_data_sel <- c_data[c(1:last_deaths,(nrow(c_data)/2 + (1:last_deaths))),]
         c_data_sel$YEARPERIOD <- rep(1:last_deaths,2)
@@ -1420,7 +1419,7 @@ from 2015-19")
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=12) 
                ) +
-          if(name_PERIOD == "Month (2020)"){
+          if(name_PERIOD == "Month (2020-present)"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
@@ -1455,7 +1454,7 @@ from 2015-19")
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=12) 
           ) +
-          if(name_PERIOD == "Month (2020)"){
+          if(name_PERIOD == "Month (2020-present)"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
@@ -1500,7 +1499,7 @@ from 2015-19")
             scale_colour_manual(name="",
                                 values=c(excess_from_expected="indianred")) +
             geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
-            scale_x_continuous(name = "Month (2020)",
+            scale_x_continuous(name = "Month (2020-present)",
                                labels = c("JAN", "FEB", "MAR", "APR",
                                           "MAY", "JUN", "JUL", "AUG",
                                           "SEP", "OCT", "NOV", "DEC"),
@@ -1528,7 +1527,7 @@ from 2015-19")
             scale_colour_manual(name="",
                                 values=c(excess_from_expected="indianred")) +
             geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
-            scale_x_continuous(name = "Week (2020)") +
+            scale_x_continuous(name = "Week (2020-present)") +
             scale_y_continuous(name = "Weekly Excess Deaths") +
             labs(
               title = paste0("All Cause Mortality for ",input$EDgender, " ", input$EDage, " in ", Countryname(), " during the Pandemic"),
@@ -1539,13 +1538,13 @@ from 2015-19")
         p <- p + theme(plot.subtitle=element_text(size=18, hjust=0.5, face="italic", color="darkred"))    
         return(p)
       }
-      name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month (2020)", "Week (2020)")
+      name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month (2020-present)", "Week (2020-present)")
       # Spline Regression
       if (input$EDcheck_spline & !input$EDcheck_avg) {
         c_data_sel <- c_data[c_data$SERIES == "Cyclical spline",]
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
-        subtitle <- paste0("excess deaths from ", bquote(2020), " compared to negative binomial regression on available data from 2015-19")
+        subtitle <- paste0("excess deaths from ", bquote(2020), " compared to negative binomial regression on available data from the prior period")
         lower <- c_data_sel[1:last_deaths,"LOWER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]
         upper <- c_data_sel[1:last_deaths,"UPPER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]
         x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
@@ -1573,7 +1572,7 @@ from 2015-19")
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=12) 
           ) +
-          if(name_PERIOD == "Month (2020)"){
+          if(name_PERIOD == "Month (2020-present)"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
@@ -1589,7 +1588,7 @@ from 2015-19")
         c_data_sel <- c_data[c_data$SERIES == "Historical average",]
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
-        subtitle <- paste0("excess deaths from ", bquote(2020), " compared to historical average on available data from 2015-19")
+        subtitle <- paste0("excess deaths from ", bquote(2020), " compared to historical average on available data from the prior period")
         lower <- c_data_sel[1:last_deaths,"LOWER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]
         upper <- c_data_sel[1:last_deaths,"UPPER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]
         x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
@@ -1617,7 +1616,7 @@ from 2015-19")
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=12) 
           ) +
-          if(name_PERIOD == "Month (2020)"){
+          if(name_PERIOD == "Month (2020-present)"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
@@ -1630,7 +1629,7 @@ from 2015-19")
       
       # Both neg binom and hist avg
       if (input$EDcheck_avg & input$EDcheck_spline) {
-        subtitle <- paste0("excess deaths from 2020 compared to negative binomial regression and historical average on available data from 2015-19")
+        subtitle <- paste0("excess deaths from 2020 compared to negative binomial regression and historical average on available data from the prior period")
         last_deaths <- nrow(c_data)/2- which.max(!is.na(rev(c_data[1:(nrow(c_data)/2),"NO_DEATHS"]))) + 1
         c_data_sel <- c_data[c(1:last_deaths,(nrow(c_data)/2 + (1:last_deaths))),]
         c_data_sel$YEARPERIOD <- rep(1:last_deaths,2)
@@ -1658,7 +1657,7 @@ from 2015-19")
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=12) 
           ) +
-          if(name_PERIOD == "Month (2020)"){
+          if(name_PERIOD == "Month (2020-present)"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
@@ -1693,7 +1692,7 @@ from 2015-19")
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=12) 
           ) +
-          if(name_PERIOD == "Month (2020)"){
+          if(name_PERIOD == "Month (2020-present)"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
@@ -1733,7 +1732,7 @@ from 2015-19")
             scale_colour_manual(name="",
                                 values=c(P_score_from_expected="indianred")) +
             geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
-            scale_x_continuous(name = "Month (2020)",
+            scale_x_continuous(name = "Month (2020-present)",
                                labels = c("JAN", "FEB", "MAR", "APR",
                                           "MAY", "JUN", "JUL", "AUG",
                                           "SEP", "OCT", "NOV", "DEC"),
@@ -1759,7 +1758,7 @@ from 2015-19")
             scale_colour_manual(name="",
                                 values=c(P_score_from_expected="indianred")) +
             geom_hline(aes(yintercept=0), linetype="dashed", color="black") +
-            scale_x_continuous(name = "Week (2020)") +
+            scale_x_continuous(name = "Week (2020-present)") +
             scale_y_continuous(name = "Weekly P-score of Excess Deaths") +
             labs(
               title = paste0("All Cause Mortality for ",input$EPgender, " ", input$EPage, " in ", Countryname(), " during the Pandemic"),
@@ -1770,13 +1769,13 @@ from 2015-19")
         p <- p + theme(plot.subtitle=element_text(size=18, hjust=0.5, face="italic", color="darkred"))    
         return(p)
       }
-      name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month (2020)", "Week (2020)")
+      name_PERIOD <- ifelse(ACM_var$WM_IDENTIFIER[1] == "Month", "Month (2020-present)", "Week (2020-present)")
       # Spline Regression
       if (input$EPcheck_spline & !input$EPcheck_avg) {
         c_data_sel <- c_data[c_data$SERIES == "Cyclical spline",]
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
-        subtitle <- paste0("P-score of excess deaths from ", bquote(2020), " compared to negative binomial regression on available data from 2015-19")
+        subtitle <- paste0("P-score of excess deaths from ", bquote(2020), " compared to negative binomial regression on available data from the prior period")
         lower <- 100*(c_data_sel[1:last_deaths,"LOWER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]) / c_data_sel[1:last_deaths,"EXPECTED"]
         upper <- 100*(c_data_sel[1:last_deaths,"UPPER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]) / c_data_sel[1:last_deaths,"EXPECTED"]
         x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
@@ -1804,7 +1803,7 @@ from 2015-19")
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=12) 
           ) +
-          if(name_PERIOD == "Month (2020)"){
+          if(name_PERIOD == "Month (2020-present)"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
@@ -1820,7 +1819,7 @@ from 2015-19")
         c_data_sel <- c_data[c_data$SERIES == "Historical average",]
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
         last_deaths <- nrow(c_data_sel)- which.max(!is.na(rev(c_data_sel[,"NO_DEATHS"]))) + 1
-        subtitle <- paste0("P-score of excess deaths from ", bquote(2020), " compared to historical average on available data from 2015-19")
+        subtitle <- paste0("P-score of excess deaths from ", bquote(2020), " compared to historical average on available data from the prior period")
         lower <- 100*(c_data_sel[1:last_deaths,"LOWER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]) / c_data_sel[1:last_deaths,"EXPECTED"]
         upper <- 100*(c_data_sel[1:last_deaths,"UPPER_LIMIT"] - c_data_sel[1:last_deaths,"NO_DEATHS"]) / c_data_sel[1:last_deaths,"EXPECTED"]
         x_breaks=rep(c(1,seq(5,50,by=5)),3)+rep(53*(0:2),rep(11,3))
@@ -1848,7 +1847,7 @@ from 2015-19")
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=12) 
           ) +
-          if(name_PERIOD == "Month (2020)"){
+          if(name_PERIOD == "Month (2020-present)"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
@@ -1861,8 +1860,7 @@ from 2015-19")
       
       # Both neg binom and hist avg
       if (input$EPcheck_avg & input$EPcheck_spline) {
-        subtitle <- paste0("P-score of excess deaths from 2020 compared to negative binomial regression and historical average on available data
-from 2015-19")
+        subtitle <- paste0("P-score of excess deaths from 2020 compared to negative binomial regression and historical average on available data from the prior period")
         last_deaths <- nrow(c_data)/2- which.max(!is.na(rev(c_data[1:(nrow(c_data)/2),"NO_DEATHS"]))) + 1
         c_data_sel <- c_data[c(1:last_deaths,(nrow(c_data)/2 + (1:last_deaths))),]
         c_data_sel$YEARPERIOD <- rep(1:last_deaths,2)
@@ -1890,7 +1888,7 @@ from 2015-19")
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=12) 
           ) +
-          if(name_PERIOD == "Month (2020)"){
+          if(name_PERIOD == "Month (2020-present)"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",
@@ -1925,7 +1923,7 @@ from 2015-19")
             plot.subtitle = element_text(color = "blue"),
             plot.caption = element_text(color = "red", face = "italic", size=12) 
           ) +
-          if(name_PERIOD == "Month (2020)"){
+          if(name_PERIOD == "Month (2020-present)"){
             scale_x_continuous(name = name_PERIOD, 
                                labels = rep(c("JAN", "FEB", "MAR", "APR",
                                               "MAY", "JUN", "JUL", "AUG",

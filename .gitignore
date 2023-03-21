@@ -18,3 +18,4 @@ shinyapps/
 inst/shiny/rsconnect
 
 .DS_Store
+inst/shiny/WPROACM/.atexfile
