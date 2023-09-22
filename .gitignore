@@ -19,3 +19,5 @@ inst/shiny/rsconnect
 
 .DS_Store
 inst/shiny/WPROACM/.atexfile
+*.220424
+*.230126
