@@ -544,7 +544,7 @@ shinyServer(
                     "JAN", "FEB", "MAR", "APR",
                     "MAY", "JUN", "JUL", "AUG",
                     "SEP", "OCT", "NOV", "DEC"
-                  ), 3)[1:last_deaths],
+                  ), 30)[1:last_deaths],
                   breaks = 1:last_deaths
                 )
               } else {
@@ -589,7 +589,7 @@ shinyServer(
                     "JAN", "FEB", "MAR", "APR",
                     "MAY", "JUN", "JUL", "AUG",
                     "SEP", "OCT", "NOV", "DEC"
-                  ), 3)[1:last_deaths],
+                  ), 30)[1:last_deaths],
                   breaks = 1:last_deaths
                 )
               } else {
@@ -633,7 +633,7 @@ shinyServer(
                     "JAN", "FEB", "MAR", "APR",
                     "MAY", "JUN", "JUL", "AUG",
                     "SEP", "OCT", "NOV", "DEC"
-                  ), 3)[1:last_deaths],
+                  ), 30)[1:last_deaths],
                   breaks = 1:last_deaths
                 )
               } else {
@@ -673,7 +673,7 @@ shinyServer(
                     "JAN", "FEB", "MAR", "APR",
                     "MAY", "JUN", "JUL", "AUG",
                     "SEP", "OCT", "NOV", "DEC"
-                  ), 3)[1:last_deaths],
+                  ), 30)[1:last_deaths],
                   breaks = 1:last_deaths
                 )
               } else {
@@ -825,7 +825,7 @@ shinyServer(
                     "JAN", "FEB", "MAR", "APR",
                     "MAY", "JUN", "JUL", "AUG",
                     "SEP", "OCT", "NOV", "DEC"
-                  ), 3)[1:last_deaths],
+                  ), 30)[1:last_deaths],
                   breaks = 1:last_deaths
                 )
               } else {
@@ -878,7 +878,7 @@ shinyServer(
                     "JAN", "FEB", "MAR", "APR",
                     "MAY", "JUN", "JUL", "AUG",
                     "SEP", "OCT", "NOV", "DEC"
-                  ), 3)[1:last_deaths],
+                  ), 30)[1:last_deaths],
                   breaks = 1:last_deaths
                 )
               } else {
@@ -929,7 +929,7 @@ shinyServer(
                     "JAN", "FEB", "MAR", "APR",
                     "MAY", "JUN", "JUL", "AUG",
                     "SEP", "OCT", "NOV", "DEC"
-                  ), 3)[1:last_deaths],
+                  ), 30)[1:last_deaths],
                   breaks = 1:last_deaths
                 )
               } else {
@@ -969,7 +969,7 @@ shinyServer(
                     "JAN", "FEB", "MAR", "APR",
                     "MAY", "JUN", "JUL", "AUG",
                     "SEP", "OCT", "NOV", "DEC"
-                  ), 3)[1:last_deaths],
+                  ), 30)[1:last_deaths],
                   breaks = 1:last_deaths
                 )
               } else {
@@ -1109,7 +1109,7 @@ shinyServer(
                     "JAN", "FEB", "MAR", "APR",
                     "MAY", "JUN", "JUL", "AUG",
                     "SEP", "OCT", "NOV", "DEC"
-                  ), 3)[1:last_deaths],
+                  ), 30)[1:last_deaths],
                   breaks = 1:last_deaths
                 )
               } else {
@@ -1160,7 +1160,7 @@ shinyServer(
                     "JAN", "FEB", "MAR", "APR",
                     "MAY", "JUN", "JUL", "AUG",
                     "SEP", "OCT", "NOV", "DEC"
-                  ), 3)[1:last_deaths],
+                  ), 30)[1:last_deaths],
                   breaks = 1:last_deaths
                 )
               } else {
@@ -1210,7 +1210,7 @@ shinyServer(
                     "JAN", "FEB", "MAR", "APR",
                     "MAY", "JUN", "JUL", "AUG",
                     "SEP", "OCT", "NOV", "DEC"
-                  ), 3)[1:last_deaths],
+                  ), 30)[1:last_deaths],
                   breaks = 1:last_deaths
                 )
               } else {
@@ -1250,7 +1250,7 @@ shinyServer(
                     "JAN", "FEB", "MAR", "APR",
                     "MAY", "JUN", "JUL", "AUG",
                     "SEP", "OCT", "NOV", "DEC"
-                  ), 3)[1:last_deaths],
+                  ), 30)[1:last_deaths],
                   breaks = 1:last_deaths
                 )
               } else {
@@ -1527,7 +1527,7 @@ shinyServer(
                 "JAN", "FEB", "MAR", "APR",
                 "MAY", "JUN", "JUL", "AUG",
                 "SEP", "OCT", "NOV", "DEC"
-              ), 3)[1:last_deaths],
+              ), 30)[1:last_deaths],
               breaks = 1:last_deaths
             )
           } else {
@@ -1562,7 +1562,7 @@ shinyServer(
           theme(
             plot.title = element_text(color = "black", size = 14, face = "bold"),
             plot.subtitle = element_text(color = "blue"),
-            plot.caption <- element_text(color = "red", face = "italic", size = 12)
+            plot.caption = element_text(color = "red", face = "italic", size = 12)
           ) +
           if (name_PERIOD == "Month (2020-present)") {
             scale_x_continuous(
@@ -1571,7 +1571,7 @@ shinyServer(
                 "JAN", "FEB", "MAR", "APR",
                 "MAY", "JUN", "JUL", "AUG",
                 "SEP", "OCT", "NOV", "DEC"
-              ), 3)[1:last_deaths],
+              ), 30)[1:last_deaths],
               breaks = 1:last_deaths
             )
           } else {
@@ -1614,7 +1614,7 @@ shinyServer(
                 "JAN", "FEB", "MAR", "APR",
                 "MAY", "JUN", "JUL", "AUG",
                 "SEP", "OCT", "NOV", "DEC"
-              ), 3)[1:last_deaths],
+              ), 30)[1:last_deaths],
               breaks = 1:last_deaths
             )
           } else {
@@ -1644,7 +1644,7 @@ shinyServer(
           theme(
             plot.title = element_text(color = "black", size = 14, face = "bold"),
             plot.subtitle = element_text(color = "blue"),
-            plot.caption <- element_text(color = "red", face = "italic", size = 12)
+            plot.caption = element_text(color = "red", face = "italic", size = 12)
           ) +
           if (name_PERIOD == "Month (2020-present)") {
             scale_x_continuous(
@@ -1653,7 +1653,7 @@ shinyServer(
                 "JAN", "FEB", "MAR", "APR",
                 "MAY", "JUN", "JUL", "AUG",
                 "SEP", "OCT", "NOV", "DEC"
-              ), 3)[1:last_deaths],
+              ), 30)[1:last_deaths],
               breaks = 1:last_deaths
             )
           } else {
@@ -1784,7 +1784,7 @@ shinyServer(
           theme(
             plot.title = element_text(color = "black", size = 14, face = "bold"),
             plot.subtitle = element_text(color = "blue"),
-            plot.caption <- element_text(color = "red", face = "italic", size = 12)
+            plot.caption = element_text(color = "red", face = "italic", size = 12)
           ) +
           if (name_PERIOD == "Month (2020-present)") {
             scale_x_continuous(
@@ -1793,7 +1793,7 @@ shinyServer(
                 "JAN", "FEB", "MAR", "APR",
                 "MAY", "JUN", "JUL", "AUG",
                 "SEP", "OCT", "NOV", "DEC"
-              ), 3)[1:last_deaths],
+              ), 30)[1:last_deaths],
               breaks = 1:last_deaths
             )
           } else {
@@ -1836,7 +1836,7 @@ shinyServer(
           theme(
             plot.title = element_text(color = "black", size = 14, face = "bold"),
             plot.subtitle = element_text(color = "blue"),
-            plot.caption <- element_text(color = "red", face = "italic", size = 12)
+            plot.caption = element_text(color = "red", face = "italic", size = 12)
           ) +
           if (name_PERIOD == "Month (2020-present)") {
             scale_x_continuous(
@@ -1845,7 +1845,7 @@ shinyServer(
                 "JAN", "FEB", "MAR", "APR",
                 "MAY", "JUN", "JUL", "AUG",
                 "SEP", "OCT", "NOV", "DEC"
-              ), 3)[1:last_deaths],
+              ), 30)[1:last_deaths],
               breaks = 1:last_deaths
             )
           } else {
@@ -1886,7 +1886,7 @@ shinyServer(
           theme(
             plot.title = element_text(color = "black", size = 14, face = "bold"),
             plot.subtitle = element_text(color = "blue"),
-            plot.caption <- element_text(color = "red", face = "italic", size = 12)
+            plot.caption = element_text(color = "red", face = "italic", size = 12)
           ) +
           if (name_PERIOD == "Month (2020-present)") {
             scale_x_continuous(
@@ -1895,7 +1895,7 @@ shinyServer(
                 "JAN", "FEB", "MAR", "APR",
                 "MAY", "JUN", "JUL", "AUG",
                 "SEP", "OCT", "NOV", "DEC"
-              ), 3)[1:last_deaths],
+              ), 30)[1:last_deaths],
               breaks = 1:last_deaths
             )
           } else {
@@ -1925,7 +1925,7 @@ shinyServer(
           theme(
             plot.title = element_text(color = "black", size = 14, face = "bold"),
             plot.subtitle = element_text(color = "blue"),
-            plot.caption <- element_text(color = "red", face = "italic", size = 12)
+            plot.caption = element_text(color = "red", face = "italic", size = 12)
           ) +
           if (name_PERIOD == "Month (2020-present)") {
             scale_x_continuous(
@@ -1934,7 +1934,7 @@ shinyServer(
                 "JAN", "FEB", "MAR", "APR",
                 "MAY", "JUN", "JUL", "AUG",
                 "SEP", "OCT", "NOV", "DEC"
-              ), 3)[1:last_deaths],
+              ), 30)[1:last_deaths],
               breaks = 1:last_deaths
             )
           } else {
@@ -2058,7 +2058,7 @@ shinyServer(
           theme(
             plot.title = element_text(color = "black", size = 14, face = "bold"),
             plot.subtitle = element_text(color = "blue"),
-            plot.caption <- element_text(color = "red", face = "italic", size = 12)
+            plot.caption = element_text(color = "red", face = "italic", size = 12)
           ) +
           if (name_PERIOD == "Month (2020-present)") {
             scale_x_continuous(
@@ -2067,7 +2067,7 @@ shinyServer(
                 "JAN", "FEB", "MAR", "APR",
                 "MAY", "JUN", "JUL", "AUG",
                 "SEP", "OCT", "NOV", "DEC"
-              ), 3)[1:last_deaths],
+              ), 30)[1:last_deaths],
               breaks = 1:last_deaths
             )
           } else {
@@ -2110,7 +2110,7 @@ shinyServer(
           theme(
             plot.title = element_text(color = "black", size = 14, face = "bold"),
             plot.subtitle = element_text(color = "blue"),
-            plot.caption <- element_text(color = "red", face = "italic", size = 12)
+            plot.caption = element_text(color = "red", face = "italic", size = 12)
           ) +
           if (name_PERIOD == "Month (2020-present)") {
             scale_x_continuous(
@@ -2119,7 +2119,7 @@ shinyServer(
                 "JAN", "FEB", "MAR", "APR",
                 "MAY", "JUN", "JUL", "AUG",
                 "SEP", "OCT", "NOV", "DEC"
-              ), 3)[1:last_deaths],
+              ), 30)[1:last_deaths],
               breaks = 1:last_deaths
             )
           } else {
@@ -2160,7 +2160,7 @@ shinyServer(
           theme(
             plot.title = element_text(color = "black", size = 14, face = "bold"),
             plot.subtitle = element_text(color = "blue"),
-            plot.caption <- element_text(color = "red", face = "italic", size = 12)
+            plot.caption = element_text(color = "red", face = "italic", size = 12)
           ) +
           if (name_PERIOD == "Month (2020-present)") {
             scale_x_continuous(
@@ -2169,7 +2169,7 @@ shinyServer(
                 "JAN", "FEB", "MAR", "APR",
                 "MAY", "JUN", "JUL", "AUG",
                 "SEP", "OCT", "NOV", "DEC"
-              ), 3)[1:last_deaths],
+              ), 30)[1:last_deaths],
               breaks = 1:last_deaths
             )
           } else {
@@ -2199,7 +2199,7 @@ shinyServer(
           theme(
             plot.title = element_text(color = "black", size = 14, face = "bold"),
             plot.subtitle = element_text(color = "blue"),
-            plot.caption <- element_text(color = "red", face = "italic", size = 12)
+            plot.caption = element_text(color = "red", face = "italic", size = 12)
           ) +
           if (name_PERIOD == "Month (2020-present)") {
             scale_x_continuous(
@@ -2208,7 +2208,7 @@ shinyServer(
                 "JAN", "FEB", "MAR", "APR",
                 "MAY", "JUN", "JUL", "AUG",
                 "SEP", "OCT", "NOV", "DEC"
-              ), 3)[1:last_deaths],
+              ), 30)[1:last_deaths],
               breaks = 1:last_deaths
             )
           } else {

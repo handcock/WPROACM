@@ -21,3 +21,10 @@ inst/shiny/rsconnect
 inst/shiny/WPROACM/.atexfile
 *.220424
 *.230126
+inst/shiny/WPROACM/global.R.new
+inst/shiny/WPROACM/server.R.mark
+inst/shiny/WPROACM/global.R.more
+inst/shiny/WPROACM/XLSX/~$Australia_built_in_data.xlsx
+inst/shiny/WPROACM/XLSX/~$Japan_built_in_data.xlsx
+inst/shiny/WPROACM/XLSX/~$New_Zealand_built_in_data.xlsx
+inst/shiny/WPROACM/XLSX/~$Philippines_built_in_data.xlsx

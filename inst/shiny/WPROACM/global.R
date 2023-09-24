@@ -116,24 +116,26 @@ calculate_spline <- function(src) {
     src$NO_DEATHS <- as.numeric(src$NO_DEATHS)
   }
 
+  nys  <- 30 # A max number of years to select from
   minyear <- min(src$YEAR, na.rm=TRUE)-1
   dom <- c(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
   moy <- c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
   if (max(src$PERIOD, na.rm = TRUE) == 12) {
     day <- cumsum(c(0, dom))[src$PERIOD] + 15
    #DATE <- cumsum(c(0, 365, 366, 365, 365, 365, 366, 365, 365))[src$YEAR - minyear] + day
-    DATE <- min(src$YEAR, na.rm=TRUE):max(src$YEAR, na.rm=TRUE)
-    DATE <- c(366, 365, 365, 365)[round(DATE-4*trunc((DATE+0.5) / 4))+1]
-    DATE <- cumsum(c(0, DATE))[src$YEAR - minyear] + day
+    DATE <- cumsum(c(0, rep(365, nys)))[src$YEAR - minyear] + day
+    COVID_start_day <- cumsum(c(0, rep(365, nys)))[2020 - minyear] + 1
+    COVID_end_day <- cumsum(c(0, rep(365, nys)))[2023 - minyear] + cumsum(c(0, dom))[5] + 14 
   } else {
-    day <- cumsum(c(0, rep(7,52)))[src$PERIOD] + 3.5
-   #DATE <- cumsum(c(0, 365, 366, 365, 365, 365, 366, 365, 365))[src$YEAR - minyear] + day
-    DATE <- min(src$YEAR, na.rm=TRUE):max(src$YEAR, na.rm=TRUE)
-    DATE <- c(366, 365, 365, 365)[round(DATE-4*trunc((DATE+0.5) / 4))+1]
-    DATE <- cumsum(c(0, DATE))[src$YEAR - minyear] + day
+    day <- cumsum(c(0, rep(7,53)))[src$PERIOD] + 3.5
+    DATE <- cumsum(c(0, rep(365, nys)))[src$YEAR - minyear] + day
+    COVID_start_day <- cumsum(c(0, rep(365, nys)))[2020 - minyear] + 1
+    COVID_end_day <- cumsum(c(0, rep(365, nys)))[2023 - minyear] + cumsum(c(0, rep(7,52)))[18] + 3
   }
 
-  out <- src %>% dplyr::filter(YEAR >= "2020")
+  src$DATE <- DATE
+
+  out <- src %>% dplyr::filter(YEAR >= "2020") #add in 2021 -
   out <- rbind(out,out)
   wm_ident <- ifelse(max(src$PERIOD, na.rm = TRUE) == 12, "Month", "Week")
   l_period <- ifelse(max(src$PERIOD, na.rm = TRUE) == 12, 12, 53)
@@ -150,16 +152,14 @@ calculate_spline <- function(src) {
   n_pat <- length(pattern)
 
   for (j in 1:n_pat) {
-    patt_src <- src[paste(src$SEX, src$AGE_GROUP) == pattern[j], ]
-    hist_src <- patt_src[patt_src$YEAR < "2020",]
+    patt_src <- src[paste(src$SEX, src$AGE_GROUP) == pattern[j],]
+    hist_src <- patt_src[patt_src$DATE < COVID_start_day | patt_src$DATE > COVID_end_day,]
     if (sum(hist_src$NO_DEATHS, na.rm = TRUE) == 0) next
     if (l_period > 51) {
-      day <- cumsum(c(0, rep(7,52)))[patt_src$PERIOD] + 3.5
+      day <- cumsum(c(0, rep(7,53)))[patt_src$PERIOD] + 3.5
       day <- patt_src$DAYS
-     #aDATE <- cumsum(c(0, 365, 366, 365, 365, 365, 366, 365, 365))[patt_src$YEAR - minyear] + day
       aDATE <- min(patt_src$YEAR, na.rm=TRUE):max(patt_src$YEAR, na.rm=TRUE)
-      aDATE <- c(366, 365, 365, 365)[round(aDATE-4*trunc((aDATE+0.5) / 4))+1]
-      aDATE <- cumsum(c(0, aDATE))[patt_src$YEAR - minyear] + day
+      aDATE <- cumsum(c(0, rep(365, nys)))[patt_src$YEAR - 2014] + day
       src_pandemic <- patt_src
       src_pandemic$DAYS[src_pandemic$DAYS == 0] <- 7
       num.cycle <- max(patt_src$PERIOD[patt_src$DAYS > 0])
@@ -172,10 +172,7 @@ calculate_spline <- function(src) {
       src_pandemic$logdays <- log(src_pandemic$DAYS)
     } else {
       day <- cumsum(c(0, dom))[patt_src$PERIOD] + 15
-     #DATE <- cumsum(c(0, 365, 366, 365, 365, 365, 366, 365, 365))[patt_src$YEAR - minyear] + day
-      DATE <- min(patt_src$YEAR, na.rm=TRUE):max(patt_src$YEAR, na.rm=TRUE)
-      DATE <- c(366, 365, 365, 365)[round(DATE-4*trunc((DATE+0.5) / 4))+1]
-      DATE <- cumsum(c(0, DATE))[patt_src$YEAR - minyear] + day
+      DATE <- cumsum(c(0, rep(365, nys)))[src$YEAR - minyear] + day
       src_pandemic <- patt_src
       aDATE <- DATE[paste(src$SEX, src$AGE_GROUP) == pattern[j]]
       num.cycle <- 12
@@ -292,7 +289,6 @@ calculate_spline <- function(src) {
       "."))
   }
 
-
   out$WM_IDENTIFIER <- rep(wm_ident)
 
   out[, "EXCESS_DEATHS"] <- out$NO_DEATHS - out$ESTIMATE
@@ -302,7 +298,8 @@ calculate_spline <- function(src) {
   out[, "EXCESS_LOWER"] <- out$NO_DEATHS - out$UPPER_LIMIT
 
 # names(out)[c(14:15)] <- c("SERIES", "NO_DEATHS")
-  out$SERIES <- factor(rep(c("Cyclical spline", "Historical average"),rep(nyear_predict*l_period*n_pat,2)))
+# out$SERIES <- factor(rep(c("Cyclical spline", "Historical average"),rep(nyear_predict*l_period*n_pat,2)))
+  out$SERIES <- factor(rep(c("Cyclical spline", "Historical average"),rep(nrow(out)/2,2)))
 
 # l_SERIES <- levels(out$SERIES)
 # names_SERIES <- c("NO_DEATHS", "ESTIMATE")
