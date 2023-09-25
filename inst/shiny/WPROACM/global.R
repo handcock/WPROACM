@@ -207,9 +207,9 @@ calculate_spline <- function(src) {
     if(TRUE){
       estim <- mgcv::predict.gam(fit, newdata = src_pandemic, se.fit = TRUE)
       # covariance of predictors
-      Terms <- list(delete.response(fit$pterms))
+      Terms <- list(stats::delete.response(fit$pterms))
       mf <- model.frame(Terms[[1]],src_pandemic,xlev=fit$xlevels)
-      Xfrag <- PredictMat(fit$smooth[[1]],src_pandemic)
+      Xfrag <- mgcv::PredictMat(fit$smooth[[1]],src_pandemic)
       X <- matrix(0,nrow(src_pandemic),ncol(Xfrag)+2)
       X[,1:2] <- model.matrix(Terms[[1]],mf,contrasts=NULL)
       X[,-c(1:2)] <- Xfrag
@@ -233,13 +233,7 @@ calculate_spline <- function(src) {
        estim.lower <- apply(a,2,function(x){mean(qnbinom(mu = exp(x), size = theta, p = 0.025))})
        estim.upper <- apply(a,2,function(x){mean(qnbinom(mu = exp(x), size = theta, p = 0.975))})
        # compute the covariance matrix of predictions
-       b <- a
-       for(i in 1:2000){
-        for(jd in 1:length(estim$fit)){
-          b[i,jd] <- rnbinom(n=1, mu = exp(a[i,jd]), size = theta)
-        }
-       }
-       b <- cov(b)
+       b <- cov(matrix(rnbinom(n=nrow(a)*ncol(a), mu=exp(a), size=theta),ncol=ncol(a)))
        # compute the variances of cumulative deaths
        cv <- rep(0, length(estim$fit))
        for(i in 1:length(cv)){
