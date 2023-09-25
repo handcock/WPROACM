@@ -206,6 +206,15 @@ calculate_spline <- function(src) {
     src_pandemic$loc_DATE <- aDATE
     if(TRUE){
       estim <- mgcv::predict.gam(fit, newdata = src_pandemic, se.fit = TRUE)
+      # covariance of predictors
+      Terms <- list(delete.response(fit$pterms))
+      mf <- model.frame(Terms[[1]],src_pandemic,xlev=fit$xlevels)
+      Xfrag <- PredictMat(fit$smooth[[1]],src_pandemic)
+      X <- matrix(0,nrow(src_pandemic),ncol(Xfrag)+2)
+      X[,1:2] <- model.matrix(Terms[[1]],mf,contrasts=NULL)
+      X[,-c(1:2)] <- Xfrag
+      V = X%*%fit$Vp%*%t(X)
+      #
       estim.median <- estim$fit
       estim.lower <- estim$fit # [5*12-1+(1:12)]
       estim.upper <- estim$fit
@@ -219,10 +228,25 @@ calculate_spline <- function(src) {
         estim.upper[i] <- mean(qnbinom(mu = exp(a), size = theta, p = 0.975))
        }
       }else{
-       a <- matrix(rnorm(n = 2000*length(estim$fit), mean = estim$fit, sd = estim$se.fit),ncol=2000)
-       estim.median <- apply(a,1,function(x){mean(qnbinom(mu = exp(x), size = theta, p = 0.5))})
-       estim.lower <- apply(a,1,function(x){mean(qnbinom(mu = exp(x), size = theta, p = 0.025))})
-       estim.upper <- apply(a,1,function(x){mean(qnbinom(mu = exp(x), size = theta, p = 0.975))})
+       a <- mvtnorm::rmvnorm(n = 2000, mean = estim$fit, sigma = V)
+       estim.median <- apply(a,2,function(x){mean(qnbinom(mu = exp(x), size = theta, p = 0.5))})
+       estim.lower <- apply(a,2,function(x){mean(qnbinom(mu = exp(x), size = theta, p = 0.025))})
+       estim.upper <- apply(a,2,function(x){mean(qnbinom(mu = exp(x), size = theta, p = 0.975))})
+       # compute the covariance matrix of predictions
+       b <- a
+       for(i in 1:2000){
+        for(jd in 1:length(estim$fit)){
+          b[i,jd] <- rnbinom(n=1, mu = exp(a[i,jd]), size = theta)
+        }
+       }
+       b <- cov(b)
+       # compute the variances of cumulative deaths
+       cv <- rep(0, length(estim$fit))
+       for(i in 1:length(cv)){
+        cv[i] <- sum(b[1:i, 1:i])
+       }
+       # convert to the SD of cumulative deaths
+       scv <- pmax(0, sqrt(cv))
       }
     }else{
       estim <- mgcv::predict.gam(fit, newdata = src_pandemic, se.fit = TRUE, type = "response")
@@ -299,7 +323,8 @@ calculate_spline <- function(src) {
 
 # names(out)[c(14:15)] <- c("SERIES", "NO_DEATHS")
 # out$SERIES <- factor(rep(c("Cyclical spline", "Historical average"),rep(nyear_predict*l_period*n_pat,2)))
-  out$SERIES <- factor(rep(c("Cyclical spline", "Historical average"),rep(nrow(out)/2,2)))
+  out$SERIES <- factor(rep(c("Cyclical spline", "Historical average"),rep(nyear_predict*l_period*n_pat,2)))
+ #out$SERIES <- factor(rep(c("Cyclical spline", "Historical average"),rep(nrow(out)/2,2)))
 
 # l_SERIES <- levels(out$SERIES)
 # names_SERIES <- c("NO_DEATHS", "ESTIMATE")
@@ -315,6 +340,8 @@ calculate_spline <- function(src) {
   message("Computation of the expected deaths completed successfully.")
 
   attr(out, "num_deaths") <- sum(!is.na(hist_src$NO_DEATHS)) / l_period
+  attr(out, "SE_cumulative_deaths") <- scv
+  print(scv)
 
   return(out)
 }
