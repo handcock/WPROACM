@@ -11,6 +11,8 @@ UCLA .
 This web application is written with the Shiny framework and development is via GitHub. More information on Shiny and our GitHub repository can
 be found in the resource links on the right.
 
+[//]: # ( https://handcock.shinyapps.io/WPROACM )
+
 The app can be run in two ways:  
 
 * Online, through the [WHO WPRO shinyapps.io server](https://worldhealthorg.shinyapps.io/WPRO-all-cause-of-mortality-and-excess-death-calculator/). 

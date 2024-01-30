@@ -129,8 +129,11 @@ calculate_spline <- function(src) {
   } else {
     day <- cumsum(c(0, rep(7,53)))[src$PERIOD] + 3.5
     DATE <- cumsum(c(0, rep(365, nys)))[src$YEAR - minyear] + day
+# Next lines just for MNG2024 flu
     COVID_start_day <- cumsum(c(0, rep(365, nys)))[2020 - minyear] + 1
+    COVID_start_day <- cumsum(c(0, rep(365, nys)))[2020 - minyear] + 1 + cumsum(c(0, rep(7,52)))[43]
     COVID_end_day <- cumsum(c(0, rep(365, nys)))[2023 - minyear] + cumsum(c(0, rep(7,52)))[18] + 3
+    COVID_end_day <- cumsum(c(0, rep(365, nys)))[2023 - minyear]
   }
 
   src$DATE <- DATE
@@ -142,6 +145,7 @@ calculate_spline <- function(src) {
   out$ESTIMATE <- out$NO_DEATHS
   out$LOWER_LIMIT <- out$NO_DEATHS
   out$UPPER_LIMIT <- out$NO_DEATHS
+  out$SE_CUM_EXPECTED <- out$NO_DEATHS
   out$EXCESS_DEATHS <- out$NO_DEATHS
   out$P_SCORE <- out$NO_DEATHS
 
@@ -202,6 +206,7 @@ calculate_spline <- function(src) {
     num_deaths <- rep(num_deaths,nyear_predict+50)[1:nrow(src_pandemic)]
     ave_deaths_lower <- ave_deaths - qnorm(0.975)*sqrt(var_deaths*(1 + 1 / num_deaths))
     ave_deaths_upper <- ave_deaths + qnorm(0.975)*sqrt(var_deaths*(1 + 1 / num_deaths))
+    var_cum_deaths <- sqrt(cumsum(var_deaths))
 
     src_pandemic$loc_DATE <- aDATE
     if(TRUE){
@@ -248,6 +253,7 @@ calculate_spline <- function(src) {
       estim.lower <- estim$fit - 1.96*estim$se.fit
       estim.upper <- estim$fit + 1.96*estim$se.fit
     }
+    scv[is.na(scv)] <- 0
     estim.median[estim.median < 0] <- 0
     estim.upper[estim.upper < 0] <- 0
     estim.lower[estim.lower < 0] <- 0
@@ -271,6 +277,7 @@ calculate_spline <- function(src) {
       out[(iyear_predict-1)*l_period + nyear_predict*l_period * (j - 1) + k + 1, "ESTIMATE"] <- estim.median[a]
       out[(iyear_predict-1)*l_period + nyear_predict*l_period * (j - 1) + k + 1, "LOWER_LIMIT"] <- estim.lower[a]
       out[(iyear_predict-1)*l_period + nyear_predict*l_period * (j - 1) + k + 1, "UPPER_LIMIT"] <- estim.upper[a]
+      out[(iyear_predict-1)*l_period + nyear_predict*l_period * (j - 1) + k + 1, "SE_CUM_EXPECTED"] <- scv[a]
      }
     }
     for (iyear_predict in seq_along(year_predict)) {
@@ -292,6 +299,7 @@ calculate_spline <- function(src) {
       out[nyear_predict*l_period*n_pat + (iyear_predict-1)*l_period + nyear_predict*l_period * (j - 1) + k + 1, "ESTIMATE"] <- ave_deaths[a]
       out[nyear_predict*l_period*n_pat + (iyear_predict-1)*l_period + nyear_predict*l_period * (j - 1) + k + 1, "LOWER_LIMIT"] <- ave_deaths_lower[a]
       out[nyear_predict*l_period*n_pat + (iyear_predict-1)*l_period + nyear_predict*l_period * (j - 1) + k + 1, "UPPER_LIMIT"] <- ave_deaths_upper[a]
+      out[(iyear_predict-1)*l_period + nyear_predict*l_period * (j - 1) + k + 1, "SE_CUM_EXPECTED"] <- var_cum_deaths[a]
      }
     }
 
@@ -300,13 +308,14 @@ calculate_spline <- function(src) {
 #     t.start
 #   ), 1), " seconds)"))
     message(paste0(out[l_period * (j - 1) + k + 1, "SEX"], " ", out[l_period * (j - 1) + k + 1, "AGE_GROUP"],
+
        " percentage of 2015-2019 outside the 95% prediction intervals is ", 
       round(100*(sum(estim.lower[1:60] > src_pandemic$NO_DEATHS[1:60]) + sum(estim.upper[1:60] < src_pandemic$NO_DEATHS[1:60])) / 120,1),
       "; for the average ",
       round(100*(sum(ave_deaths_lower[1:60] > src_pandemic$NO_DEATHS[1:60]) + sum(ave_deaths_upper[1:60] < src_pandemic$NO_DEATHS[1:60])) / 120,1),
       "."))
   }
-
+ 
   out$WM_IDENTIFIER <- rep(wm_ident)
 
   out[, "EXCESS_DEATHS"] <- out$NO_DEATHS - out$ESTIMATE
@@ -329,7 +338,7 @@ calculate_spline <- function(src) {
 
   if (any(out$SERIES == "Unknown series, plz check")) message("Unknown series, plz check")
 
-  out <- out[, c("REGION", "WM_IDENTIFIER", "YEAR", "PERIOD", "SEX", "AGE_GROUP", "SERIES", "NO_DEATHS", "EXPECTED", "LOWER_LIMIT", "UPPER_LIMIT", "EXCESS_DEATHS", "P_SCORE", "EXCESS_LOWER", "EXCESS_UPPER")]
+  out <- out[, c("REGION", "WM_IDENTIFIER", "YEAR", "PERIOD", "SEX", "AGE_GROUP", "SERIES", "NO_DEATHS", "EXPECTED", "LOWER_LIMIT", "UPPER_LIMIT", "EXCESS_DEATHS", "P_SCORE", "EXCESS_LOWER", "EXCESS_UPPER", "SE_CUM_EXPECTED")]
 
   message("Computation of the expected deaths completed successfully.")
 
@@ -523,7 +532,6 @@ calculate_spline_age <- function(src) {
       round(100*(sum(out[,"LOWER_LIMIT"] > src_pandemic$NO_DEATHS[1:60]) + sum(ave_deaths_upper[1:60] < src_pandemic$NO_DEATHS[1:60])) / 120,1),
       "."))
   }
-
 
   out$WM_IDENTIFIER <- rep(wm_ident)
 

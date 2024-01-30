@@ -513,7 +513,7 @@ shinyServer(
             c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
             last_deaths <- nrow(c_data_sel) - which.max(!is.na(rev(c_data_sel[, "NO_DEATHS"]))) + 1
             subtitle <- paste0("deaths from ", bquote(2020), " compared to negative binomial regression on available data from the prior period")
-            x_breaks <- rep(c(1, seq(5, 50, by = 5)), 3) + rep(53 * (0:2), rep(11, 3))
+            x_breaks <- rep(c(1, seq(5, 50, by = 5)), 30) + rep(53 * (0:29), rep(11, 30))
             x_labels <- paste(x_breaks - 53 * trunc(x_breaks / 53))
             x_labels <- x_labels[x_breaks <= last_deaths]
             x_breaks <- x_breaks[x_breaks <= last_deaths]
@@ -558,7 +558,7 @@ shinyServer(
             c_data_sel <- c_data[c_data$SERIES == "Historical average", ]
             c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
             last_deaths <- nrow(c_data_sel) - which.max(!is.na(rev(c_data_sel[, "NO_DEATHS"]))) + 1
-            x_breaks <- rep(c(1, seq(5, 50, by = 5)), 3) + rep(53 * (0:2), rep(11, 3))
+            x_breaks <- rep(c(1, seq(5, 50, by = 5)), 30) + rep(53 * (0:29), rep(11, 30))
             x_labels <- paste(x_breaks - 53 * trunc(x_breaks / 53))
             x_labels <- x_labels[x_breaks <= last_deaths]
             x_breaks <- x_breaks[x_breaks <= last_deaths]
@@ -603,7 +603,7 @@ shinyServer(
             last_deaths <- nrow(c_data) / 2 - which.max(!is.na(rev(c_data[1:(nrow(c_data) / 2), "NO_DEATHS"]))) + 1
             c_data_sel <- c_data[c(1:last_deaths, (nrow(c_data) / 2 + (1:last_deaths))), ]
             c_data_sel$YEARPERIOD <- rep(1:last_deaths, 2)
-            x_breaks <- rep(c(1, seq(5, 50, by = 5)), 3) + rep(53 * (0:2), rep(11, 3))
+            x_breaks <- rep(c(1, seq(5, 50, by = 5)), 30) + rep(53 * (0:29), rep(11, 30))
             x_labels <- paste(x_breaks - 53 * trunc(x_breaks / 53))
             x_labels <- x_labels[x_breaks <= last_deaths]
             x_breaks <- x_breaks[x_breaks <= last_deaths]
@@ -647,7 +647,7 @@ shinyServer(
             last_deaths <- nrow(c_data_sel) - which.max(!is.na(rev(c_data_sel[, "NO_DEATHS"]))) + 1
             subtitle <- paste0("Recorded deaths from 2020")
             c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
-            x_breaks <- rep(c(1, seq(5, 50, by = 5)), 3) + rep(53 * (0:2), rep(11, 3))
+            x_breaks <- rep(c(1, seq(5, 50, by = 5)), 30) + rep(53 * (0:29), rep(11, 30))
             x_labels <- paste(x_breaks - 53 * trunc(x_breaks / 53))
             x_labels <- x_labels[x_breaks <= last_deaths]
             x_breaks <- x_breaks[x_breaks <= last_deaths]
@@ -788,7 +788,7 @@ shinyServer(
             subtitle <- paste0("excess deaths from ", bquote(2020), " compared to negative binomial regression on available data from the prior period")
             lower <- c_data_sel[1:last_deaths, "LOWER_LIMIT"] - c_data_sel[1:last_deaths, "NO_DEATHS"]
             upper <- c_data_sel[1:last_deaths, "UPPER_LIMIT"] - c_data_sel[1:last_deaths, "NO_DEATHS"]
-            x_breaks <- rep(c(1, seq(5, 50, by = 5)), 3) + rep(53 * (0:2), rep(11, 3))
+            x_breaks <- rep(c(1, seq(5, 50, by = 5)), 30) + rep(53 * (0:29), rep(11, 30))
             x_labels <- paste(x_breaks - 53 * trunc(x_breaks / 53))
             x_labels <- x_labels[x_breaks <= last_deaths]
             x_breaks <- x_breaks[x_breaks <= last_deaths]
@@ -841,7 +841,7 @@ shinyServer(
             subtitle <- paste0("excess deaths from ", bquote(2020), " compared to historical average on available data from the prior period")
             lower <- c_data_sel[1:last_deaths, "LOWER_LIMIT"] - c_data_sel[1:last_deaths, "NO_DEATHS"]
             upper <- c_data_sel[1:last_deaths, "UPPER_LIMIT"] - c_data_sel[1:last_deaths, "NO_DEATHS"]
-            x_breaks <- rep(c(1, seq(5, 50, by = 5)), 3) + rep(53 * (0:2), rep(11, 3))
+            x_breaks <- rep(c(1, seq(5, 50, by = 5)), 30) + rep(53 * (0:29), rep(11, 30))
             x_labels <- paste(x_breaks - 53 * trunc(x_breaks / 53))
             x_labels <- x_labels[x_breaks <= last_deaths]
             x_breaks <- x_breaks[x_breaks <= last_deaths]
@@ -892,7 +892,7 @@ shinyServer(
             last_deaths <- nrow(c_data) / 2 - which.max(!is.na(rev(c_data[1:(nrow(c_data) / 2), "NO_DEATHS"]))) + 1
             c_data_sel <- c_data[c(1:last_deaths, (nrow(c_data) / 2 + (1:last_deaths))), ]
             c_data_sel$YEARPERIOD <- rep(1:last_deaths, 2)
-            x_breaks <- rep(c(1, seq(5, 50, by = 5)), 3) + rep(53 * (0:2), rep(11, 3))
+            x_breaks <- rep(c(1, seq(5, 50, by = 5)), 30) + rep(53 * (0:29), rep(11, 30))
             x_labels <- paste(x_breaks - 53 * trunc(x_breaks / 53))
             x_labels <- x_labels[x_breaks <= last_deaths]
             x_breaks <- x_breaks[x_breaks <= last_deaths]
@@ -943,7 +943,7 @@ shinyServer(
             last_deaths <- nrow(c_data_sel) - which.max(!is.na(rev(c_data_sel[, "NO_DEATHS"]))) + 1
             subtitle <- paste0("Recorded deaths from 2020")
             c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
-            x_breaks <- rep(c(1, seq(5, 50, by = 5)), 3) + rep(53 * (0:2), rep(11, 3))
+            x_breaks <- rep(c(1, seq(5, 50, by = 5)), 30) + rep(53 * (0:29), rep(11, 30))
             x_labels <- paste(x_breaks - 53 * trunc(x_breaks / 53))
             x_labels <- x_labels[x_breaks <= last_deaths]
             x_breaks <- x_breaks[x_breaks <= last_deaths]
@@ -1074,7 +1074,7 @@ shinyServer(
             subtitle <- paste0("P-score of excess deaths from ", bquote(2020), " compared to negative binomial regression on available data from the prior period")
             lower <- 100 * (c_data_sel[1:last_deaths, "LOWER_LIMIT"] - c_data_sel[1:last_deaths, "NO_DEATHS"]) / c_data_sel[1:last_deaths, "EXPECTED"]
             upper <- 100 * (c_data_sel[1:last_deaths, "UPPER_LIMIT"] - c_data_sel[1:last_deaths, "NO_DEATHS"]) / c_data_sel[1:last_deaths, "EXPECTED"]
-            x_breaks <- rep(c(1, seq(5, 50, by = 5)), 3) + rep(53 * (0:2), rep(11, 3))
+            x_breaks <- rep(c(1, seq(5, 50, by = 5)), 30) + rep(53 * (0:29), rep(11, 30))
             x_labels <- paste(x_breaks - 53 * trunc(x_breaks / 53))
             x_labels <- x_labels[x_breaks <= last_deaths]
             x_breaks <- x_breaks[x_breaks <= last_deaths]
@@ -1125,7 +1125,7 @@ shinyServer(
             subtitle <- paste0("P-score of excess deaths from ", bquote(2020), " compared to historical average on available data from the prior period")
             lower <- 100 * (c_data_sel[1:last_deaths, "LOWER_LIMIT"] - c_data_sel[1:last_deaths, "NO_DEATHS"]) / c_data_sel[1:last_deaths, "EXPECTED"]
             upper <- 100 * (c_data_sel[1:last_deaths, "UPPER_LIMIT"] - c_data_sel[1:last_deaths, "NO_DEATHS"]) / c_data_sel[1:last_deaths, "EXPECTED"]
-            x_breaks <- rep(c(1, seq(5, 50, by = 5)), 3) + rep(53 * (0:2), rep(11, 3))
+            x_breaks <- rep(c(1, seq(5, 50, by = 5)), 30) + rep(53 * (0:29), rep(11, 30))
             x_labels <- paste(x_breaks - 53 * trunc(x_breaks / 53))
             x_labels <- x_labels[x_breaks <= last_deaths]
             x_breaks <- x_breaks[x_breaks <= last_deaths]
@@ -1174,7 +1174,7 @@ shinyServer(
             last_deaths <- nrow(c_data) / 2 - which.max(!is.na(rev(c_data[1:(nrow(c_data) / 2), "NO_DEATHS"]))) + 1
             c_data_sel <- c_data[c(1:last_deaths, (nrow(c_data) / 2 + (1:last_deaths))), ]
             c_data_sel$YEARPERIOD <- rep(1:last_deaths, 2)
-            x_breaks <- rep(c(1, seq(5, 50, by = 5)), 3) + rep(53 * (0:2), rep(11, 3))
+            x_breaks <- rep(c(1, seq(5, 50, by = 5)), 30) + rep(53 * (0:29), rep(11, 30))
             x_labels <- paste(x_breaks - 53 * trunc(x_breaks / 53))
             x_labels <- x_labels[x_breaks <= last_deaths]
             x_breaks <- x_breaks[x_breaks <= last_deaths]
@@ -1224,7 +1224,7 @@ shinyServer(
             last_deaths <- nrow(c_data_sel) - which.max(!is.na(rev(c_data_sel[, "NO_DEATHS"]))) + 1
             subtitle <- paste0("Recorded deaths from 2020")
             c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
-            x_breaks <- rep(c(1, seq(5, 50, by = 5)), 3) + rep(53 * (0:2), rep(11, 3))
+            x_breaks <- rep(c(1, seq(5, 50, by = 5)), 30) + rep(53 * (0:29), rep(11, 30))
             x_labels <- paste(x_breaks - 53 * trunc(x_breaks / 53))
             x_labels <- x_labels[x_breaks <= last_deaths]
             x_breaks <- x_breaks[x_breaks <= last_deaths]
@@ -1497,7 +1497,7 @@ shinyServer(
         c_data_sel <- c_data[c_data$SERIES == "Cyclical spline", ]
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
         last_deaths <- nrow(c_data_sel) - which.max(!is.na(rev(c_data_sel[, "NO_DEATHS"]))) + 1
-        x_breaks <- rep(c(1, seq(5, 50, by = 5)), 3) + rep(53 * (0:2), rep(11, 3))
+        x_breaks <- rep(c(1, seq(5, 50, by = 5)), 30) + rep(53 * (0:29), rep(11, 30))
         x_labels <- paste(x_breaks - 53 * trunc(x_breaks / 53))
         x_labels <- x_labels[x_breaks <= last_deaths]
         x_breaks <- x_breaks[x_breaks <= last_deaths]
@@ -1541,7 +1541,7 @@ shinyServer(
         c_data_sel <- c_data[c_data$SERIES == "Historical average", ]
         last_deaths <- nrow(c_data_sel) - which.max(!is.na(rev(c_data_sel[, "NO_DEATHS"]))) + 1
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
-        x_breaks <- rep(c(1, seq(5, 50, by = 5)), 3) + rep(53 * (0:2), rep(11, 3))
+        x_breaks <- rep(c(1, seq(5, 50, by = 5)), 30) + rep(53 * (0:29), rep(11, 30))
         x_labels <- paste(x_breaks - 53 * trunc(x_breaks / 53))
         x_labels <- x_labels[x_breaks <= last_deaths]
         x_breaks <- x_breaks[x_breaks <= last_deaths]
@@ -1585,7 +1585,7 @@ shinyServer(
         last_deaths <- nrow(c_data) / 2 - which.max(!is.na(rev(c_data[1:(nrow(c_data) / 2), "NO_DEATHS"]))) + 1
         c_data_sel <- c_data[c(1:last_deaths, (nrow(c_data) / 2 + (1:last_deaths))), ]
         c_data_sel$YEARPERIOD <- rep(1:last_deaths, 2)
-        x_breaks <- rep(c(1, seq(5, 50, by = 5)), 3) + rep(53 * (0:2), rep(11, 3))
+        x_breaks <- rep(c(1, seq(5, 50, by = 5)), 30) + rep(53 * (0:29), rep(11, 30))
         x_labels <- paste(x_breaks - 53 * trunc(x_breaks / 53))
         x_labels <- x_labels[x_breaks <= last_deaths]
         x_breaks <- x_breaks[x_breaks <= last_deaths]
@@ -1628,7 +1628,7 @@ shinyServer(
         last_deaths <- nrow(c_data_sel) - which.max(!is.na(rev(c_data_sel[, "NO_DEATHS"]))) + 1
         subtitle <- paste0("Recorded deaths from 2020")
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
-        x_breaks <- rep(c(1, seq(5, 50, by = 5)), 3) + rep(53 * (0:2), rep(11, 3))
+        x_breaks <- rep(c(1, seq(5, 50, by = 5)), 30) + rep(53 * (0:29), rep(11, 30))
         x_labels <- paste(x_breaks - 53 * trunc(x_breaks / 53))
         x_labels <- x_labels[x_breaks <= last_deaths]
         x_breaks <- x_breaks[x_breaks <= last_deaths]
@@ -1757,7 +1757,7 @@ shinyServer(
         subtitle <- paste0("excess deaths from ", bquote(2020), " compared to negative binomial regression on available data from the prior period")
         lower <- c_data_sel[1:last_deaths, "LOWER_LIMIT"] - c_data_sel[1:last_deaths, "NO_DEATHS"]
         upper <- c_data_sel[1:last_deaths, "UPPER_LIMIT"] - c_data_sel[1:last_deaths, "NO_DEATHS"]
-        x_breaks <- rep(c(1, seq(5, 50, by = 5)), 3) + rep(53 * (0:2), rep(11, 3))
+        x_breaks <- rep(c(1, seq(5, 50, by = 5)), 30) + rep(53 * (0:29), rep(11, 30))
         x_labels <- paste(x_breaks - 53 * trunc(x_breaks / 53))
         x_labels <- x_labels[x_breaks <= last_deaths]
         x_breaks <- x_breaks[x_breaks <= last_deaths]
@@ -1809,7 +1809,7 @@ shinyServer(
         subtitle <- paste0("excess deaths from ", bquote(2020), " compared to historical average on available data from the prior period")
         lower <- c_data_sel[1:last_deaths, "LOWER_LIMIT"] - c_data_sel[1:last_deaths, "NO_DEATHS"]
         upper <- c_data_sel[1:last_deaths, "UPPER_LIMIT"] - c_data_sel[1:last_deaths, "NO_DEATHS"]
-        x_breaks <- rep(c(1, seq(5, 50, by = 5)), 3) + rep(53 * (0:2), rep(11, 3))
+        x_breaks <- rep(c(1, seq(5, 50, by = 5)), 30) + rep(53 * (0:29), rep(11, 30))
         x_labels <- paste(x_breaks - 53 * trunc(x_breaks / 53))
         x_labels <- x_labels[x_breaks <= last_deaths]
         x_breaks <- x_breaks[x_breaks <= last_deaths]
@@ -1859,7 +1859,7 @@ shinyServer(
         last_deaths <- nrow(c_data) / 2 - which.max(!is.na(rev(c_data[1:(nrow(c_data) / 2), "NO_DEATHS"]))) + 1
         c_data_sel <- c_data[c(1:last_deaths, (nrow(c_data) / 2 + (1:last_deaths))), ]
         c_data_sel$YEARPERIOD <- rep(1:last_deaths, 2)
-        x_breaks <- rep(c(1, seq(5, 50, by = 5)), 3) + rep(53 * (0:2), rep(11, 3))
+        x_breaks <- rep(c(1, seq(5, 50, by = 5)), 30) + rep(53 * (0:29), rep(11, 30))
         x_labels <- paste(x_breaks - 53 * trunc(x_breaks / 53))
         x_labels <- x_labels[x_breaks <= last_deaths]
         x_breaks <- x_breaks[x_breaks <= last_deaths]
@@ -1909,7 +1909,7 @@ shinyServer(
         last_deaths <- nrow(c_data_sel) - which.max(!is.na(rev(c_data_sel[, "NO_DEATHS"]))) + 1
         subtitle <- paste0("Recorded deaths from 2020")
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
-        x_breaks <- rep(c(1, seq(5, 50, by = 5)), 3) + rep(53 * (0:2), rep(11, 3))
+        x_breaks <- rep(c(1, seq(5, 50, by = 5)), 30) + rep(53 * (0:29), rep(11, 30))
         x_labels <- paste(x_breaks - 53 * trunc(x_breaks / 53))
         x_labels <- x_labels[x_breaks <= last_deaths]
         x_breaks <- x_breaks[x_breaks <= last_deaths]
@@ -2031,7 +2031,7 @@ shinyServer(
         subtitle <- paste0("P-score of excess deaths from ", bquote(2020), " compared to negative binomial regression on available data from the prior period")
         lower <- 100 * (c_data_sel[1:last_deaths, "LOWER_LIMIT"] - c_data_sel[1:last_deaths, "NO_DEATHS"]) / c_data_sel[1:last_deaths, "EXPECTED"]
         upper <- 100 * (c_data_sel[1:last_deaths, "UPPER_LIMIT"] - c_data_sel[1:last_deaths, "NO_DEATHS"]) / c_data_sel[1:last_deaths, "EXPECTED"]
-        x_breaks <- rep(c(1, seq(5, 50, by = 5)), 3) + rep(53 * (0:2), rep(11, 3))
+        x_breaks <- rep(c(1, seq(5, 50, by = 5)), 30) + rep(53 * (0:29), rep(11, 30))
         x_labels <- paste(x_breaks - 53 * trunc(x_breaks / 53))
         x_labels <- x_labels[x_breaks <= last_deaths]
         x_breaks <- x_breaks[x_breaks <= last_deaths]
@@ -2083,7 +2083,7 @@ shinyServer(
         subtitle <- paste0("P-score of excess deaths from ", bquote(2020), " compared to historical average on available data from the prior period")
         lower <- 100 * (c_data_sel[1:last_deaths, "LOWER_LIMIT"] - c_data_sel[1:last_deaths, "NO_DEATHS"]) / c_data_sel[1:last_deaths, "EXPECTED"]
         upper <- 100 * (c_data_sel[1:last_deaths, "UPPER_LIMIT"] - c_data_sel[1:last_deaths, "NO_DEATHS"]) / c_data_sel[1:last_deaths, "EXPECTED"]
-        x_breaks <- rep(c(1, seq(5, 50, by = 5)), 3) + rep(53 * (0:2), rep(11, 3))
+        x_breaks <- rep(c(1, seq(5, 50, by = 5)), 30) + rep(53 * (0:29), rep(11, 30))
         x_labels <- paste(x_breaks - 53 * trunc(x_breaks / 53))
         x_labels <- x_labels[x_breaks <= last_deaths]
         x_breaks <- x_breaks[x_breaks <= last_deaths]
@@ -2133,7 +2133,7 @@ shinyServer(
         last_deaths <- nrow(c_data) / 2 - which.max(!is.na(rev(c_data[1:(nrow(c_data) / 2), "NO_DEATHS"]))) + 1
         c_data_sel <- c_data[c(1:last_deaths, (nrow(c_data) / 2 + (1:last_deaths))), ]
         c_data_sel$YEARPERIOD <- rep(1:last_deaths, 2)
-        x_breaks <- rep(c(1, seq(5, 50, by = 5)), 3) + rep(53 * (0:2), rep(11, 3))
+        x_breaks <- rep(c(1, seq(5, 50, by = 5)), 30) + rep(53 * (0:29), rep(11, 30))
         x_labels <- paste(x_breaks - 53 * trunc(x_breaks / 53))
         x_labels <- x_labels[x_breaks <= last_deaths]
         x_breaks <- x_breaks[x_breaks <= last_deaths]
@@ -2183,7 +2183,7 @@ shinyServer(
         last_deaths <- nrow(c_data_sel) - which.max(!is.na(rev(c_data_sel[, "NO_DEATHS"]))) + 1
         subtitle <- paste0("Recorded deaths from 2020")
         c_data_sel$YEARPERIOD <- 1:nrow(c_data_sel)
-        x_breaks <- rep(c(1, seq(5, 50, by = 5)), 3) + rep(53 * (0:2), rep(11, 3))
+        x_breaks <- rep(c(1, seq(5, 50, by = 5)), 30) + rep(53 * (0:29), rep(11, 30))
         x_labels <- paste(x_breaks - 53 * trunc(x_breaks / 53))
         x_labels <- x_labels[x_breaks <= last_deaths]
         x_breaks <- x_breaks[x_breaks <= last_deaths]
