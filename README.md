@@ -20,7 +20,7 @@ The app can be run in two ways:
 * Offline by first installing it on your local machine using the WPROACM R package. First install `R` (if you have not already). Then open `R` and type in the `R` Console:
 
 ```r
-source("https://faculty.stat.ucla.edu/handcock/WPROACM.R")`
+source("https://faculty.stat.ucla.edu/handcock/WPROACM.R")
 ```
 
 then `R` should install the app and close. There will then be an app called "WPROACM" in your "Documents" folder. If you double-click on that, it will run the calculator in the browser (no R/Rstudio involved).
