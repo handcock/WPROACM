@@ -172,6 +172,14 @@ shinyServer(
       )
     })
 
+    output$covidstartdate <- renderUI({
+      dateInput("COVIDstartdate",
+        label = "COVID start date",
+        value = "2020-01-01",
+        min = "2019-12-01",
+        startview = "month"
+      )
+    })
     # output$age <- renderUI({
     #   selectizeInput('age_list', label=NULL,
     #     choices=output_age() )
@@ -285,6 +293,28 @@ shinyServer(
         # a[is.na(a) & col(a) <= (last.data-2)] <- 0
         age <- as.data.frame(ACM_all[, 1])[seq(len.header, max(len.header, nrow(ACM_all)), by = 3), 1]
         age <- age[age != ""]
+        # Set the COVID period
+        covidstart <- grep("START", as.character(ACM_all[4,]),fixed=TRUE)
+        covidend   <- grep("END",   as.character(ACM_all[4,]),fixed=TRUE)
+        if(length(covidstart)==0){
+          covidstart <- which(as.character(ACM_all[1,])=="2020" & as.character(ACM_all[5,])=="1") }
+          if(len.header==6){
+            if(length(covidstart)==0){ covidstart <- min(268, nrow(a)) }
+          }else{
+            if(length(covidstart)==0){ covidstart <- min(65, nrow(a)) }
+          }
+        if(length(covidend  )==0){
+          if(len.header==6){
+            covidend   <- which(as.character(ACM_all[1,])=="2023" & as.character(ACM_all[5,])=="18")
+            if(length(covidend  )==0){ covidend <- min(444, nrow(a)) }
+          }else{
+            covidend   <- which(as.character(ACM_all[1,])=="2023" & as.character(ACM_all[5,])=="5")
+            if(length(covidend  )==0){ covidend <- min(101, nrow(a)) }
+          }
+        }
+        covid <- matrix(0, ncol=ncol(a), nrow=nrow(a))
+        covid[,(covidstart-2):(covidend-2)] <- 1
+        #
         ACM_var <- data.frame(
           REGION = rep(input$chosesheet, length(a)),
           AGE_GROUP = rep(rep(age, rep(3, length(age)))[is.data > 12], rep(ncol(a), 3 * length(age))[is.data > 12])[1:length(a)],
@@ -292,6 +322,7 @@ shinyServer(
           YEAR = rep(as.numeric(ACM_all[1, 3:last.year]), nrow(a)),
           DAYS = rep(as.numeric(ACM_all[3, 3:last.year]), nrow(a)),
           PERIOD = rep(as.numeric(ACM_all[ifelse(len.header == 6, 5, 3), 3:last.year]), nrow(a)),
+          COVID = as.vector(t(covid)),
           NO_DEATHS = as.vector(t(a))
         )
       }

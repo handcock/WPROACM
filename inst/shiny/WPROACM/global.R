@@ -124,16 +124,9 @@ calculate_spline <- function(src) {
     day <- cumsum(c(0, dom))[src$PERIOD] + 15
    #DATE <- cumsum(c(0, 365, 366, 365, 365, 365, 366, 365, 365))[src$YEAR - minyear] + day
     DATE <- cumsum(c(0, rep(365, nys)))[src$YEAR - minyear] + day
-    COVID_start_day <- cumsum(c(0, rep(365, nys)))[2020 - minyear] + 1
-    COVID_end_day <- cumsum(c(0, rep(365, nys)))[2023 - minyear] + cumsum(c(0, dom))[5] + 14 
   } else {
     day <- cumsum(c(0, rep(7,53)))[src$PERIOD] + 3.5
     DATE <- cumsum(c(0, rep(365, nys)))[src$YEAR - minyear] + day
-# Next lines just for MNG2024 flu
-    COVID_start_day <- cumsum(c(0, rep(365, nys)))[2020 - minyear] + 1
-    COVID_start_day <- cumsum(c(0, rep(365, nys)))[2020 - minyear] + 1 + cumsum(c(0, rep(7,52)))[43]
-    COVID_end_day <- cumsum(c(0, rep(365, nys)))[2023 - minyear] + cumsum(c(0, rep(7,52)))[18] + 3
-    COVID_end_day <- cumsum(c(0, rep(365, nys)))[2023 - minyear]
   }
 
   src$DATE <- DATE
@@ -157,7 +150,7 @@ calculate_spline <- function(src) {
 
   for (j in 1:n_pat) {
     patt_src <- src[paste(src$SEX, src$AGE_GROUP) == pattern[j],]
-    hist_src <- patt_src[patt_src$DATE < COVID_start_day | patt_src$DATE > COVID_end_day,]
+    hist_src <- patt_src[patt_src$COVID!=1,]
     if (sum(hist_src$NO_DEATHS, na.rm = TRUE) == 0) next
     if (l_period > 51) {
       day <- cumsum(c(0, rep(7,53)))[patt_src$PERIOD] + 3.5
@@ -344,7 +337,7 @@ calculate_spline <- function(src) {
 
   attr(out, "num_deaths") <- sum(!is.na(hist_src$NO_DEATHS)) / l_period
   attr(out, "SE_cumulative_deaths") <- scv
-  print(scv)
+# print(scv)
 
   return(out)
 }
