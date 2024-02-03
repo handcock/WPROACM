@@ -294,22 +294,23 @@ shinyServer(
         age <- as.data.frame(ACM_all[, 1])[seq(len.header, max(len.header, nrow(ACM_all)), by = 3), 1]
         age <- age[age != ""]
         # Set the COVID period
-        covidstart <- grep("START", as.character(ACM_all[4,]),fixed=TRUE)
-        covidend   <- grep("END",   as.character(ACM_all[4,]),fixed=TRUE)
+        covidstart <- grep("START", as.character(ACM_all[ifelse(len.header == 6, 4, 2),]),fixed=TRUE)
+        covidend   <- grep("END",   as.character(ACM_all[ifelse(len.header == 6, 4, 2),]),fixed=TRUE)
         if(length(covidstart)==0){
-          covidstart <- which(as.character(ACM_all[1,])=="2020" & as.character(ACM_all[5,])=="1") }
+          covidstart <- which(as.character(ACM_all[1,])=="2020" & as.character(ACM_all[ifelse(len.header == 6, 5, 3),])=="1")
           if(len.header==6){
-            if(length(covidstart)==0){ covidstart <- min(268, nrow(a)) }
+            if(length(covidstart)==0){ covidstart <- min(268, ncol(a)+2) }
           }else{
-            if(length(covidstart)==0){ covidstart <- min(65, nrow(a)) }
+            if(length(covidstart)==0){ covidstart <- min(65, ncol(a)+2) }
           }
+        }
         if(length(covidend  )==0){
           if(len.header==6){
-            covidend   <- which(as.character(ACM_all[1,])=="2023" & as.character(ACM_all[5,])=="18")
-            if(length(covidend  )==0){ covidend <- min(444, nrow(a)) }
+            covidend   <- which(as.character(ACM_all[1,])=="2023" & as.character(ACM_all[ifelse(len.header == 6, 5, 3),])=="18")
+            if(length(covidend  )==0){ covidend <- min(444, ncol(a)+2) }
           }else{
-            covidend   <- which(as.character(ACM_all[1,])=="2023" & as.character(ACM_all[5,])=="5")
-            if(length(covidend  )==0){ covidend <- min(101, nrow(a)) }
+            covidend   <- which(as.character(ACM_all[1,])=="2023" & as.character(ACM_all[ifelse(len.header == 6, 5, 3),])=="5")
+            if(length(covidend  )==0){ covidend <- min(101, ncol(a)+2) }
           }
         }
         covid <- matrix(0, ncol=ncol(a), nrow=nrow(a))

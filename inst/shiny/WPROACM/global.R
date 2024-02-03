@@ -150,6 +150,7 @@ calculate_spline <- function(src) {
 
   for (j in 1:n_pat) {
     patt_src <- src[paste(src$SEX, src$AGE_GROUP) == pattern[j],]
+    # Remove COVID period
     hist_src <- patt_src[patt_src$COVID!=1,]
     if (sum(hist_src$NO_DEATHS, na.rm = TRUE) == 0) next
     if (l_period > 51) {
